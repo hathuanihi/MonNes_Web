@@ -9,8 +9,9 @@ import Flag from "@/assets/icon/image 1.png";
 import DropdownArrow from "@/assets/icon/DropdownArrow.png";
 import Pen from "@/assets/icon/Pen.png";
 import { getCountryByCode } from '@/components/CountryCodes';
+import UserInfor from '@/components/UserInfor';
 
-interface User {
+export interface User {
   name: string;
   location: string;
   image?: string;
@@ -99,7 +100,7 @@ function UserInfoBar({ searchTerm, setSearchTerm }: UserInfoBarProps) {
           className="outline-none w-full pointer-events-auto"
         />
       </div>
-      <h2 className="mt-4 sm:mt-2 text-2xl sm:text-4xl font-bold uppercase text-white text-left mr-115">
+      <h2 className="mt-4 sm:mt-2 text-2xl sm:text-4xl font-bold uppercase text-white text-left mr-123">
         USER INFORMATION
       </h2>
     </div>
@@ -141,10 +142,10 @@ function UserList({ filteredUsers, selectedUser, handleUserSelect }: UserListPro
 export default function Management() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedName, setEditedName] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editedImage, setEditedImage] = useState<string | null>(null);
   const [openSavings, setOpenSavings] = useState<{ [key: string]: boolean }>({});
+  
 
   const filteredUsers = users.filter((user) =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -169,20 +170,19 @@ export default function Management() {
   const handleUserSelect = (user: User) => {
     if (selectedUser === user) {
       setSelectedUser(null);
-      setIsEditing(false);
       setOpenSavings({});
     } else {
       setSelectedUser(user);
-      setEditedName(user.name);
       setEditedImage(user.image || null);
     }
   };
 
-  const handleSaveEdit = () => {
-    if (selectedUser) {
-      selectedUser.name = editedName;
-      selectedUser.image = editedImage || selectedUser.image;
-      setIsEditing(false);
+  const handleUpdateUser = (updatedUser: User) => {
+    // Update the users array with the new user data
+    const userIndex = users.findIndex((u) => u.name === selectedUser?.name && u.location === selectedUser?.location);
+    if (userIndex !== -1) {
+      users[userIndex] = updatedUser;
+      setSelectedUser(updatedUser);
     }
   };
 
@@ -191,7 +191,7 @@ export default function Management() {
   return (
     <div className="min-h-screen bg-white text-black">
       <AdminHeader />
-      <main className="px-10 pt-10 pb-6 mt-6 flex flex-col relative">
+      <main className="px-0 pt-10 pb-6 mt-6 flex flex-col relative">
         <UserInfoBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <UserList
           filteredUsers={filteredUsers}
@@ -214,31 +214,15 @@ export default function Management() {
                     className="rounded-full mb-2"
                   />
                   <div className="flex items-center">
-                    {isEditing ? (
-                      <>
-                        <input
-                          type="text"
-                          value={editedName}
-                          onChange={(e) => setEditedName(e.target.value)}
-                          className="text-xl font-bold text-[#FF086A] bg-transparent border-b border-[#FF086A] outline-none mr-2"
-                        />
-                        <button onClick={handleSaveEdit} className="text-[#FF086A]">
-                          Save
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <h3 className="text-xl font-bold text-[#FF086A]">{selectedUser.name}</h3>
-                        <Image
-                          src={Pen}
-                          alt="Edit Icon"
-                          width={16}
-                          height={16}
-                          className="ml-2 cursor-pointer"
-                          onClick={() => setIsEditing(true)}
-                        />
-                      </>
-                    )}
+                  <h3 className="text-xl font-bold text-[#FF086A]">{selectedUser.name}</h3>
+                    <Image
+                      src={Pen}
+                      alt="Edit Icon"
+                      width={16}
+                      height={16}
+                      className="ml-2 cursor-pointer"
+                      onClick={() => setIsModalOpen(true)}
+                    />
                   </div>
                 </div>
                 <div className="flex items-center mb-2">
@@ -310,6 +294,17 @@ export default function Management() {
           </div>
         )}
       </main>
+
+      {/* UserInfor Modal */}
+      {isModalOpen && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <UserInfor
+            user={selectedUser}
+            onUpdate={handleUpdateUser}
+            onClose={() => setIsModalOpen(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }

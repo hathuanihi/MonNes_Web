@@ -28,7 +28,7 @@ export default function HomePage() {
                         </p>
                         <div className="mt-20 text-2xl">
                             <a
-                                href="/signin"
+                                href="/admin/dashboard"
                                 className="font-bold px-6 py-3 max-w-md ml-45 bg-pink-500 text-white rounded-full hover:bg-pink-600"
                             >
                                 Revenue Dashboard
