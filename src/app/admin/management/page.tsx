@@ -275,7 +275,7 @@ export default function Management() {
                       </div>
                       {openSavings[key] && (
                         <div className="bg-white rounded-lg px-2 py-1 mt-1 text-[#FF086A]">
-                          <p>Customer's Name: {saving.details.customerName}</p>
+                          <p>Customer&apos;s Name: {saving.details.customerName}</p>
                           <p>National ID Card: {saving.details.nationalId}</p>
                           <p>Deposit Amount: {saving.details.depositAmount}</p>
                           <p>Deposit Term: {saving.details.depositTerm}</p>

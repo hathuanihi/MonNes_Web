@@ -58,7 +58,7 @@ const NewSavings = () => {
   const handleCancel = () => router.push("/user/yoursavings");
 
   return (
-      <div className="w-full min-h-screen bg-gradient-to-br from-[#FFE2E9] via-[#FFF6F6] to-[#E2F4FF] flex flex-col">
+      <div className="w-full min-h-screen bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB] flex flex-col">
         <div className="fixed top-0 left-0 right-0 z-50">
           <UserHeader />
         </div>
@@ -70,12 +70,12 @@ const NewSavings = () => {
           <form onSubmit={handleSubmit} className="relative">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-10 text-lg">
-                <div className="font-medium">Name of Savings</div>
-                <div className="font-medium mt-[43px]">Your Name</div>
-                <div className="font-medium mt-[54px]">Address</div>
-                <div className="font-medium mt-[54px]">National ID Card</div>
-                <div className="font-medium mt-[54px]">Deposit Amount</div>
-                <div className="font-medium mt-[54px]">Deposit Term</div>
+                <div className="font-medium text-black">Name of Savings</div>
+                <div className="font-medium text-black mt-[43px]">Your Name</div>
+                <div className="font-medium text-black mt-[54px]">Address</div>
+                <div className="font-medium text-black mt-[54px]">National ID Card</div>
+                <div className="font-medium text-black mt-[54px]">Deposit Amount</div>
+                <div className="font-medium text-black mt-[54px]">Deposit Term</div>
               </div>
 
               <div className="col-span-2 pl-6 md:pl-20">
@@ -86,8 +86,7 @@ const NewSavings = () => {
                       name="savingsName"
                       value={formData.savingsName}
                       onChange={handleChange}
-                      className="w-full text-lg bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"
-                    />
+                      className="w-full text-lg text-black font-medium bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"                    />
                     {errors.savingsName && <p className="text-red-500 text-sm mt-1 ml-4">{errors.savingsName}</p>}
                   </div>
 
@@ -97,8 +96,7 @@ const NewSavings = () => {
                       name="userName"
                       value={formData.userName}
                       onChange={handleChange}
-                      className="w-full text-lg bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"
-                    />
+                      className="w-full text-lg text-black font-medium bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"                    />
                     {errors.userName && <p className="text-red-500 text-sm mt-1 ml-4">{errors.userName}</p>}
                   </div>
 
@@ -108,8 +106,7 @@ const NewSavings = () => {
                       name="address"
                       value={formData.address}
                       onChange={handleChange}
-                      className="w-full text-lg bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"
-                    />
+                      className="w-full text-lg text-black font-medium bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"                    />
                     {errors.address && <p className="text-red-500 text-sm mt-1 ml-4">{errors.address}</p>}
                   </div>
 
@@ -119,8 +116,7 @@ const NewSavings = () => {
                       name="nationalId"
                       value={formData.nationalId}
                       onChange={handleChange}
-                      className="w-full text-lg bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"
-                    />
+                      className="w-full text-lg text-black font-medium bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"                    />
                     {errors.nationalId && <p className="text-red-500 text-sm mt-1 ml-4">{errors.nationalId}</p>}
                   </div>
 
@@ -130,14 +126,13 @@ const NewSavings = () => {
                       name="depositAmount"
                       value={formData.depositAmount}
                       onChange={handleChange}
-                      className="w-full text-lg bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"
-                    />
+                      className="w-full text-lg text-black font-medium bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"                    />
                     {errors.depositAmount && <p className="text-red-500 text-sm mt-1 ml-4">{errors.depositAmount}</p>}
                   </div>
 
                   <div className="mt-10 relative">
                     <div
-                      className="w-full text-lg bg-transparent border-b border-black/20 pb-2 flex justify-between items-center cursor-pointer ml-4"
+                      className="w-full text-lg bg-transparent text-black border-b border-black/20 pb-2 flex justify-between items-center cursor-pointer ml-4"
                       onClick={() => setDropdownOpen(!dropdownOpen)}
                     >
                       <span>{formData.depositTerm}</span>
@@ -154,7 +149,7 @@ const NewSavings = () => {
                     </div>
 
                     {dropdownOpen && (
-                      <div className="absolute z-10 w-full bg-white shadow-lg rounded-md mt-1 ml-4">
+                      <div className="absolute text-black z-10 w-full bg-white shadow-lg rounded-md mt-1 ml-4">
                         {["3 months", "6 months", "9 months"].map((term) => (
                           <div
                             key={term}

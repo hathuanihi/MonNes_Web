@@ -25,7 +25,7 @@ export default function UserInfor({ user, onUpdate, onClose }: UserInforProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(
     formData.dateOfBirth ? new Date(formData.dateOfBirth.split("/").reverse().join("-")) : null
   );
-  const datePickerRef = useRef<any>(null);
+  const datePickerRef = useRef<DatePicker | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -84,7 +84,7 @@ export default function UserInfor({ user, onUpdate, onClose }: UserInforProps) {
 
     const cleanSavings = updatedSavings
       ? Object.fromEntries(
-          Object.entries(updatedSavings).filter(([_, value]) => value !== undefined)
+          Object.entries(updatedSavings).filter(([, value]) => value !== undefined)
         ) as {
           [key: string]: {
             amount: string;
@@ -132,7 +132,7 @@ export default function UserInfor({ user, onUpdate, onClose }: UserInforProps) {
         >
           <div className="relative w-[1000px] h-[555px] bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="flex flex-col items-center justify-center h-full p-6">
-              <h2 className="text-5xl font-bold text-[#FF086A] mb-4">Update Customer's Profile</h2>
+              <h2 className="text-5xl font-bold text-[#FF086A] mb-4">Update Customer&apos;s Profile</h2>
               <div className="w-full max-w-[600px] space-y-2">
                 {/* Full Name */}
                 <div className="grid grid-cols-2 items-center border-b border-gray-300 py-2">

@@ -4,14 +4,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import logoHeader from '@/assets/logoHeader.png'; 
 import user from '@/assets/user.png';
-import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 const Header = () => {
-  const [activeLink, setActiveLink] = useState<string | null>(null);
-
-  const handleLinkClick = (link: string) => {
-    setActiveLink(link);
-  };
+  const pathname = usePathname();
 
   return (
     <header className="bg-white text-black p-4 shadow-md relative h-15">
@@ -31,24 +27,21 @@ const Header = () => {
           <li>
             <Link 
               href="/user/home"
-              onClick={() => handleLinkClick('home')}
-              className={activeLink === 'home' ? 'text-pink-700' : 'text-black'}
-              >Home
+              className={pathname === '/user/home' ? 'text-pink-700 font-bold' : 'text-black'}
+            >Home
             </Link>
           </li>
           <li>
             <Link 
               href="/user/yoursavings"
-              onClick={() => handleLinkClick('your_savings')}
-              className={activeLink === 'yoursavings' ? 'text-pink-700' : 'text-black'}
-              >Your Savings
+              className={pathname === '/user/yoursavings' ? 'text-pink-700 font-bold' : 'text-black'}
+            >Your Savings
             </Link>
           </li>
           <li>
             <Link 
               href="/signin"
-              onClick={() => handleLinkClick('dashboard')}
-              className={activeLink === 'dashboard' ? 'text-pink-700' : 'text-black'}
+              className={pathname === '/signin' || pathname === '/user/dashboard' ? 'text-pink-700 font-bold' : 'text-black'}
             >Dashboard
             </Link>
           </li>

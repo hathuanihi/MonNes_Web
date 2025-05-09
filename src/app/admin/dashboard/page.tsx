@@ -12,6 +12,11 @@ import {
   Legend,
   ChartOptions,
   ChartData,
+  Chart,
+  ChartType,
+  TooltipItem,
+  Scale,
+  CoreScaleOptions,
 } from 'chart.js';
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,8 +27,9 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 // Plugin để đặt màu nền cho biểu đồ
 const backgroundColorPlugin = {
   id: 'customBackground',
-  beforeDraw: (chart: any) => {
+  beforeDraw: (chart: Chart) => {
     const { ctx, chartArea } = chart;
+    if (!chartArea) return;
     ctx.save();
     ctx.fillStyle = '#FFD6E7'; // Màu nền biểu đồ
     ctx.fillRect(
@@ -135,22 +141,23 @@ function RevenueDashboard() {
 
 // Component Dashboard
 export default function Dashboard() {
-  const chartRef1 = useRef<any>(null);
-  const chartRef2 = useRef<any>(null);
-  const chartRef3 = useRef<any>(null);
+  const chartRef1 = useRef<ChartJS<'bar'>>(null);
+  const chartRef2 = useRef<ChartJS<'bar'>>(null);
+  const chartRef3 = useRef<ChartJS<'bar'>>(null);
   const [showRevenueDashboard, setShowRevenueDashboard] = useState(false); // State để chuyển đổi giao diện
 
   // Hàm tạo gradient cho cột
-  const createGradient = (chart: any) => {
+  const createGradient = (chart: ChartJS<ChartType>) => {
     const { ctx, chartArea } = chart;
+    if (!chartArea) return null;
     const gradient = ctx.createLinearGradient(
       chartArea.left,
       chartArea.bottom,
       chartArea.right,
       chartArea.top
     );
-    gradient.addColorStop(0, '#FB5D5D'); // 0% - hồng cam
-    gradient.addColorStop(1, '#F19BDB'); // 100% - hồng tím nhạt
+    gradient.addColorStop(0, '#FB5D5D');
+    gradient.addColorStop(1, '#F19BDB');
     return gradient;
   };
 
@@ -159,10 +166,12 @@ export default function Dashboard() {
     const chart = chartRef1.current;
     if (chart) {
       const gradient = createGradient(chart);
-      chart.data.datasets[0].backgroundColor = gradient;
-      chart.data.datasets[0].hoverBackgroundColor = '#FF7F7F'; // Màu hover hồng nhạt
-      chart.data.datasets[0].borderColor = '#FFF5B5'; // Giữ màu viền
-      chart.update();
+      if (gradient) {
+        chart.data.datasets[0].backgroundColor = gradient;
+        chart.data.datasets[0].hoverBackgroundColor = '#FF7F7F';
+        chart.data.datasets[0].borderColor = '#FFF5B5';
+        chart.update();
+      }
     }
   }, []);
 
@@ -171,10 +180,12 @@ export default function Dashboard() {
     const chart = chartRef2.current;
     if (chart) {
       const gradient = createGradient(chart);
-      chart.data.datasets[0].backgroundColor = gradient;
-      chart.data.datasets[0].hoverBackgroundColor = '#FF7F7F'; // Màu hover hồng nhạt
-      chart.data.datasets[0].borderColor = '#FFF5B5'; // Giữ màu viền
-      chart.update();
+      if (gradient) {
+        chart.data.datasets[0].backgroundColor = gradient;
+        chart.data.datasets[0].hoverBackgroundColor = '#FF7F7F';
+        chart.data.datasets[0].borderColor = '#FFF5B5';
+        chart.update();
+      }
     }
   }, []);
 
@@ -183,12 +194,14 @@ export default function Dashboard() {
     const chart = chartRef3.current;
     if (chart) {
       const gradient = createGradient(chart);
-      chart.data.datasets.forEach((dataset: any) => {
-        dataset.backgroundColor = gradient;
-        dataset.hoverBackgroundColor = '#FF7F7F'; // Màu hover hồng nhạt
-        dataset.borderColor = '#FFF5B5'; // Giữ màu viền
-      });
-      chart.update();
+      if (gradient) {
+        chart.data.datasets.forEach((dataset) => {
+          dataset.backgroundColor = gradient;
+          dataset.hoverBackgroundColor = '#FF7F7F';
+          dataset.borderColor = '#FFF5B5';
+        });
+        chart.update();
+      }
     }
   }, []);
 
@@ -198,10 +211,10 @@ export default function Dashboard() {
     datasets: [
       {
         label: 'Revenue (VND)',
-        data: [1000000], // 1,000,000 VND
+        data: [1000000],
         borderColor: '#FFF5B5',
         borderWidth: 2,
-        backgroundColor: '#FF4500', // Giá trị ban đầu, sẽ được thay bằng gradient
+        backgroundColor: '#FF4500',
         hoverBackgroundColor: '#FF7F7F',
       },
     ],
@@ -223,7 +236,8 @@ export default function Dashboard() {
       },
       tooltip: {
         callbacks: {
-          label: (context: any) => `${context.dataset.label}: ${context.raw.toLocaleString()} VND`,
+          label: (context: TooltipItem<'bar'>) => 
+            `${context.dataset.label}: ${context.raw?.toLocaleString()} VND`,
         },
       },
     },
@@ -234,7 +248,9 @@ export default function Dashboard() {
           color: '#C93030',
           stepSize: 200000,
           font: { size: 14 },
-          callback: (value: any) => `${value.toLocaleString()} VND`,
+          callback: function(this: Scale<CoreScaleOptions>, value: number | string) {
+            return `${Number(value).toLocaleString()} VND`;
+          },
         },
         grid: { color: 'rgba(255, 255, 255, 0.2)' },
       },
@@ -251,10 +267,10 @@ export default function Dashboard() {
     datasets: [
       {
         label: 'Users',
-        data: [10], // 10 users
+        data: [10],
         borderColor: '#FFF5B5',
         borderWidth: 2,
-        backgroundColor: '#60A5FA', // Giá trị ban đầu, sẽ được thay bằng gradient
+        backgroundColor: '#60A5FA',
         hoverBackgroundColor: '#FF7F7F',
       },
     ],
@@ -276,7 +292,8 @@ export default function Dashboard() {
       },
       tooltip: {
         callbacks: {
-          label: (context: any) => `${context.dataset.label}: ${context.raw} users`,
+          label: (context: TooltipItem<'bar'>) => 
+            `${context.dataset.label}: ${context.raw} users`,
         },
       },
     },
@@ -287,7 +304,9 @@ export default function Dashboard() {
           color: '#C93030',
           stepSize: 2,
           font: { size: 14 },
-          callback: (value: any) => `${value} users`,
+          callback: function(this: Scale<CoreScaleOptions>, value: number | string) {
+            return `${value} users`;
+          },
         },
         grid: { color: 'rgba(255, 255, 255, 0.2)' },
       },
@@ -304,18 +323,18 @@ export default function Dashboard() {
     datasets: [
       {
         label: 'Revenue (VND)',
-        data: [500000000], // 500,000,000 VND
+        data: [500000000],
         borderColor: '#FFF5B5',
         borderWidth: 2,
-        backgroundColor: '#FF4500', // Giá trị ban đầu, sẽ được thay bằng gradient
+        backgroundColor: '#FF4500',
         hoverBackgroundColor: '#FF7F7F',
       },
       {
         label: 'Savings Accounts',
-        data: [100], // 100 accounts
+        data: [100],
         borderColor: '#FFF5B5',
         borderWidth: 2,
-        backgroundColor: '#34D399', // Giá trị ban đầu, sẽ được thay bằng gradient
+        backgroundColor: '#34D399',
         hoverBackgroundColor: '#FF7F7F',
       },
     ],
@@ -338,9 +357,9 @@ export default function Dashboard() {
       },
       tooltip: {
         callbacks: {
-          label: (context: any) => {
+          label: (context: TooltipItem<'bar'>) => {
             if (context.dataset.label === 'Revenue (VND)') {
-              return `${context.dataset.label}: ${context.raw.toLocaleString()} VND`;
+              return `${context.dataset.label}: ${context.raw?.toLocaleString()} VND`;
             }
             return `${context.dataset.label}: ${context.raw} accounts`;
           },
@@ -354,7 +373,9 @@ export default function Dashboard() {
           color: '#C93030',
           stepSize: 100000000,
           font: { size: 14 },
-          callback: (value: any) => `${value.toLocaleString()}`,
+          callback: function(this: Scale<CoreScaleOptions>, value: number | string) {
+            return `${Number(value).toLocaleString()}`;
+          },
         },
         grid: { color: 'rgba(255, 255, 255, 0.2)' },
       },

@@ -54,7 +54,7 @@ export default function SignUp() {
                 password: formData.password
             });
             router.push('/signin');
-        } catch (err: any) {
+        } catch {
             setError('Registration failed. Please try again.');
         } finally {
             setIsLoading(false);
