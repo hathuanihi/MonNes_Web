@@ -198,6 +198,22 @@ declare global {
         giaoDichGanDayNhat?: GiaoDichDTO[];
     }
 
+    // Đăng ký tài khoản qua email/passcode
+    interface SignupRequestPasscodeRequest {
+        email: string;
+    }
+    interface SignupVerifyPasscodeRequest {
+        email: string;
+        passcode: string;
+    }
+    interface SignupCompleteRequest {
+        email: string;
+        phoneNumber: string;
+        password: string;
+        confirmPassword?: string;
+        passcode: string;
+    }
+
     // Cho Pageable response từ Spring Data
     interface Page<T> {
         content: T[];

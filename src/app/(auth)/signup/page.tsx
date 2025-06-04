@@ -8,61 +8,90 @@ import Link from "next/link";
 import eye_open from '@/assets/icon/eyeopen.png'; // Đảm bảo path đúng
 import eye_off from '@/assets/icon/eyeoff.png';   // Đảm bảo path đúng
 import { useRouter } from 'next/navigation';
-import { registerAPI } from '@/services/api';   // Đảm bảo path đúng
+import { requestSignupPasscodeAPI, verifySignupPasscodeAPI, completeSignupAPI } from '@/services/api';   // Đảm bảo path đúng
 
 export default function SignUp() {
+    const [step, setStep] = useState(1); // 1: nhập email, 2: nhập passcode, 3: nhập phone+password
+    const [email, setEmail] = useState('');
+    const [passcode, setPasscode] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [formData, setFormData] = useState<Omit<RegisterRequest, 'confirmPassword'> & { confirmPasswordValue: string }>({
-        email: '',
-        phoneNumber: '',
-        password: '',
-        confirmPasswordValue: ''
-    });
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    // Step 1: Gửi passcode về email
+    const handleSendPasscode = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError('');
         setSuccessMessage('');
-
-        if (!formData.email || !formData.phoneNumber || !formData.password || !formData.confirmPasswordValue) {
-            setError('Vui lòng điền đầy đủ thông tin.');
+        if (!email) {
+            setError('Vui lòng nhập email.');
             return;
         }
-        if (formData.password !== formData.confirmPasswordValue) {
+        setIsLoading(true);
+        try {
+            await requestSignupPasscodeAPI({ email });
+            setStep(2);
+            setSuccessMessage('Mã xác thực đã được gửi về email.');
+        } catch (err: any) {
+            setError(err?.response?.data?.message || err?.message || 'Lỗi khi gửi mã xác thực.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Step 2: Xác thực passcode
+    const handleVerifyPasscode = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setError('');
+        setSuccessMessage('');
+        if (!passcode) {
+            setError('Vui lòng nhập mã xác thực.');
+            return;
+        }
+        setIsLoading(true);
+        try {
+            await verifySignupPasscodeAPI({ email, passcode });
+            setStep(3);
+            setSuccessMessage('Xác thực thành công. Vui lòng hoàn tất thông tin đăng ký.');
+        } catch (err: any) {
+            setError(err?.response?.data?.message || err?.message || 'Mã xác thực không đúng.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Step 3: Đăng ký tài khoản
+    const handleCompleteSignup = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setError('');
+        setSuccessMessage('');
+        if (!phoneNumber || !password || !confirmPassword) {
+            setError('Vui lòng nhập đầy đủ thông tin.');
+            return;
+        }
+        if (password !== confirmPassword) {
             setError('Mật khẩu xác nhận không khớp.');
             return;
         }
-        if (formData.password.length < 6) {
+        if (password.length < 6) {
             setError('Mật khẩu phải có ít nhất 6 ký tự.');
             return;
         }
-
         setIsLoading(true);
         try {
-            const dataToSend: RegisterRequest = {
-                email: formData.email,
-                phoneNumber: formData.phoneNumber,
-                password: formData.password,
-            };
-            const responseData: UserResponse = await registerAPI(dataToSend);
-            console.log('Signup response:', responseData);
+            await completeSignupAPI({ email, phoneNumber, password, confirmPassword, passcode });
             setSuccessMessage('Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập.');
             setTimeout(() => {
-                 router.push('/signin');
+                router.push('/signin');
             }, 2000);
-        } catch (error: any) {
-            console.error('Signup error:', error);
-            setError(error.message || 'Đăng ký thất bại. Email hoặc số điện thoại có thể đã được sử dụng.');
+        } catch (err: any) {
+            setError(err?.response?.data?.message || err?.message || 'Đăng ký thất bại.');
         } finally {
             setIsLoading(false);
         }
@@ -85,94 +114,131 @@ export default function SignUp() {
                                 Đăng ký
                             </button>
                         </div>
-                        <form className="space-y-5" onSubmit={handleSubmit}>
-                            <div>
-                                <label htmlFor="emailInputReg" className="block mb-1 font-medium text-sm text-gray-700">Email</label>
-                                <input
-                                    id="emailInputReg"
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    placeholder="Nhập email của bạn"
-                                    className="w-full border border-gray-300 rounded-md px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
-                                    disabled={isLoading}
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="phoneNumberInputReg" className="block mb-1 font-medium text-sm text-gray-700">Số điện thoại</label>
-                                <input
-                                    id="phoneNumberInputReg"
-                                    type="tel"
-                                    name="phoneNumber"
-                                    value={formData.phoneNumber}
-                                    onChange={handleChange}
-                                    placeholder="Nhập số điện thoại"
-                                    className="w-full border border-gray-300 rounded-md px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
-                                    disabled={isLoading}
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="passwordRegInput" className="block mb-1 font-medium text-sm text-gray-700">Mật khẩu</label>
-                                <div className="relative">
+                        {step === 1 && (
+                            <form className="space-y-6" onSubmit={handleSendPasscode}>
+                                <div>
+                                    <label htmlFor="emailInputReg" className="block mb-1 font-medium text-sm text-gray-700">Email</label>
                                     <input
-                                        id="passwordRegInput"
-                                        type={showPassword ? "text" : "password"}
-                                        name="password"
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        placeholder="Tạo mật khẩu (ít nhất 6 ký tự)"
-                                        className="w-full border border-gray-300 rounded-md px-4 py-3 pr-12 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
-                                        disabled={isLoading}
-                                        required
-                                        minLength={6}
-                                    />
-                                     <button
-                                        type="button"
-                                        className="absolute right-0 top-0 h-full px-4 flex items-center text-gray-500 hover:text-pink-600"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                                    >
-                                        <Image src={showPassword ? eye_open : eye_off} alt={showPassword ? "Hiện" : "Ẩn"} width={20} height={20}/>
-                                    </button>
-                                </div>
-                            </div>
-                            <div>
-                                <label htmlFor="confirmPasswordInputReg" className="block mb-1 font-medium text-sm text-gray-700">Xác nhận mật khẩu</label>
-                                <div className="relative">
-                                    <input
-                                        id="confirmPasswordInputReg"
-                                        type={showConfirmPassword ? "text" : "password"}
-                                        name="confirmPasswordValue"
-                                        value={formData.confirmPasswordValue}
-                                        onChange={handleChange}
-                                        placeholder="Xác nhận lại mật khẩu"
-                                        className="w-full border border-gray-300 rounded-md px-4 py-3 pr-12 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                        id="emailInputReg"
+                                        type="email"
+                                        value={email}
+                                        onChange={e => setEmail(e.target.value)}
+                                        placeholder="Nhập email của bạn"
+                                        className="w-full border border-gray-300 rounded-md px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
                                         disabled={isLoading}
                                         required
                                     />
-                                    <button
-                                        type="button"
-                                        className="absolute right-0 top-0 h-full px-4 flex items-center text-gray-500 hover:text-pink-600"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        aria-label={showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                                    >
-                                        <Image src={showConfirmPassword ? eye_open : eye_off} alt={showConfirmPassword ? "Hiện" : "Ẩn"} width={20} height={20}/>
-                                    </button>
                                 </div>
-                            </div>
-                            {error && <p className="text-red-600 text-sm mt-3 text-center">{error}</p>}
-                            {successMessage && <p className="text-green-600 text-sm mt-3 text-center">{successMessage}</p>}
-                            <button
-                                type="submit"
-                                className="w-full mt-6 bg-pink-500 hover:bg-pink-600 active:bg-pink-700 text-white font-semibold py-3 rounded-md disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-150"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? 'Đang đăng ký...' : 'ĐĂNG KÝ'}
-                            </button>
-                        </form>
+                                {error && <p className="text-red-600 text-sm mt-3 text-center">{error}</p>}
+                                {successMessage && <p className="text-green-600 text-sm mt-3 text-center">{successMessage}</p>}
+                                <button
+                                    type="submit"
+                                    className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded-md disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-150"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? 'Đang gửi mã...' : 'Gửi mã xác thực'}
+                                </button>
+                            </form>
+                        )}
+                        {step === 2 && (
+                            <form className="space-y-6" onSubmit={handleVerifyPasscode}>
+                                <div>
+                                    <label htmlFor="passcodeInputReg" className="block mb-1 font-medium text-sm text-gray-700">Mã xác thực đã gửi về email</label>
+                                    <input
+                                        id="passcodeInputReg"
+                                        type="text"
+                                        value={passcode}
+                                        onChange={e => setPasscode(e.target.value)}
+                                        placeholder="Nhập mã xác thực"
+                                        className="w-full border border-gray-300 rounded-md px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                        disabled={isLoading}
+                                        required
+                                    />
+                                </div>
+                                {error && <p className="text-red-600 text-sm mt-3 text-center">{error}</p>}
+                                {successMessage && <p className="text-green-600 text-sm mt-3 text-center">{successMessage}</p>}
+                                <button
+                                    type="submit"
+                                    className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded-md disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-150"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? 'Đang xác thực...' : 'Xác nhận'}
+                                </button>
+                            </form>
+                        )}
+                        {step === 3 && (
+                            <form className="space-y-5" onSubmit={handleCompleteSignup}>
+                                <div>
+                                    <label htmlFor="phoneNumberInputReg" className="block mb-1 font-medium text-sm text-gray-700">Số điện thoại</label>
+                                    <input
+                                        id="phoneNumberInputReg"
+                                        type="tel"
+                                        value={phoneNumber}
+                                        onChange={e => setPhoneNumber(e.target.value)}
+                                        placeholder="Nhập số điện thoại"
+                                        className="w-full border border-gray-300 rounded-md px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                        disabled={isLoading}
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="passwordRegInput" className="block mb-1 font-medium text-sm text-gray-700">Mật khẩu</label>
+                                    <div className="relative">
+                                        <input
+                                            id="passwordRegInput"
+                                            type={showPassword ? "text" : "password"}
+                                            value={password}
+                                            onChange={e => setPassword(e.target.value)}
+                                            placeholder="Tạo mật khẩu (ít nhất 6 ký tự)"
+                                            className="w-full border border-gray-300 rounded-md px-4 py-3 pr-12 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                            disabled={isLoading}
+                                            required
+                                            minLength={6}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="absolute right-0 top-0 h-full px-4 flex items-center text-gray-500 hover:text-pink-600"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                                        >
+                                            <Image src={showPassword ? eye_open : eye_off} alt={showPassword ? "Hiện" : "Ẩn"} width={20} height={20}/>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label htmlFor="confirmPasswordInputReg" className="block mb-1 font-medium text-sm text-gray-700">Xác nhận mật khẩu</label>
+                                    <div className="relative">
+                                        <input
+                                            id="confirmPasswordInputReg"
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            value={confirmPassword}
+                                            onChange={e => setConfirmPassword(e.target.value)}
+                                            placeholder="Xác nhận lại mật khẩu"
+                                            className="w-full border border-gray-300 rounded-md px-4 py-3 pr-12 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                            disabled={isLoading}
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            className="absolute right-0 top-0 h-full px-4 flex items-center text-gray-500 hover:text-pink-600"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            aria-label={showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                                        >
+                                            <Image src={showConfirmPassword ? eye_open : eye_off} alt={showConfirmPassword ? "Hiện" : "Ẩn"} width={20} height={20}/>
+                                        </button>
+                                    </div>
+                                </div>
+                                {error && <p className="text-red-600 text-sm mt-3 text-center">{error}</p>}
+                                {successMessage && <p className="text-green-600 text-sm mt-3 text-center">{successMessage}</p>}
+                                <button
+                                    type="submit"
+                                    className="w-full mt-6 bg-pink-500 hover:bg-pink-600 active:bg-pink-700 text-white font-semibold py-3 rounded-md disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-150"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? 'Đang đăng ký...' : 'ĐĂNG KÝ'}
+                                </button>
+                            </form>
+                        )}
                     </div>
                 </div>
             </main>

@@ -65,7 +65,9 @@ export default function YourSavingsPage() {
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-50"> {/* Nền xám nhạt cho body */}
-            <UserHeader /> {/* Header chính, sticky */}
+            <div className="fixed top-0 left-0 right-0 z-[100]">
+                <UserHeader />
+            </div>
 
             {/* Banner Tiêu đề Trang - KHÔNG sticky, cho phép cuộn */}
             <div className="w-full" style={{marginTop: '5rem'}}> {/* Đẩy xuống dưới UserHeader (5rem) */}

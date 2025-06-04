@@ -141,7 +141,9 @@ export default function UserDashboard() {
     >
       {/* Header */}
       {/* <div className="w-full fixed top-0 left-0 z-50"> */}
-        <UserHeader />
+        <div className="fixed top-0 left-0 right-0 z-[100]">
+          <UserHeader />
+        </div>
       {/* </div> */}
 
       {/* Dashboard Title Bar with Hamburger */}

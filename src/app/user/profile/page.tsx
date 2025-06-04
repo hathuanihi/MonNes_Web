@@ -100,36 +100,36 @@ export default function ProfilePage() {
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-100"> {/* Nền xám nhạt cho body */}
-            <UserHeader />
+            <div className="fixed top-0 left-0 right-0 z-[100]">
+                <UserHeader />
+            </div>
 
             {/* Container cho toàn bộ nội dung bên dưới UserHeader */}
             <div 
                 className="flex-1 flex flex-col overflow-y-auto"
                 style={{ paddingTop: USER_HEADER_HEIGHT }}
             >
-                {/* Banner Tiêu đề Trang */}
-                <div className="w-full bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB] shadow-md flex-shrink-0">
-                    <div className="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
-                        <h1 className="text-2xl md:text-3xl font-bold text-white text-center">
-                            THÔNG TIN CÁ NHÂN
-                        </h1>
-                    </div>
+                <div className="w-full"> {/* Đẩy xuống dưới UserHeader (5rem) */}
+                    <h1 
+                        className="w-full text-center text-3xl md:text-4xl font-bold text-white py-5 md:py-6 rounded-b-2xl shadow-lg"
+                        style={{
+                            background: "linear-gradient(90deg, #FF086A 0%, #FB5D5D 50%, #F19BDB 100%)",
+                        }}
+                    >
+                        THÔNG TIN CÁ NHÂN
+                    </h1>
                 </div>
 
                 {/* Content */}
                 <div className="w-full max-w-5xl lg:max-w-6xl mx-auto flex flex-col lg:flex-row p-4 sm:p-6 lg:p-8 gap-6 lg:gap-8 items-start">
                     {/* Cột Trái - Thông tin tóm tắt */}
                     <div className="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow-xl flex flex-col items-center text-center sticky top-[calc(5rem+3.5rem)]"> {/* 5rem header + ~3.5rem banner title */}
-                        <Image
-                            src={userImagePlaceholder} // Thay bằng userData.avatarUrl nếu có
-                            alt="User Avatar"
-                            width={128} // To hơn một chút
-                            height={128}
-                            className="rounded-full border-4 border-pink-200 shadow-lg mb-5"
-                        />
+                        <div className="w-24 h-24 rounded-full bg-pink-300 flex items-center justify-center mb-3">
+                            <span className="text-6xl text-white">👤</span>
+                        </div>
                         <h2 className="text-2xl font-bold text-pink-600">{userData.tenND || 'Chưa cập nhật'}</h2>
                         <p className="text-md text-gray-600 mt-1">{userData.email}</p>
-                        {userData.sdt && <p className="text-sm text-gray-500 mt-1">SĐT: {userData.sdt}</p>}
+                        {userData.sdt && <p className="text-sm text-gray-500 mt-1">{userData.sdt}</p>}
                         <span className={`mt-4 px-3 py-1 text-xs font-semibold rounded-full ${
                             userData.vaiTro === "ADMIN" ? "bg-red-500 text-white" : "bg-green-500 text-white"
                         }`}>
@@ -141,11 +141,11 @@ export default function ProfilePage() {
                     <div className="w-full lg:w-2/3 bg-white p-6 sm:p-8 rounded-xl shadow-xl">
                         <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
                             <h3 className="text-xl font-semibold text-gray-700">Thông tin chi tiết</h3>
-                            <Link href="/user/profile/updateprofile" legacyBehavior>
-                                <a className="inline-flex items-center bg-pink-500 hover:bg-pink-600 text-white text-sm font-semibold rounded-lg px-4 py-2 transition-colors shadow-md hover:shadow-lg active:scale-95">
+                            <Link href="/user/profile/updateprofile" passHref>
+                                <div className="inline-flex items-center bg-pink-500 hover:bg-pink-600 text-white text-sm font-semibold rounded-lg px-4 py-2 transition-colors shadow-md hover:shadow-lg active:scale-95">
                                     <PencilSquareIcon className="h-5 w-5 mr-2" />
                                     Chỉnh sửa
-                                </a>
+                                </div>
                             </Link>
                         </div>
 

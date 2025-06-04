@@ -26,6 +26,18 @@ export const resetPasswordAPI = (data: ResetPasswordRequest): Promise<MessageRes
     return axiosInstance.post('/auth/reset-password', data);
 };
 
+export const requestSignupPasscodeAPI = (data: SignupRequestPasscodeRequest): Promise<MessageResponse> => {
+    return axiosInstance.post('/auth/signup/request-passcode', data);
+};
+
+export const verifySignupPasscodeAPI = (data: SignupVerifyPasscodeRequest): Promise<MessageResponse> => {
+    return axiosInstance.post('/auth/signup/verify-passcode', data);
+};
+
+export const completeSignupAPI = (data: SignupCompleteRequest): Promise<UserResponse> => {
+    return axiosInstance.post('/auth/signup/complete', data);
+};
+
 // ============================
 // ADMIN - User Management APIs
 // ============================

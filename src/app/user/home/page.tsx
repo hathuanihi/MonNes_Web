@@ -5,7 +5,9 @@ import image from '@/assets/download.jpg'
 export default function HomePage() {
     return (
         <div>
-            <UserHeader />
+            <div className="fixed top-0 left-0 right-0 z-[100]">
+                <UserHeader />
+            </div>
             <main className="mt-15 bg-[#DAFFF6]">
                 <div className="max-w-5xl flex flex-row">
                     <div className="w-1/2 ml-0">
