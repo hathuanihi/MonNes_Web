@@ -23,7 +23,6 @@ function UserInfoBar({ searchTerm, setSearchTerm }: UserInfoBarProps) {
     return (
         <div
             className="w-full bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB] shadow-md py-4 px-4 sm:px-6 lg:px-8 flex-shrink-0" 
-            // flex-shrink-0 để nó không bị co lại khi nội dung chính dài
         >
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 items-center gap-x-4 gap-y-2">
                 {/* Cột 1: Thanh tìm kiếm */}
@@ -41,15 +40,13 @@ function UserInfoBar({ searchTerm, setSearchTerm }: UserInfoBarProps) {
                 </div>
 
                 {/* Cột 2: Tiêu đề (căn giữa) */}
-                <div className="flex justify-center order-first md:order-none"> {/* Tiêu đề lên trên trên mobile */}
+                <div className="flex justify-center order-first md:order-none"> 
                     <h1 className="text-xl sm:text-2xl font-bold uppercase text-white text-center whitespace-nowrap">
                         Quản Lý Người Dùng
                     </h1>
                 </div>
                 
-                {/* Cột 3: Phần tử trống hoặc các action khác */}
                 <div className="hidden md:flex justify-end">
-                    {/* Ví dụ: <button>Thêm User</button> */}
                 </div>
             </div>
         </div>
@@ -96,7 +93,6 @@ function UserDetailPanel({ user, onClose, onEdit, onDelete }: UserDetailPanelPro
     const handleDeleteUser = () => onDelete(user.maND, user.tenND || user.email || `User ID ${user.maND}`);
 
     return (
-        // Panel này cần flex-col và h-full để phần content có thể flex-grow và overflow-y-auto
         <div className="bg-white rounded-xl shadow-xl p-6 h-full flex flex-col">
             <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 flex-shrink-0">
                 <h2 className="text-2xl font-semibold text-pink-600">Chi Tiết Người Dùng</h2>
@@ -142,7 +138,6 @@ function UserDetailPanel({ user, onClose, onEdit, onDelete }: UserDetailPanelPro
                     ))
                 ) : ( <p className="text-gray-500 italic">Chưa có sổ tiết kiệm nào.</p> )}
             </div>
-            {/* Nút hành động */}
             {user.vaiTro === "USER" && (
                 <div className="flex gap-4 mt-6 justify-center">
                     <button
@@ -246,7 +241,6 @@ export default function UserManagementPage() {
             <div className="fixed top-0 left-0 right-0 z-[100]">
                 <AdminHeader />
             </div>
-            {/* Banner Tiêu đề Trang - KHÔNG sticky, cho phép cuộn */}
             <div className="w-full" style={{marginTop: '5rem'}}>
                 <h1 
                     className="w-full text-center text-3xl md:text-4xl font-bold text-white py-5 md:py-6 rounded-b-2xl shadow-lg"
@@ -257,7 +251,7 @@ export default function UserManagementPage() {
                     QUẢN LÝ NGƯỜI DÙNG
                 </h1>
             </div>
-            {/* Thanh tìm kiếm, lọc, nút action - nằm ngang, full width, ngay dưới title header */}
+            {/* Thanh tìm kiếm, lọc, nút action */}
             <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-4 px-4 sm:px-6 lg:px-8 mt-4 mb-2">
                 {/* Tìm kiếm */}
                 <div className="flex-1 w-full md:w-auto relative">
@@ -272,21 +266,20 @@ export default function UserManagementPage() {
                         />
                     </div>
                 </div>
-                {/* (Có thể thêm nút action ở đây nếu cần) */}
             </div>
-            {/* Container cho toàn bộ nội dung bên dưới Header/banner/search bar */}
+            {/* Container cho toàn bộ nội dung bên dưới search bar */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col overflow-hidden">
                     {error && !isEditModalOpen && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4 text-center">{error}</p>}
 
-                    {/* Container cho 2 cột, chiếm không gian còn lại và cho phép nội dung bên trong cuộn */}
+                    {/* Container cho 2 cột */}
                     <div className="flex-1 flex flex-col md:flex-row gap-6 overflow-hidden">
                         {/* Danh sách người dùng (cột trái) */}
                         <div className="w-full md:w-2/5 lg:w-1/3 bg-white rounded-xl shadow-lg flex flex-col">
-                            <div className="p-4 border-b border-gray-200 flex-shrink-0"> {/* flex-shrink-0 cho header của card */}
+                            <div className="p-4 border-b border-gray-200 flex-shrink-0"> 
                                 <h2 className="text-lg font-semibold text-pink-600">Danh Sách ({loading && users.length === 0 ? "..." : filteredUsers.length})</h2>
                             </div>
-                            {/* flex-grow và overflow-y-auto cho phép phần này cuộn */}
+
                             <div className="overflow-y-auto flex-grow custom-scrollbar">
                                 {(loading && users.length === 0) && <p className="p-4 text-center text-gray-500">Đang tải...</p>}
                                 {!loading && filteredUsers.length === 0 && <div className="p-6 text-gray-500 text-center">Không tìm thấy người dùng.</div>}
@@ -302,7 +295,6 @@ export default function UserManagementPage() {
                         </div>
 
                         {/* Panel chi tiết người dùng (cột phải) */}
-                        {/* flex-1 để panel này cũng cố gắng chiếm không gian */}
                         <div className="w-full md:w-3/5 lg:w-2/3 flex flex-col"> 
                             {selectedUser ? (
                                 <UserDetailPanel 

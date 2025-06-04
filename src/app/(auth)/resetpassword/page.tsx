@@ -6,7 +6,6 @@ import Logo from '@/assets/logo_monnes.png';
 import Image from "next/image";
 import { sendPasscodeAPI, verifyPasscodeAPI, resetPasswordAPI } from '@/services/api';
 
-// Import icons for password visibility (assuming they are in the correct path)
 import eye_open from '@/assets/icon/eyeopen.png';
 import eye_off from '@/assets/icon/eyeoff.png';
 

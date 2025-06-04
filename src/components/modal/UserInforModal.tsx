@@ -145,36 +145,44 @@ export default function UserInfoModal({ userToEdit, onUpdateSuccess, onClose }: 
                                className="w-full sm:w-2/3 md:w-3/4 text-lg text-gray-800 bg-transparent focus:outline-none pl-0 sm:pl-2 py-1"/>
                     </div>
                     {/* Date of Birth */}
-                    <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200">
+                    <div className="flex flex-col sm:flex-row sm:items-center">
                         <label htmlFor="ngaySinhDisplay" className="w-full sm:w-1/3 md:w-1/4 text-lg font-medium text-gray-600 mb-1 sm:mb-0">Ngày sinh</label>
-                        <div className="w-full sm:w-2/3 md:w-3/4 relative flex items-center pl-0 sm:pl-2">
-                            <input 
-                                id="ngaySinhDisplay"
-                                type="text" 
-                                value={selectedDate ? selectedDate.toLocaleDateString('vi-VN') : ''}
-                                onClick={openDatePicker}
-                                readOnly
-                                placeholder="Chọn ngày sinh"
-                                className="text-lg text-gray-800 bg-white px-4 py-2 focus:ring-2 focus:ring-pink-400  w-full cursor-pointer transition-all duration-200 "
-                            />
-                            <button type="button" onClick={openDatePicker} tabIndex={-1}
-                                className="flex items-center justify-center px-4 bg-white focus:ring-2 focus:ring-pink-400 transition-colors">
-                                <CalendarIcon />
-                            </button>
-                            {/* DatePicker popup */}
-                            {isDatePickerOpen && (
-                                <div className="absolute left-1/2 -translate-x-1/2 top-[110%] z-[120] w-[340px] max-w-[98vw]">
-                                    <DatePicker
-                                        selected={selectedDate}
-                                        onChange={(date) => { handleDateChange(date); setIsDatePickerOpen(false); }}
-                                        dateFormat="dd/MM/yyyy"
-                                        inline
-                                        onClickOutside={() => setIsDatePickerOpen(false)}
-                                        locale="vi"
-                                        calendarClassName="custom-datepicker-modal"
-                                    />
-                                </div>
-                            )}
+                        <div className="w-full sm:w-2/3 md:w-3/4 relative flex items-center pl-0 sm:pl-0"> {/* pl-0 để không bị thụt vào */}
+                            <div className="relative w-full">
+                                <input 
+                                    id="ngaySinhDisplay"
+                                    type="text" 
+                                    value={selectedDate ? selectedDate.toLocaleDateString('vi-VN') : ''}
+                                    onClick={openDatePicker}
+                                    readOnly
+                                    placeholder="Chọn ngày sinh"
+                                    className="text-lg text-gray-800 bg-white px-2 py-2 w-full cursor-pointer transition-all duration-200 pr-10 border-none focus:border-none focus:ring-0 outline-none shadow-none"
+                                />
+                                <button type="button" onClick={openDatePicker} tabIndex={-1}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-0 m-0 bg-transparent border-none shadow-none flex items-center justify-center focus:ring-2 focus:ring-pink-400">
+                                    <CalendarIcon />
+                                </button>
+                                {/* DatePicker popup */}
+                                {isDatePickerOpen && (
+                                    <div className="absolute right-0 top-[110%] z-[120] w-[340px] max-w-[98vw]">
+                                        <DatePicker
+                                            selected={selectedDate}
+                                            onChange={(date) => { handleDateChange(date); setIsDatePickerOpen(false); }}
+                                            dateFormat="dd/MM/yyyy"
+                                            inline
+                                            onClickOutside={() => setIsDatePickerOpen(false)}
+                                            locale="vi"
+                                            calendarClassName="custom-datepicker-modal"
+                                            showYearDropdown
+                                            showMonthDropdown
+                                            dropdownMode="select"
+                                            scrollableYearDropdown
+                                            yearDropdownItemNumber={100}
+                                            maxDate={new Date()}
+                                        />
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                      {/* Address */}
@@ -367,6 +375,9 @@ export default function UserInfoModal({ userToEdit, onUpdateSuccess, onClose }: 
                 }
                 .custom-datepicker-modal .react-datepicker__day--today {
                     border-bottom: 2.5px solid #FF086A;
+                }
+                .custom-datepicker-modal .react-datepicker__triangle {
+                    display: none;
                 }
             `}</style>
         </div>

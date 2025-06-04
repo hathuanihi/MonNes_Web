@@ -12,19 +12,16 @@ import {
     Legend,
     ChartOptions,
     ChartData,
-    ChartType, // Đảm bảo ChartType được import
+    ChartType, 
     TooltipItem
-    // Scale, CoreScaleOptions, ScriptableContext, Color // Bỏ nếu không dùng trực tiếp
+    // Scale, CoreScaleOptions, ScriptableContext, Color 
 } from 'chart.js';
 import { useEffect, useRef, useState } from 'react';
-// Bỏ AnimatePresence và motion nếu không còn chuyển đổi view trong trang này
-// import { motion, AnimatePresence } from 'framer-motion'; 
 import { adminGetSystemStatistics } from '@/services/api';
 
 // Đăng ký các thành phần cần thiết cho Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// (Plugin backgroundColor có thể giữ lại hoặc bỏ nếu không dùng)
 
 // Component Dashboard chính
 export default function DashboardPage() {
@@ -32,7 +29,6 @@ export default function DashboardPage() {
     const chartRefAccessToday = useRef<ChartJS<'bar', number[], string>>(null);
     const chartRefThisMonth = useRef<ChartJS<'bar', number[], string>>(null);
     
-    // Bỏ state showTransactionDetails
     // const [showTransactionDetails, setShowTransactionDetails] = useState(false); 
 
     const [stats, setStats] = useState<ThongKeDTO | null>(null);
@@ -46,7 +42,7 @@ export default function DashboardPage() {
 
     const ADMIN_HEADER_HEIGHT_CSS_VAR = 'var(--admin-header-height, 5rem)'; 
 
-    // Hàm tạo gradient (giữ nguyên)
+    // Hàm tạo gradient 
     const createGradient = (chartInstance: ChartJS<ChartType, number[], string>, colorStops: {offset: number, color: string}[]) => {
         const { ctx, chartArea } = chartInstance;
         if (!chartArea || !ctx) return undefined;
@@ -55,15 +51,15 @@ export default function DashboardPage() {
         return gradient;
     };
     
-    // useEffects để áp dụng gradient (giữ nguyên logic)
+    // useEffects để áp dụng gradient 
     useEffect(() => { 
         const chartInstance = chartRefTodayRevenue.current;
         if (chartInstance?.data?.datasets?.[0]?.data?.length) {
             // Gradient màu hồng cho doanh thu hôm nay
             const gradient = createGradient(chartInstance, [
-                {offset: 0, color: '#FBB6CE'}, // hồng nhạt
-                {offset: 0.5, color: '#FB5D5D'}, // hồng đậm
-                {offset: 1, color: '#FF086A'} // hồng tươi
+                {offset: 0, color: '#FBB6CE'}, 
+                {offset: 0.5, color: '#FB5D5D'}, 
+                {offset: 1, color: '#FF086A'} 
             ]);
             if (gradient && chartInstance.data.datasets[0]) chartInstance.data.datasets[0].backgroundColor = gradient;
             if (chartInstance.data.datasets[0]) chartInstance.data.datasets[0].borderColor = '#FF086A';
@@ -74,11 +70,10 @@ export default function DashboardPage() {
     useEffect(() => { 
         const chartInstance = chartRefAccessToday.current;
         if (chartInstance?.data?.datasets?.[0]?.data?.length) {
-            // Gradient xanh cho lượt truy cập hôm nay
             const gradient = createGradient(chartInstance, [
-                {offset: 0, color: '#BFDBFE'}, // xanh nhạt
-                {offset: 0.5, color: '#3B82F6'}, // xanh vừa
-                {offset: 1, color: '#1E40AF'} // xanh đậm
+                {offset: 0, color: '#BFDBFE'}, 
+                {offset: 0.5, color: '#3B82F6'}, 
+                {offset: 1, color: '#1E40AF'} 
             ]);
             if (gradient && chartInstance.data.datasets[0]) chartInstance.data.datasets[0].backgroundColor = gradient;
             if (chartInstance.data.datasets[0]) chartInstance.data.datasets[0].borderColor = '#1E40AF';
@@ -89,23 +84,20 @@ export default function DashboardPage() {
     useEffect(() => { 
         const chartInstance = chartRefThisMonth.current;
         if (chartInstance?.data?.datasets?.length) {
-            // Gradient cam cho doanh thu tháng này
             const gradientRevenue = createGradient(chartInstance, [
-                {offset: 0, color: '#FED7AA'}, // cam nhạt
-                {offset: 0.5, color: '#FB923C'}, // cam vừa
-                {offset: 1, color: '#EA580C'} // cam đậm
+                {offset: 0, color: '#FED7AA'}, 
+                {offset: 0.5, color: '#FB923C'}, 
+                {offset: 1, color: '#EA580C'} 
             ]);
-            // Gradient teal cho sổ hoạt động
             const gradientAccounts = createGradient(chartInstance, [
-                {offset: 0, color: '#A7F3D0'}, // teal nhạt
-                {offset: 0.5, color: '#2DD4BF'}, // teal vừa
-                {offset: 1, color: '#0D9488'} // teal đậm
+                {offset: 0, color: '#A7F3D0'}, 
+                {offset: 0.5, color: '#2DD4BF'}, 
+                {offset: 1, color: '#0D9488'} 
             ]);
-            // Gradient tím cho lưu lượng dữ liệu (nếu có dataset thứ 2 hoặc 3)
             const gradientDataTraffic = createGradient(chartInstance, [
-                {offset: 0, color: '#E0E7FF'}, // tím nhạt
-                {offset: 0.5, color: '#A78BFA'}, // tím vừa
-                {offset: 1, color: '#7C3AED'} // tím đậm
+                {offset: 0, color: '#E0E7FF'}, 
+                {offset: 0.5, color: '#A78BFA'}, 
+                {offset: 1, color: '#7C3AED'} 
             ]);
             if (chartInstance.data.datasets[0]) {
                 if(gradientRevenue) chartInstance.data.datasets[0].backgroundColor = gradientRevenue;
@@ -156,7 +148,7 @@ export default function DashboardPage() {
         fetchData();
     }, []);
 
-    const commonChartOptions: ChartOptions<'bar'> = { /* ... (giữ nguyên) ... */ 
+    const commonChartOptions: ChartOptions<'bar'> = { 
         responsive: true, maintainAspectRatio: false,
         plugins: {
             legend: { display: true, position: 'top', labels:{color: '#4B5563', font: {size: 12}} },
@@ -164,7 +156,10 @@ export default function DashboardPage() {
             tooltip: { callbacks: { label: (context: TooltipItem<'bar'>): string => {
                 let label = context.dataset.label || '';
                 if (label) { label += ': '; }
-                if (context.parsed.y !== null) { label += Number(context.parsed.y).toLocaleString() + (context.dataset.label?.includes('VND') ? ' VND' : (context.dataset.label === 'Lượt truy cập' || context.dataset.label === 'Sổ đang hoạt động' ? '' : '')); }
+                if (context.parsed.y !== null) { 
+                    label += Number(context.parsed.y)
+                                .toLocaleString() + (context.dataset.label?.includes('VND') ? ' VND' : (context.dataset.label === 'Lượt truy cập' || context.dataset.label === 'Sổ đang hoạt động' ? '' : '')); 
+                            }
                 return label;
             }}}
         },
@@ -206,9 +201,8 @@ export default function DashboardPage() {
             <div 
                 className="flex-1 flex flex-col"
             >
-                {/* Chỉ hiển thị phần Dashboard chính, không có AnimatePresence và TransactionDetailView */}
                 <main className="px-4 md:px-6 lg:px-8 py-8 flex flex-col items-center">
-                    {/* Thống kê tổng quan sát ngay dưới tiêu đề */}
+                    {/* Thống kê tổng quan */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 w-full max-w-6xl mt-0">
                         {[
                             { title: "Doanh thu hôm nay", value: `${(stats.doanhThuHomNay || 0).toLocaleString()} VND`, color: "text-pink-600", bg: "bg-pink-50", border: "border-pink-300", shadow: "hover:shadow-pink-300/50", gradient: "bg-gradient-to-br from-pink-100 via-white to-pink-50" },
@@ -340,10 +334,6 @@ export default function DashboardPage() {
                             }} />
                         </div>
                     </div>
-
-                    {/* NÚT MŨI TÊN XUỐNG ĐÃ BỊ XÓA */}
-                    {/* stats.giaoDichGanDayNhat vẫn có thể được dùng cho một phần tóm tắt nhỏ nếu muốn, 
-                        nhưng danh sách chi tiết đầy đủ sẽ ở trang khác */}
 
                 </main>
             </div>

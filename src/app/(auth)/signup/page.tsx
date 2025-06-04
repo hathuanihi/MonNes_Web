@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import { useState, ChangeEvent, FormEvent } from "react";
-import Header from '@/components/header/Header_SignIn'; // Đảm bảo path đúng
-import Logo from '@/assets/logo_monnes.png';    // Đảm bảo path đúng
+import Header from '@/components/header/Header_SignIn'; 
+import Logo from '@/assets/logo_monnes.png';    
 import Link from "next/link";
-import eye_open from '@/assets/icon/eyeopen.png'; // Đảm bảo path đúng
-import eye_off from '@/assets/icon/eyeoff.png';   // Đảm bảo path đúng
+import eye_open from '@/assets/icon/eyeopen.png'; 
+import eye_off from '@/assets/icon/eyeoff.png';   
 import { useRouter } from 'next/navigation';
-import { requestSignupPasscodeAPI, verifySignupPasscodeAPI, completeSignupAPI } from '@/services/api';   // Đảm bảo path đúng
+import { requestSignupPasscodeAPI, verifySignupPasscodeAPI, completeSignupAPI } from '@/services/api';   
 
 export default function SignUp() {
     const [step, setStep] = useState(1); // 1: nhập email, 2: nhập passcode, 3: nhập phone+password

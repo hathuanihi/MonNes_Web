@@ -117,7 +117,7 @@ export default function AdminProfilePage() {
                     <div className="w-full lg:w-2/3 bg-white p-6 sm:p-8 rounded-xl shadow-xl transition-all duration-300 ease-in-out hover:shadow-2xl hover:transform hover:-translate-y-1 hover:bg-pink-50">
                         <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
                             <h3 className="text-2xl font-semibold text-pink-600">Thông tin chi tiết</h3>
-                            <Link href="/admin/profile/update" passHref>
+                            <Link href="/admin/profile/updateprofile" passHref>
                                 <div className="inline-flex items-center bg-pink-500 hover:bg-pink-600 text-white text-sm font-semibold rounded-lg px-4 py-2 transition-colors shadow-md hover:shadow-lg active:scale-95">
                                     <PencilSquareIcon className="h-5 w-5 mr-2" />
                                     Chỉnh sửa

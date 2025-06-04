@@ -13,12 +13,6 @@ const Header = () => {
     setActiveLink(link);
   };
 
-  const navLinks = [
-    { href: "/signin", label: "Trang Chủ" },
-    { href: "/signin", label: "Sổ Của Bạn" },
-    { href: "/signin", label: "Thống Kê" },
-  ];
-
   return (
     <header className="bg-white text-gray-800 p-4 shadow-md sticky top-0 z-50 h-16 md:h-20">
       <nav className="container mx-auto flex justify-between items-center h-full">
@@ -36,18 +30,6 @@ const Header = () => {
         </div>
         {/* Navigation Links */}
         <ul className="hidden md:flex flex-row space-x-6 lg:space-x-10 items-center">
-          {navLinks.map((link) => (
-            <li key={link.label}>
-              <Link
-                href={link.href}
-                className={
-                  'font-medium pb-1 text-gray-600 hover:text-pink-600 transition-colors duration-200'
-                }
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
         </ul>
         {/* User Icon */}
         <div className="relative">

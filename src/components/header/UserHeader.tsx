@@ -38,7 +38,7 @@ const UserHeader = () => {
         setIsLoggedIn(false);
         setUserName(null);
         setIsDropdownOpen(false);
-        router.push('/signin'); // Chuyển về trang đăng nhập
+        router.push('/'); // Chuyển về trang đăng nhập
     };
 
     const navLinks = [

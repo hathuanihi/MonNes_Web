@@ -27,7 +27,7 @@ const AdminHeader = () => {
             localStorage.removeItem("userId");
             localStorage.removeItem("userEmail");
         }
-        router.push('/signin'); // Chuyển hướng về trang đăng nhập
+        router.push('/'); // Chuyển hướng về trang đăng nhập
     };
 
     const navLinks = [
