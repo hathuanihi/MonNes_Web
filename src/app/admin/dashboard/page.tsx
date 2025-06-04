@@ -189,40 +189,65 @@ export default function DashboardPage() {
     if (!stats) return <div className="min-h-screen flex flex-col"><AdminHeader /><div className="flex-1 flex justify-center items-center" style={{paddingTop: ADMIN_HEADER_HEIGHT_CSS_VAR}}><p className="mt-5 text-gray-600">Không có dữ liệu thống kê để hiển thị.</p></div></div>;
 
     return (
-        <div className="flex flex-col text-gray-800 bg-gray-100">         
+        <div className="min-h-screen flex flex-col bg-gray-50"> 
+            <div className="fixed top-0 left-0 right-0 z-[100]">
+                <AdminHeader />
+            </div>        
+            <div className="w-full" style={{marginTop: '5rem'}}>
+                <h1 
+                    className="w-full text-center text-3xl md:text-4xl font-bold text-white py-5 md:py-6 rounded-b-2xl shadow-lg"
+                    style={{
+                        background: "linear-gradient(90deg, #FF086A 0%, #FB5D5D 50%, #F19BDB 100%)",
+                    }}
+                >
+                    TỔNG QUAN
+                </h1>
+            </div>
             <div 
                 className="flex-1 flex flex-col"
             >
-              <div className="w-full bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB] shadow-md max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-7 pb-5 border-b border-gray-200 bg-gray-50 relative flex items-center min-h-[70px]">
-                <h1 className="absolute left-1/2 -translate-x-1/2 text-3xl font-bold text-white whitespace-nowrap">
-                    Tổng Quan
-                </h1>
-            </div>
                 {/* Chỉ hiển thị phần Dashboard chính, không có AnimatePresence và TransactionDetailView */}
                 <main className="px-4 md:px-6 lg:px-8 py-8 flex flex-col items-center">
                     {/* Thống kê tổng quan sát ngay dưới tiêu đề */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 w-full max-w-6xl mt-0">
                         {[
-                            { title: "Doanh thu hôm nay", value: `${(stats.doanhThuHomNay || 0).toLocaleString()} VND`, color: "text-pink-600", bg: "bg-pink-50" },
-                            { title: "Lượt truy cập hôm nay", value: (stats.luotTruyCapHomNay || 0).toLocaleString(), color: "text-blue-600", bg: "bg-blue-50" },
-                            { title: "Tổng số người dùng", value: (stats.tongSoNguoiDung || 0).toLocaleString(), color: "text-green-600", bg: "bg-green-50" },
-                            { title: "Sổ đang hoạt động", value: (stats.tongSoTaiKhoanTietKiemDangHoatDong || 0).toLocaleString(), color: "text-purple-600", bg: "bg-purple-50" },
-                            { title: "Doanh thu tháng này", value: `${(stats.doanhThuThangNay || 0).toLocaleString()} VND`, color: "text-pink-700", bg: "bg-pink-100" },
-                            { title: "Truy cập tháng này", value: (stats.luotTruyCapThangNay || 0).toLocaleString(), color: "text-blue-700", bg: "bg-blue-100" },
-                            { title: "Tổng dư toàn hệ thống", value: `${(stats.tongSoDuToanHeThong || 0).toLocaleString()} VND`, color: "text-teal-600", bg: "bg-teal-50" },
+                            { title: "Doanh thu hôm nay", value: `${(stats.doanhThuHomNay || 0).toLocaleString()} VND`, color: "text-pink-600", bg: "bg-pink-50", border: "border-pink-300", shadow: "hover:shadow-pink-300/50", gradient: "bg-gradient-to-br from-pink-100 via-white to-pink-50" },
+                            { title: "Lượt truy cập hôm nay", value: (stats.luotTruyCapHomNay || 0).toLocaleString(), color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-300", shadow: "hover:shadow-blue-300/50", gradient: "bg-gradient-to-br from-blue-100 via-white to-blue-50" },
+                            { title: "Tổng số người dùng", value: (stats.tongSoNguoiDung || 0).toLocaleString(), color: "text-green-600", bg: "bg-green-50", border: "border-green-300", shadow: "hover:shadow-green-300/50", gradient: "bg-gradient-to-br from-green-100 via-white to-green-50" },
+                            { title: "Sổ đang hoạt động", value: (stats.tongSoTaiKhoanTietKiemDangHoatDong || 0).toLocaleString(), color: "text-purple-600", bg: "bg-purple-50", border: "border-purple-300", shadow: "hover:shadow-purple-300/50", gradient: "bg-gradient-to-br from-purple-100 via-white to-purple-50" },
+                            { title: "Doanh thu tháng này", value: `${(stats.doanhThuThangNay || 0).toLocaleString()} VND`, color: "text-pink-700", bg: "bg-pink-100", border: "border-pink-400", shadow: "hover:shadow-pink-400/50", gradient: "bg-gradient-to-br from-pink-200 via-white to-pink-100" },
+                            { title: "Truy cập tháng này", value: (stats.luotTruyCapThangNay || 0).toLocaleString(), color: "text-blue-700", bg: "bg-blue-100", border: "border-blue-400", shadow: "hover:shadow-blue-400/50", gradient: "bg-gradient-to-br from-blue-200 via-white to-blue-100" },
+                            { title: "Tổng dư toàn hệ thống", value: `${(stats.tongSoDuToanHeThong || 0).toLocaleString()} VND`, color: "text-teal-600", bg: "bg-teal-50", border: "border-teal-400", shadow: "hover:shadow-teal-400/50", gradient: "bg-gradient-to-br from-teal-100 via-white to-teal-50" },
                         ].map(item => (
-                            <div key={item.title} className={`p-5 rounded-xl shadow-lg text-center transition-shadow duration-300 ${item.bg} ${item.color} ring-2 ring-transparent`}> 
-                                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">{item.title}</h3>
-                                <p className={`text-2xl font-bold ${item.color} mt-1`}>{item.value}</p>
+                            <div key={item.title} className={`p-5 rounded-xl shadow-lg text-center transition-all duration-300 transform hover:scale-[1.06] ${item.bg} ${item.color} ${item.border} border-2 ${item.gradient} ${item.shadow}`}> 
+                                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider drop-shadow-sm">{item.title}</h3>
+                                <p className={`text-2xl font-bold ${item.color} mt-1 drop-shadow`}>{item.value}</p>
                             </div>
                         ))}
                     </div>
                     {/* Biểu đồ */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-10 w-full max-w-6xl">
-                        <div className="bg-gradient-to-br from-pink-100 via-pink-50 to-white rounded-xl shadow-lg p-4 lg:p-6 h-[350px] md:h-[400px]">
-                            <Bar ref={chartRefTodayRevenue} data={todayRevenueChartData} options={todayRevenueOptions} />
+                        <div className="bg-gradient-to-br from-pink-200 via-pink-50 to-white rounded-xl shadow-2xl p-4 lg:p-6 h-[350px] md:h-[400px] border-2 border-pink-300 transition-all duration-300 transform hover:scale-[1.03] hover:shadow-[0_8px_32px_0_rgba(255,8,106,0.18)]">
+                            <Bar ref={chartRefTodayRevenue} data={{
+                                ...todayRevenueChartData,
+                                datasets: todayRevenueChartData.datasets.map(ds => ({
+                                    ...ds,
+                                    backgroundColor: chartRefTodayRevenue.current
+                                        ? createGradient(
+                                            chartRefTodayRevenue.current,
+                                            [
+                                                { offset: 0, color: '#FBB6CE' },
+                                                { offset: 0.5, color: '#FB5D5D' },
+                                                { offset: 1, color: '#FF086A' }
+                                            ]
+                                        )
+                                        : ds.backgroundColor,
+                                    borderColor: '#FF086A',
+                                    borderWidth: 3
+                                }))
+                            }} options={todayRevenueOptions} />
                         </div>
-                        <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-white rounded-xl shadow-lg p-4 lg:p-6 h-[350px] md:h-[400px]">
+                        <div className="bg-gradient-to-br from-blue-200 via-blue-50 to-white rounded-xl shadow-2xl p-4 lg:p-6 h-[350px] md:h-[400px] border-2 border-blue-300 transition-all duration-300 transform hover:scale-[1.03] hover:shadow-[0_8px_32px_0_rgba(59,130,246,0.18)]">
                             <Bar
                                 ref={chartRefAccessToday}
                                 data={{
@@ -240,7 +265,7 @@ export default function DashboardPage() {
                                             )
                                             : ds.backgroundColor,
                                         borderColor: '#1E40AF',
-                                        borderWidth: 2
+                                        borderWidth: 3
                                     }))
                                 }}
                                 options={accessTodayOptions}
@@ -248,7 +273,7 @@ export default function DashboardPage() {
                         </div>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 w-full max-w-6xl mb-8">
-                        <div className="bg-gradient-to-br from-orange-100 via-orange-50 to-white rounded-xl shadow-lg p-4 lg:p-6 h-[400px] md:h-[500px]">
+                        <div className="bg-gradient-to-br from-orange-200 via-orange-50 to-white rounded-xl shadow-2xl p-4 lg:p-6 h-[400px] md:h-[500px] border-2 border-orange-300 transition-all duration-300 transform hover:scale-[1.03] hover:shadow-[0_8px_32px_0_rgba(251,146,60,0.18)]">
                           {/* Doanh thu tháng này */}
                           <Bar
                             ref={chartRefThisMonth}
@@ -269,7 +294,7 @@ export default function DashboardPage() {
                                     )
                                     : ds.backgroundColor,
                                   borderColor: '#EA580C',
-                                  borderWidth: 2
+                                  borderWidth: 3
                                 }))
                             }}
                             options={{
@@ -287,7 +312,7 @@ export default function DashboardPage() {
                             }}
                           />
                         </div>
-                        <div className="bg-gradient-to-br from-teal-100 via-teal-50 to-white rounded-xl shadow-lg p-4 lg:p-6 h-[400px] md:h-[500px]">
+                        <div className="bg-gradient-to-br from-purple-200 via-pink-100 to-white rounded-xl shadow-2xl p-4 lg:p-6 h-[400px] md:h-[500px] border-2 border-pink-400 transition-all duration-300 transform hover:scale-[1.03] hover:shadow-[0_8px_32px_0_rgba(255,8,106,0.18)]">
                             {/* Sổ đang hoạt động */}
                             <Bar ref={chartRefThisMonth} data={{
                                 ...thisMonthChartData,
@@ -297,20 +322,20 @@ export default function DashboardPage() {
                                         ? createGradient(
                                             chartRefThisMonth.current,
                                             [
-                                                {offset: 0, color: '#A7F3D0'},
-                                                {offset: 0.5, color: '#2DD4BF'},
-                                                {offset: 1, color: '#0D9488'}
+                                                {offset: 0, color: '#FBB6CE'},
+                                                {offset: 0.5, color: '#FB5D5D'},
+                                                {offset: 1, color: '#FF086A'}
                                             ]
                                         )
                                         : ds.backgroundColor,
-                                    borderColor: '#0D9488',
-                                    borderWidth: 2
+                                    borderColor: '#FF086A',
+                                    borderWidth: 3
                                 }))
                             }} options={{
                                 ...thisMonthOptions,
                                 plugins: {
                                     ...thisMonthOptions.plugins,
-                                    title: {display: true, text: "Sổ Đang Hoạt Động Tháng Này", color: '#0D9488', font: {size: 16, weight: 600}, padding: {top:5, bottom:15}}
+                                    title: {display: true, text: "Sổ Đang Hoạt Động Tháng Này", color: '#FF086A', font: {size: 16, weight: 600}, padding: {top:5, bottom:15}}
                                 }
                             }} />
                         </div>

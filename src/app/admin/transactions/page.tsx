@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { adminGetSystemStatistics } from '@/services/api';
+import AdminHeader from '@/components/header/AdminHeader';
 
 // --- COMPONENT TransactionRow ---
 interface TransactionRowProps {
@@ -65,10 +66,18 @@ export default function AllTransactionsPage() {
     }, []);
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-100">
-            <div className="w-full bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB] shadow-md max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-7 pb-5 border-b border-gray-200 bg-gray-50 relative flex items-center min-h-[70px]">
-                <h1 className="absolute left-1/2 -translate-x-1/2 text-3xl font-bold text-white whitespace-nowrap">
-                    Giao Dịch Gần Đây
+        <div className="min-h-screen flex flex-col bg-gray-50">
+            <div className="fixed top-0 left-0 right-0 z-[100]">
+                <AdminHeader />
+            </div> 
+            <div className="w-full" style={{marginTop: '5rem'}}>
+                <h1 
+                    className="w-full text-center text-3xl md:text-4xl font-bold text-white py-5 md:py-6 rounded-b-2xl shadow-lg"
+                    style={{
+                        background: "linear-gradient(90deg, #FF086A 0%, #FB5D5D 50%, #F19BDB 100%)",
+                    }}
+                >
+                    DANH SÁCH GIAO DỊCH 
                 </h1>
             </div>
             <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -94,8 +103,8 @@ export default function AllTransactionsPage() {
                                         <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">Loại</th>
                                         <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">Ngày</th>
                                         <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">Khách Hàng</th>
-                                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">Sổ TK</th>
-                                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">Sản Phẩm</th>
+                                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">Sổ Tiết Kiệm</th>
+                                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">Tên Loại Tiết Kiệm</th>
                                         <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider align-middle">Số Tiền (VND)</th>
                                     </tr>
                                 </thead>
