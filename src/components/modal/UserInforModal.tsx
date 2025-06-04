@@ -50,6 +50,7 @@ export default function UserInfoModal({ userToEdit, onUpdateSuccess, onClose }: 
     const datePickerRef = useRef<DatePicker | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
     useEffect(() => {
         const dob = userToEdit.ngaySinh;
@@ -80,11 +81,7 @@ export default function UserInfoModal({ userToEdit, onUpdateSuccess, onClose }: 
         }
     };
     
-    const openDatePicker = () => {
-        if (datePickerRef.current) {
-            datePickerRef.current.setOpen(true);
-        }
-    };
+    const openDatePicker = () => setIsDatePickerOpen(true);
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -154,26 +151,30 @@ export default function UserInfoModal({ userToEdit, onUpdateSuccess, onClose }: 
                             <input 
                                 id="ngaySinhDisplay"
                                 type="text" 
-                                value={selectedDate ? selectedDate.toLocaleDateString('vi-VN') : 'dd/mm/yyyy'}
+                                value={selectedDate ? selectedDate.toLocaleDateString('vi-VN') : ''}
                                 onClick={openDatePicker}
                                 readOnly
-                                className="text-lg text-gray-800 bg-transparent focus:outline-none w-full cursor-pointer py-1"
+                                placeholder="Chọn ngày sinh"
+                                className="text-lg text-gray-800 bg-white px-4 py-2 focus:ring-2 focus:ring-pink-400  w-full cursor-pointer transition-all duration-200 "
                             />
-                            <button type="button" onClick={openDatePicker} className="ml-auto pl-2">
+                            <button type="button" onClick={openDatePicker} tabIndex={-1}
+                                className="flex items-center justify-center px-4 bg-white focus:ring-2 focus:ring-pink-400 transition-colors">
                                 <CalendarIcon />
                             </button>
-                            {/* DatePicker sẽ hiển thị như một popup khi được kích hoạt */}
-                             <div className="absolute top-full left-0 z-[110] mt-1" style={{ display: datePickerRef.current?.isCalendarOpen() ? 'block' : 'none' }}>
-                                <DatePicker
-                                    selected={selectedDate}
-                                    onChange={handleDateChange}
-                                    dateFormat="dd/MM/yyyy"
-                                    ref={datePickerRef}
-                                    inline 
-                                    onClickOutside={() => datePickerRef.current?.setOpen(false)}
-                                    locale="vi"
-                                />
-                            </div>
+                            {/* DatePicker popup */}
+                            {isDatePickerOpen && (
+                                <div className="absolute left-1/2 -translate-x-1/2 top-[110%] z-[120] w-[340px] max-w-[98vw]">
+                                    <DatePicker
+                                        selected={selectedDate}
+                                        onChange={(date) => { handleDateChange(date); setIsDatePickerOpen(false); }}
+                                        dateFormat="dd/MM/yyyy"
+                                        inline
+                                        onClickOutside={() => setIsDatePickerOpen(false)}
+                                        locale="vi"
+                                        calendarClassName="custom-datepicker-modal"
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
                      {/* Address */}
@@ -269,6 +270,103 @@ export default function UserInfoModal({ userToEdit, onUpdateSuccess, onClose }: 
                 }
                 .react-datepicker__navigation:hover *::before {
                     border-color: #9D174D;
+                }
+                .custom-datepicker-modal {
+                    border-radius: 1.25rem !important;
+                    border: 2.5px solid #FF086A !important;
+                    box-shadow: 0 12px 36px 0 rgba(255,8,106,0.13), 0 6px 12px -2px #fbb6ce;
+                    background: #fff;
+                    font-family: inherit;
+                    font-size: 1.08rem;
+                    min-width: 320px;
+                    padding: 0.7rem 0.7rem 0.3rem 0.7rem;
+                }
+                .custom-datepicker-modal .react-datepicker__header {
+                    background: #FFF1F6;
+                    border-bottom: 1.5px solid #FFB6D5;
+                    border-radius: 1.25rem 1.25rem 0 0;
+                    padding-top: 1.1rem;
+                    padding-bottom: 0.7rem;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+                .custom-datepicker-modal .react-datepicker__current-month {
+                    color: #FF086A;
+                    font-weight: 700;
+                    font-size: 1.13rem;
+                    letter-spacing: 0.01em;
+                    margin-bottom: 0.2rem;
+                    text-align: center;
+                }
+                .custom-datepicker-modal .react-datepicker__day-names {
+                    display: flex;
+                    justify-content: center;
+                    gap: 0.5rem;
+                    margin-bottom: 0.1rem;
+                }
+                .custom-datepicker-modal .react-datepicker__day-name {
+                    color: #FF086A;
+                    font-weight: 600;
+                    font-size: 1.05rem;
+                    min-width: 2.1rem;
+                    text-align: center;
+                    padding: 0.1rem 0;
+                    border-radius: 0.4rem;
+                    background: none;
+                }
+                .custom-datepicker-modal .react-datepicker__week {
+                    display: flex;
+                    justify-content: center;
+                    gap: 0.5rem;
+                }
+                .custom-datepicker-modal .react-datepicker__day {
+                    min-width: 2.1rem;
+                    height: 2.1rem;
+                    line-height: 2.1rem;
+                    text-align: center;
+                    margin: 0 0.05rem;
+                    font-size: 1.05rem;
+                    border-radius: 0.7rem;
+                    transition: background 0.15s, color 0.15s;
+                }
+                .custom-datepicker-modal .react-datepicker__day--selected,
+                .custom-datepicker-modal .react-datepicker__day--keyboard-selected {
+                    background: linear-gradient(90deg, #FF086A 0%, #FB5D5D 100%);
+                    color: #fff !important;
+                    border-radius: 0.7rem;
+                    font-weight: 700;
+                    box-shadow: 0 2px 8px 0 #ffb6d5a0;
+                }
+                .custom-datepicker-modal .react-datepicker__day:hover {
+                    background: #FFD6E7 !important;
+                    color: #FF086A !important;
+                    border-radius: 0.7rem;
+                    font-weight: 700;
+                }
+                .custom-datepicker-modal .react-datepicker__navigation {
+                    top: 1.1rem;
+                    width: 2.4rem;
+                    height: 2.4rem;
+                    border-radius: 50%;
+                    background: #fff0;
+                    transition: background 0.2s;
+                }
+                .custom-datepicker-modal .react-datepicker__navigation:hover {
+                    background: #FFE4F1;
+                }
+                .custom-datepicker-modal .react-datepicker__navigation-icon::before {
+                    border-width: 0.3rem 0.3rem 0 0;
+                    border-color: #FF086A;
+                }
+                .custom-datepicker-modal .react-datepicker__navigation--previous {
+                    left: 1.1rem;
+                }
+                .custom-datepicker-modal .react-datepicker__navigation--next {
+                    right: 1.1rem;
+                }
+                .custom-datepicker-modal .react-datepicker__day--today {
+                    border-bottom: 2.5px solid #FF086A;
                 }
             `}</style>
         </div>

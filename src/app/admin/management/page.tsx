@@ -1,11 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import SearchIcon from "@/assets/icon/Vector.png"; 
 import UserAvatarIcon from "@/assets/icon/Name.png"; 
 import DropdownArrowIcon from "@/assets/icon/DropdownArrow.png";
-import PenIcon from "@/assets/icon/Pen.png";
 import UserInfoModal from '@/components/modal/UserInforModal'; 
 
 import { 
@@ -144,6 +143,22 @@ function UserDetailPanel({ user, onClose, onEdit, onDelete }: UserDetailPanelPro
                 ) : ( <p className="text-gray-500 italic">Chưa có sổ tiết kiệm nào.</p> )}
             </div>
             {/* Nút hành động */}
+            {user.vaiTro === "USER" && (
+                <div className="flex gap-4 mt-6 justify-center">
+                    <button
+                        onClick={() => onEdit(user)}
+                        className="px-5 py-2 rounded-lg bg-gradient-to-r from-blue-400 to-blue-600 text-white font-semibold shadow hover:scale-105 hover:shadow-lg transition-all duration-200"
+                    >
+                        Cập nhật
+                    </button>
+                    <button
+                        onClick={handleDeleteUser}
+                        className="px-5 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-red-500 text-white font-semibold shadow hover:scale-105 hover:shadow-lg transition-all duration-200"
+                    >
+                        Xóa người dùng
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

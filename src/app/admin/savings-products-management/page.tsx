@@ -119,7 +119,7 @@ export default function SavingsProductManagementPage() {
             <div className="w-full max-w-7xl mx-auto flex justify-end px-4 sm:px-6 lg:px-8 mt-4 mb-2">
                 <button
                     onClick={handleOpenAddModal}
-                    className="inline-flex items-center justify-center px-2 py-3 border border-transparent text-sm font-semibold rounded-lg shadow-md text-white bg-pink-500 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95"
+                    className="inline-flex items-center justify-center px-4 py-3 border-2 border-pink-500 text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-pink-500 via-pink-400 to-pink-500 hover:from-pink-600 hover:via-pink-500 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl active:scale-95"
                 >
                     <PlusIcon className="h-5 w-5 mr-2" />
                     Thêm Sản Phẩm Mới
@@ -154,23 +154,23 @@ export default function SavingsProductManagementPage() {
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-white shadow-xl rounded-lg overflow-hidden">
+                    <div className="bg-white shadow-xl rounded-lg overflow-hidden transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1">
                         <div className="overflow-x-auto custom-scrollbar">
                             <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-100">
+                                <thead className="bg-gray-50">
                                     <tr>
-                                        <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Tên Sản Phẩm</th>
-                                        <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Kỳ Hạn</th>
-                                        <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Lãi Suất</th>
-                                        <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Gửi Min</th>
-                                        <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Gửi Thêm Min</th>
-                                        <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Ngày Rút Min</th>
-                                        <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider sticky right-0 bg-gray-100 z-10">Hành Động</th>
+                                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider bg-pink-50">Tên Sản Phẩm</th>
+                                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider bg-pink-50">Kỳ Hạn</th>
+                                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider bg-pink-50">Lãi Suất</th>
+                                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider bg-pink-50">Gửi Min</th>
+                                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider bg-pink-50">Gửi Thêm Min</th>
+                                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider bg-pink-50">Ngày Rút Min</th>
+                                        <th className="px-6 py-3 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider sticky right-0 z-10 bg-pink-50">Hành Động</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {products.map((product) => (
-                                        <tr key={product.maSo} className="hover:bg-pink-50/50 transition-colors duration-150">
+                                        <tr key={product.maSo} className="transition-all duration-300 hover:bg-gray-50/80 hover:shadow-md">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 max-w-xs truncate" title={product.tenSo}>{product.tenSo}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{product.kyHan === 0 ? "Không kỳ hạn" : `${product.kyHan} tháng`}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{product.laiSuat.toFixed(2)}%</td>
@@ -178,10 +178,18 @@ export default function SavingsProductManagementPage() {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{product.tienGuiThemToiThieu.toLocaleString()}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{product.soNgayGuiToiThieuDeRut != null ? `${product.soNgayGuiToiThieuDeRut} ngày` : 'Không'}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2 sticky right-0 bg-inherit z-0">
-                                                <button onClick={() => handleOpenEditModal(product)} className="text-indigo-600 hover:text-indigo-800 p-1.5 rounded-full hover:bg-indigo-100 transition-colors" title="Sửa">
+                                                <button 
+                                                    onClick={() => handleOpenEditModal(product)} 
+                                                    className="text-indigo-600 hover:text-indigo-800 p-2 rounded-full hover:bg-indigo-100 transition-all duration-300 transform hover:scale-110 hover:shadow-md" 
+                                                    title="Sửa"
+                                                >
                                                     <PencilIcon className="h-5 w-5"/>
                                                 </button>
-                                                <button onClick={() => handleDeleteProduct(product.maSo, product.tenSo)} className="text-red-600 hover:text-red-800 p-1.5 rounded-full hover:bg-red-100 transition-colors" title="Xóa">
+                                                <button 
+                                                    onClick={() => handleDeleteProduct(product.maSo, product.tenSo)} 
+                                                    className="text-red-600 hover:text-red-800 p-2 rounded-full hover:bg-red-100 transition-all duration-300 transform hover:scale-110 hover:shadow-md" 
+                                                    title="Xóa"
+                                                >
                                                     <TrashIcon className="h-5 w-5"/>
                                                 </button>
                                             </td>
