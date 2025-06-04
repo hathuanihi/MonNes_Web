@@ -1,4 +1,4 @@
-import UserHeader from '@/components/UserHeader';
+import UserHeader from '@/components/header/UserHeader';
 import Image from 'next/image';
 import image from '@/assets/download.jpg'
 
@@ -26,12 +26,12 @@ export default function HomePage() {
                             Take control of your finances with effortless tools, smart insights, and personalized saving goals—designed to help you
                             make every dollar count.
                         </p>
-                        <div className="mt-20 text-2xl">
+                        <div className="mt-10 text-base flex justify-center"> {/* Căn giữa và thu nhỏ chiều ngang nút */}
                             <a
-                                href="/signin"
-                                className="font-bold px-6 py-3 max-w-md ml-45 bg-pink-500 text-white rounded-full hover:bg-pink-600"
+                                href="/user/dashboard"
+                                className="bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB] hover:from-pink-600 hover:to-pink-700 text-white font-bold px-3 py-2 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center gap-2 border-2 border-pink-300 w-[180px] justify-center"
                             >
-                                Revenue Dashboard
+                                THỐNG KÊ
                             </a>
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-import AdminHeader from '@/components/AdminHeader';
+import AdminHeader from '@/components/header/AdminHeader';
 import Image from 'next/image';
 import image from '@/assets/download.jpg'
 
@@ -6,7 +6,7 @@ export default function HomePage() {
     return (
         <div>
             <AdminHeader />
-            <main className="mt-15 bg-[#DAFFF6]">
+            <main className="bg-[#DAFFF6]">
                 <div className="max-w-5xl flex flex-row">
                     <div className="w-1/2 ml-0">
                         <Image

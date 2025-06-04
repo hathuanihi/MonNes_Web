@@ -2,171 +2,170 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import UserHeader from "@/components/UserHeader";
+import UserHeader from "@/components/header/UserHeader"; // Đảm bảo path đúng
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // Không cần thiết nếu chỉ link
+import { userGetProfile } from "@/services/api"; // API lấy thông tin
+import { PencilSquareIcon } from '@heroicons/react/24/outline'; // Icon cho nút sửa
 
-const userImage = "/images/user-placeholder.jpg";
-const flagImage = "/images/flag-vietnam.png";
-
-const DropdownArrowSvg = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 20 20"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="dropdown-icon"
-  >
-    <path
-      d="M6.175 7.1582L10 10.9749L13.825 7.1582L15 8.3332L10 13.3332L5 8.3332L6.175 7.1582Z"
-      fill="white"
-    />
-  </svg>
-);
-
-// Initial static data, can be used as a fallback or default
-const initialUserData = {
-  name: "Phạm Hà Anh Thư",
-  email: "email@gmail.com",
-  phoneNumber: "0945.000.123",
-  dob: "20/09/2005",
-  address: "TP. Hồ Chí Minh",
-  nationalId: "051305000123",
-  savings: [
-    { name: "My Savings 1", amount: "1,000,000 VNĐ" },
-    { name: "My Savings 2", amount: "10,000,000 VNĐ" },
-  ],
-  walletBalance: "11,000,000 VNĐ",
-};
+const userImagePlaceholder = "/images/user-placeholder.jpg"; // Thay thế bằng avatar thật nếu có
 
 export default function ProfilePage() {
-  const [openSavings, setOpenSavings] = useState<{ [key: string]: boolean }>({});
-  const [currentUserData, setCurrentUserData] = useState(initialUserData);
+    const [userData, setUserData] = useState<UserResponse | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    
+    const USER_HEADER_HEIGHT = '5rem'; // Chiều cao UserHeader
+    const PAGE_TITLE_BANNER_HEIGHT = '4.5rem'; // Chiều cao banner tiêu đề "THÔNG TIN CÁ NHÂN"
 
-  useEffect(() => {
-    const storedData = localStorage.getItem("updatedUserProfile");
-    if (storedData) {
-      try {
-        const updatedDataFromStorage = JSON.parse(storedData);
-        setCurrentUserData(prevData => ({
-            ...prevData,
-            ...updatedDataFromStorage,
-        }));
-        localStorage.removeItem("updatedUserProfile");
-      } catch (error) {
-        console.error("Failed to parse updated user data from localStorage:", error);
-        localStorage.removeItem("updatedUserProfile");
-      }
-    }
-  }, []);
+    // Định nghĩa fetchProfile ở ngoài để dùng được ở nhiều nơi
+    const fetchProfile = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const data = await userGetProfile();
+            setUserData(data);
+        } catch (err: any) {
+            setError(err.message || "Không thể tải thông tin hồ sơ.");
+            console.error("Lỗi fetch profile:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const toggleSavingsDetails = (index: number) => {
-    setOpenSavings((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
-  };
+    useEffect(() => {
+        fetchProfile();
+    }, []);
 
-  return (
-    <div className="min-h-screen bg-white">
-        <UserHeader />
+     // useEffect để cập nhật khi thông tin được sửa từ trang updateProfile
+     useEffect(() => {
+        const handleProfileUpdated = () => {
+            const storedData = localStorage.getItem("profileUpdateStatus");
+            if (storedData === "success") {
+                fetchProfile(); // Fetch lại dữ liệu
+                localStorage.removeItem("profileUpdateStatus");
+            }
+        };
+        window.addEventListener('storage', handleProfileUpdated); // Lắng nghe nếu tab khác update
+        handleProfileUpdated(); // Kiểm tra ngay khi mount nếu vừa redirect về
 
-    {/* Profile Header Banner */}
-        <div className="w-full sticky top-16 z-40">
-            <h1
-                className="w-full text-center text-3xl md:text-4xl font-bold text-white py-6 rounded-b-lg"
-                style={{
-                    background: "linear-gradient(90deg, #FF086A 0%, #FB5D5D 50%, #F19BDB 100%)",
-                }}
-            >
-                YOUR SAVINGS
-            </h1>
-        </div>
+        return () => {
+            window.removeEventListener('storage', handleProfileUpdated);
+        };
+    }, []);
 
 
-      {/* Content */}
-      <div className="flex p-10 pt-[120px]">
-        {/* Left Column - Gradient background, no big card */}
-        <div className="w-[400px] flex flex-col items-start h-full">
-          <div className="w-full h-full bg-gradient-to-br from-[#FF84B5] via-[#FDAEAE] to-[#F8CDED] flex flex-col items-center pt-8 pb-8 px-0">
-            {/* Avatar + Info */}
-            <Image
-              src={userImage}
-              alt="User"
-              width={90}
-              height={90}
-              className="rounded-full border-4 border-white shadow-md"
-            />
-            <h2 className="text-[18px] font-bold text-[#FF086A] mt-4">{currentUserData.name}</h2>
-            <p className="text-[14px] text-[#FF086A]">{currentUserData.email}</p>
-            <div className="flex items-center justify-center mt-2">
-              <p className="text-[14px] text-[#FF086A] mr-2">{currentUserData.phoneNumber}</p>
-              <Image src={flagImage} alt="Flag" width={20} height={20} />
-            </div>
-            {/* Savings */}
-            <div className="mt-6 w-full flex flex-col gap-3 px-4">
-              {currentUserData.savings.map((saving, index) => (
-                <div key={index} className="bg-[#FFD6E7] rounded-[10px] px-4 py-3 flex flex-col">
-                  <div className="flex items-center justify-between w-full">
-                    <span className="text-[14px] text-[#FF086A]">{saving.name}</span>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[14px] text-[#FF086A]">{saving.amount}</span>
-                      <button
-                        className="w-5 h-5 bg-[#FF086A] rounded-[5px] flex items-center justify-center ml-2"
-                        onClick={() => toggleSavingsDetails(index)}
-                      >
-                        <DropdownArrowSvg />
-                      </button>
-                    </div>
-                  </div>
-                  {openSavings[index] && (
-                    <div className="mt-2 text-[13px] text-[#FF086A]">
-                      Chi tiết sổ tiết kiệm {index + 1} đang cập nhật...
-                    </div>
-                  )}
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <UserHeader />
+                <div className="flex-1 flex justify-center items-center" style={{paddingTop: USER_HEADER_HEIGHT}}>
+                    <div role="status" className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-solid border-pink-500 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+                    <span className="ml-3 text-gray-600">Đang tải thông tin...</span>
                 </div>
-              ))}
-              {/* Wallet Balance */}
-              <div className="flex justify-between items-center bg-[#FFD6E7] rounded-[10px] px-4 py-3">
-                <span className="text-[14px] text-[#FF086A] font-medium">Wallet Balance</span>
-                <span className="text-[14px] text-[#FF086A]">{currentUserData.walletBalance}</span>
-              </div>
             </div>
-          </div>
-        </div>
+        );
+    }
 
-        {/* Right Column */}
-        <div className="flex-1 pl-10 flex flex-col">
-          {/* Update Button on Top Right */}
-          <div className="flex justify-end mb-4">
-            <Link href="/user/profile/updateprofile">
-              <button className="bg-[#FF086A] text-white text-[16px] font-semibold rounded-[20px] px-[20px] py-[8px]">
-                Update Profile
-              </button>
-            </Link>
-          </div>
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <UserHeader />
+                <div className="flex-1 flex justify-center items-center" style={{paddingTop: USER_HEADER_HEIGHT}}>
+                    <p className="text-lg text-red-500 bg-red-100 p-4 rounded-md shadow">{error}</p>
+                </div>
+            </div>
+        );
+    }
 
-          {/* User Info Detail */}
-          <div className="flex flex-col">
-            {[
-              { label: "Full Name", value: currentUserData.name },
-              { label: "Date of Birth", value: currentUserData.dob },
-              { label: "Address", value: currentUserData.address },
-              { label: "National ID Card", value: currentUserData.nationalId },
-              { label: "Phone Number", value: currentUserData.phoneNumber },
-              { label: "Email", value: currentUserData.email },
-            ].map((item, index) => (
-              <div
-                key={index}
-                className="flex justify-between items-center py-3 border-b border-black/20"
-              >
-                <span className="text-[20px] text-black/80">{item.label}</span>
-                <span className="text-[20px] text-black/60">{item.value}</span>
-              </div>
-            ))}
-          </div>
+    if (!userData) {
+         return (
+            <div className="min-h-screen bg-gray-50">
+                <UserHeader />
+                 <div className="flex-1 flex justify-center items-center" style={{paddingTop: USER_HEADER_HEIGHT}}>
+                     <p className="text-lg text-gray-500">Không tìm thấy thông tin người dùng.</p>
+                </div>
+            </div>
+        );
+    }
+
+    const profileDetails = [
+        { label: "Họ và tên", value: userData.tenND },
+        { label: "Ngày sinh", value: userData.ngaySinh ? new Date(userData.ngaySinh).toLocaleDateString('vi-VN') : null },
+        { label: "Địa chỉ", value: userData.diaChi },
+        { label: "Số CCCD/CMND", value: userData.cccd },
+        { label: "Số điện thoại", value: userData.sdt },
+        { label: "Email", value: userData.email },
+    ];
+
+    return (
+        <div className="min-h-screen flex flex-col bg-gray-100"> {/* Nền xám nhạt cho body */}
+            <UserHeader />
+
+            {/* Container cho toàn bộ nội dung bên dưới UserHeader */}
+            <div 
+                className="flex-1 flex flex-col overflow-y-auto"
+                style={{ paddingTop: USER_HEADER_HEIGHT }}
+            >
+                {/* Banner Tiêu đề Trang */}
+                <div className="w-full bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB] shadow-md flex-shrink-0">
+                    <div className="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
+                        <h1 className="text-2xl md:text-3xl font-bold text-white text-center">
+                            THÔNG TIN CÁ NHÂN
+                        </h1>
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div className="w-full max-w-5xl lg:max-w-6xl mx-auto flex flex-col lg:flex-row p-4 sm:p-6 lg:p-8 gap-6 lg:gap-8 items-start">
+                    {/* Cột Trái - Thông tin tóm tắt */}
+                    <div className="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow-xl flex flex-col items-center text-center sticky top-[calc(5rem+3.5rem)]"> {/* 5rem header + ~3.5rem banner title */}
+                        <Image
+                            src={userImagePlaceholder} // Thay bằng userData.avatarUrl nếu có
+                            alt="User Avatar"
+                            width={128} // To hơn một chút
+                            height={128}
+                            className="rounded-full border-4 border-pink-200 shadow-lg mb-5"
+                        />
+                        <h2 className="text-2xl font-bold text-pink-600">{userData.tenND || 'Chưa cập nhật'}</h2>
+                        <p className="text-md text-gray-600 mt-1">{userData.email}</p>
+                        {userData.sdt && <p className="text-sm text-gray-500 mt-1">SĐT: {userData.sdt}</p>}
+                        <span className={`mt-4 px-3 py-1 text-xs font-semibold rounded-full ${
+                            userData.vaiTro === "ADMIN" ? "bg-red-500 text-white" : "bg-green-500 text-white"
+                        }`}>
+                            {userData.vaiTro}
+                        </span>
+                    </div>
+
+                    {/* Cột Phải - Chi tiết thông tin và nút cập nhật */}
+                    <div className="w-full lg:w-2/3 bg-white p-6 sm:p-8 rounded-xl shadow-xl">
+                        <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+                            <h3 className="text-xl font-semibold text-gray-700">Thông tin chi tiết</h3>
+                            <Link href="/user/profile/updateprofile" legacyBehavior>
+                                <a className="inline-flex items-center bg-pink-500 hover:bg-pink-600 text-white text-sm font-semibold rounded-lg px-4 py-2 transition-colors shadow-md hover:shadow-lg active:scale-95">
+                                    <PencilSquareIcon className="h-5 w-5 mr-2" />
+                                    Chỉnh sửa
+                                </a>
+                            </Link>
+                        </div>
+
+                        <div className="space-y-4">
+                            {profileDetails.map((item) => (
+                                item.value ? ( // Chỉ hiển thị nếu có giá trị
+                                    <div
+                                        key={item.label}
+                                        className="flex flex-col sm:flex-row py-3 border-b border-gray-200 last:border-b-0"
+                                    >
+                                        <span className="w-full sm:w-2/5 md:w-1/3 text-sm font-medium text-gray-500">{item.label}:</span>
+                                        <span className="w-full sm:w-3/5 md:w-2/3 text-sm text-gray-800 mt-1 sm:mt-0">{item.value}</span>
+                                    </div>
+                                ) : null
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <style jsx global>{`/* ... css cho scrollbar nếu cần ... */`}</style>
         </div>
-      </div>
-    </div>
-  );
+    );
 }

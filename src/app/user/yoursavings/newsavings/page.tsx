@@ -1,191 +1,331 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import UserHeader from "@/components/UserHeader";
+import UserHeader from "@/components/header/UserHeader"; 
+import { 
+    userCreateSavingsAccount, 
+    userGetAllAvailableSavingsProducts 
+} from "@/services/api"; 
 
-const NewSavings = () => {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    savingsName: "My Savings",
-    userName: "Phạm Hà Anh Thư",
-    address: "TP. Hồ Chí Minh",
-    nationalId: "051305000123",
-    depositAmount: "5,000,000 VND",
-    depositTerm: "3 months",
-  });
+// Interface cho state của form
+interface NewSavingsFormState {
+    tenSoMo: string;
+    soTienGuiBanDau: string; 
+    soTietKiemSanPhamId: string; 
+}
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleTermSelect = (term: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      depositTerm: term,
-    }));
-    setDropdownOpen(false);
-  };
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.savingsName.trim()) newErrors.savingsName = "Savings name is required";
-    if (!formData.userName.trim()) newErrors.userName = "Name is required";
-    if (!formData.address.trim()) newErrors.address = "Address is required";
-    if (!formData.nationalId.trim()) newErrors.nationalId = "National ID is required";
-    if (!formData.depositAmount.trim()) newErrors.depositAmount = "Deposit amount is required";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateForm()) {
-      console.log("Form submitted:", formData);
-      router.push("/user/yoursavings");
-    }
-  };
-
-  const handleCancel = () => router.push("/user/yoursavings");
-
-  return (
-      <div className="w-full min-h-screen bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB] flex flex-col">
-        <div className="fixed top-0 left-0 right-0 z-50">
-          <UserHeader />
-        </div>
-
-      <div className="flex flex-col items-center pt-[150px] px-6 md:px-20">
-        <div className="w-full max-w-4xl bg-white rounded-3xl shadow-md p-8 md:p-12">
-          <h1 className="text-3xl md:text-5xl font-bold text-pink-600 mb-10">Create Your New Savings</h1>
-
-          <form onSubmit={handleSubmit} className="relative">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-10 text-lg">
-                <div className="font-medium text-black">Name of Savings</div>
-                <div className="font-medium text-black mt-[43px]">Your Name</div>
-                <div className="font-medium text-black mt-[54px]">Address</div>
-                <div className="font-medium text-black mt-[54px]">National ID Card</div>
-                <div className="font-medium text-black mt-[54px]">Deposit Amount</div>
-                <div className="font-medium text-black mt-[54px]">Deposit Term</div>
-              </div>
-
-              <div className="col-span-2 pl-6 md:pl-20">
-                <div className="space-y-6">
-                  <div>
-                    <input
-                      type="text"
-                      name="savingsName"
-                      value={formData.savingsName}
-                      onChange={handleChange}
-                      className="w-full text-lg text-black font-medium bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"                    />
-                    {errors.savingsName && <p className="text-red-500 text-sm mt-1 ml-4">{errors.savingsName}</p>}
-                  </div>
-
-                  <div className="mt-6">
-                    <input
-                      type="text"
-                      name="userName"
-                      value={formData.userName}
-                      onChange={handleChange}
-                      className="w-full text-lg text-black font-medium bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"                    />
-                    {errors.userName && <p className="text-red-500 text-sm mt-1 ml-4">{errors.userName}</p>}
-                  </div>
-
-                  <div className="mt-10">
-                    <input
-                      type="text"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleChange}
-                      className="w-full text-lg text-black font-medium bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"                    />
-                    {errors.address && <p className="text-red-500 text-sm mt-1 ml-4">{errors.address}</p>}
-                  </div>
-
-                  <div className="mt-10">
-                    <input
-                      type="text"
-                      name="nationalId"
-                      value={formData.nationalId}
-                      onChange={handleChange}
-                      className="w-full text-lg text-black font-medium bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"                    />
-                    {errors.nationalId && <p className="text-red-500 text-sm mt-1 ml-4">{errors.nationalId}</p>}
-                  </div>
-
-                  <div className="mt-10">
-                    <input
-                      type="text"
-                      name="depositAmount"
-                      value={formData.depositAmount}
-                      onChange={handleChange}
-                      className="w-full text-lg text-black font-medium bg-transparent border-b border-black/20 pb-2 focus:outline-none focus:border-pink-600 ml-4"                    />
-                    {errors.depositAmount && <p className="text-red-500 text-sm mt-1 ml-4">{errors.depositAmount}</p>}
-                  </div>
-
-                  <div className="mt-10 relative">
-                    <div
-                      className="w-full text-lg bg-transparent text-black border-b border-black/20 pb-2 flex justify-between items-center cursor-pointer ml-4"
-                      onClick={() => setDropdownOpen(!dropdownOpen)}
-                    >
-                      <span>{formData.depositTerm}</span>
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className={`transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
-                      >
-                        <path d="M6 9L12 15L18 9" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-
-                    {dropdownOpen && (
-                      <div className="absolute text-black z-10 w-full bg-white shadow-lg rounded-md mt-1 ml-4">
-                        {["3 months", "6 months", "9 months"].map((term) => (
-                          <div
-                            key={term}
-                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => handleTermSelect(term)}
-                          >
-                            {term}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-between mt-20">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="px-10 py-3 bg-gray-500 text-white font-bold rounded-xl text-xl hover:bg-gray-600 transition-colors"
-              >
-                CANCEL
-              </button>
-              <button
-                type="submit"
-                className="px-10 py-3 bg-pink-600 text-white font-bold rounded-xl text-xl hover:bg-pink-700 transition-colors"
-              >
-                CREATE
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
+// Giá trị khởi tạo cho form
+const initialFormState: NewSavingsFormState = {
+    tenSoMo: "", // Để trống cho người dùng tự đặt hoặc gợi ý "Sổ tiết kiệm của [Tên User]"
+    soTienGuiBanDau: "",
+    soTietKiemSanPhamId: "", 
 };
 
-export default NewSavings;
+export default function CreateNewSavingsPage() {
+    const router = useRouter();
+    const [formData, setFormData] = useState<NewSavingsFormState>(initialFormState);
+    const [availableProducts, setAvailableProducts] = useState<SoTietKiemDTO[]>([]);
+    const [selectedProductDetails, setSelectedProductDetails] = useState<{ kyHan: string | null, laiSuat: string | null }>({ kyHan: null, laiSuat: null });
+    
+    const [loadingProducts, setLoadingProducts] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [apiError, setApiError] = useState<string | null>(null);
+    const [showProfileUpdatePrompt, setShowProfileUpdatePrompt] = useState(false);
+
+    const USER_HEADER_HEIGHT_STYLE = '5rem'; // Giả sử UserHeader cao 5rem (h-20)
+    const PAGE_TITLE_BANNER_HEIGHT_STYLE = '4.5rem'; // Ước tính
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                setLoadingProducts(true);
+                setApiError(null);
+                const productsData = await userGetAllAvailableSavingsProducts();
+                setAvailableProducts(Array.isArray(productsData) ? productsData : []);
+            } catch (error: any) {
+                console.error("Lỗi khi tải danh sách sản phẩm sổ tiết kiệm:", error);
+                setApiError(error.message || "Không thể tải danh sách sản phẩm để tạo sổ.");
+            } finally {
+                setLoadingProducts(false);
+            }
+        };
+        fetchProducts();
+    }, []);
+
+    // Cập nhật thông tin kỳ hạn và lãi suất hiển thị khi người dùng chọn sản phẩm
+    useEffect(() => {
+        if (formData.soTietKiemSanPhamId) {
+            const selectedProd = availableProducts.find(p => p.maSo.toString() === formData.soTietKiemSanPhamId);
+            if (selectedProd) {
+                setSelectedProductDetails({
+                    kyHan: selectedProd.kyHan === 0 ? "Không kỳ hạn" : `${selectedProd.kyHan} tháng`,
+                    laiSuat: `${selectedProd.laiSuat.toFixed(2)}%/năm`
+                });
+            } else {
+                setSelectedProductDetails({ kyHan: null, laiSuat: null });
+            }
+        } else {
+            setSelectedProductDetails({ kyHan: null, laiSuat: null });
+        }
+    }, [formData.soTietKiemSanPhamId, availableProducts]);
+
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: '' }));
+        }
+        if (name === "soTietKiemSanPhamId" && value === "") { // Reset chi tiết nếu không chọn sản phẩm
+             setSelectedProductDetails({ kyHan: null, laiSuat: null });
+        }
+    };
+
+    const formatCurrencyOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        const numericValue = value.replace(/[^0-9]/g, '');
+        if (numericValue === '') {
+            setFormData(prev => ({ ...prev, [name]: '' }));
+            return;
+        }
+        const formattedValue = parseInt(numericValue, 10).toLocaleString('vi-VN');
+        setFormData(prev => ({ ...prev, [name]: formattedValue }));
+         if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: '' }));
+        }
+    };
+
+    const validateForm = (): boolean => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.tenSoMo.trim()) newErrors.tenSoMo = "Tên sổ tiết kiệm không được để trống.";
+        if (!formData.soTietKiemSanPhamId) newErrors.soTietKiemSanPhamId = "Vui lòng chọn một loại sổ tiết kiệm.";
+        
+        const depositAmountNum = parseFloat(formData.soTienGuiBanDau.replace(/[^0-9]/g,"")); // Bỏ dấu phẩy
+        if (isNaN(depositAmountNum) || depositAmountNum <= 0) {
+            newErrors.soTienGuiBanDau = "Số tiền gửi ban đầu không hợp lệ.";
+        } else {
+            const selectedProduct = availableProducts.find(p => p.maSo.toString() === formData.soTietKiemSanPhamId);
+            if (selectedProduct && depositAmountNum < selectedProduct.tienGuiBanDauToiThieu) {
+                newErrors.soTienGuiBanDau = `Số tiền gửi ban đầu tối thiểu cho sản phẩm này là ${selectedProduct.tienGuiBanDauToiThieu.toLocaleString()} VND.`;
+            }
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setApiError(null);
+        setShowProfileUpdatePrompt(false);
+        if (!validateForm()) {
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const requestData: MoSoTietKiemRequest = {
+                tenSoMo: formData.tenSoMo,
+                soTienGuiBanDau: parseFloat(formData.soTienGuiBanDau.replace(/[^0-9]/g,"")),
+                soTietKiemSanPhamId: parseInt(formData.soTietKiemSanPhamId, 10),
+            };
+
+            const response = await userCreateSavingsAccount(requestData);
+            console.log("Sổ tiết kiệm đã được tạo:", response);
+            // TODO: Hiển thị thông báo thành công (ví dụ: dùng toast)
+            router.push("/user/yoursavings"); 
+        } catch (error: any) {
+            // Xử lý lỗi thiếu thông tin cá nhân (có thể bị lỗi mã hóa Unicode)
+            const errMsg = (error.message || "").toLowerCase();
+            // Kiểm tra các từ khóa phổ biến, cả không dấu và có dấu
+            if (
+                errMsg.includes("cập nhật") ||
+                errMsg.includes("cap nhat") ||
+                errMsg.includes("update") ||
+                errMsg.includes("thong tin ca nhan") ||
+                errMsg.includes("thong tin cá nhân")
+            ) {
+                setShowProfileUpdatePrompt(true);
+                setApiError(null);
+            } else {
+                setApiError(error.message || "Tạo sổ tiết kiệm thất bại. Vui lòng thử lại.");
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleCancel = () => router.push("/user/yoursavings");
+
+    return (
+        <div className="min-h-screen flex flex-col bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB]">
+            <div className="fixed top-0 left-0 right-0 z-50">
+                <UserHeader />
+            </div>
+
+            <div 
+                className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pb-10"
+                style={{ paddingTop: `calc(${USER_HEADER_HEIGHT_STYLE} + 1rem)` }} // 1rem là khoảng cách thêm từ UserHeader
+            >
+                <div className="w-full max-w-2xl lg:max-w-3xl bg-white rounded-2xl shadow-xl p-6 sm:p-8 md:p-10">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-pink-600 mb-8 text-center">
+                        Mở Sổ Tiết Kiệm Mới
+                    </h1>
+
+                    {/* Thông báo lỗi đặc biệt khi thiếu thông tin cá nhân */}
+                    {apiError && apiError.includes("Vui lòng cập nhật đầy đủ thông tin cá nhân") ? (
+                        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-md mb-6 text-center shadow-sm text-sm flex flex-col items-center gap-2">
+                            <span>{apiError}</span>
+                            <button
+                                type="button"
+                                onClick={() => router.push("/user/profile/updateprofile")}
+                                className="mt-2 px-5 py-2 bg-yellow-400 text-yellow-900 font-semibold rounded hover:bg-yellow-500 transition-colors text-sm shadow"
+                            >
+                                Cập nhật hồ sơ cá nhân
+                            </button>
+                        </div>
+                    ) : apiError && (
+                        <p className="text-red-600 bg-red-100 p-3 rounded-md mb-6 text-center shadow-sm text-sm">{apiError}</p>
+                    )}
+
+                    {showProfileUpdatePrompt && (
+                        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-md mb-6 text-center shadow-sm animate-modalShow">
+                            <div className="font-semibold text-base mb-2">Bạn cần cập nhật đầy đủ thông tin cá nhân trước khi mở sổ tiết kiệm!</div>
+                            <div className="mb-3 text-sm">Vui lòng bổ sung họ tên, CCCD, địa chỉ trong hồ sơ cá nhân để sử dụng chức năng này.</div>
+                            <button
+                                onClick={() => router.push("/user/profile/updateprofile")}
+                                className="inline-block px-6 py-2 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors text-sm shadow-sm mt-1"
+                            >
+                                Cập nhật hồ sơ cá nhân
+                            </button>
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Tên sổ tiết kiệm (do người dùng đặt) */}
+                        <div>
+                            <label htmlFor="tenSoMo" className="block text-sm font-medium text-gray-700 mb-1">
+                                Tên sổ tiết kiệm <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="tenSoMo"
+                                id="tenSoMo"
+                                value={formData.tenSoMo}
+                                onChange={handleChange}
+                                placeholder="Ví dụ: Quỹ du lịch hè, Tiết kiệm cho con..."
+                                className={`w-full text-base text-gray-800 bg-white border ${errors.tenSoMo ? 'border-red-500' : 'border-gray-300'} rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500`}
+                            />
+                            {errors.tenSoMo && <p className="text-red-500 text-xs mt-1">{errors.tenSoMo}</p>}
+                        </div>
+
+                        {/* Chọn Loại Sản Phẩm Sổ Tiết Kiệm */}
+                        <div>
+                            <label htmlFor="soTietKiemSanPhamId" className="block text-sm font-medium text-gray-700 mb-1">
+                                Loại sổ tiết kiệm <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                name="soTietKiemSanPhamId"
+                                id="soTietKiemSanPhamId"
+                                value={formData.soTietKiemSanPhamId}
+                                onChange={handleChange}
+                                className={`w-full text-base text-gray-800 bg-white border ${errors.soTietKiemSanPhamId ? 'border-red-500' : 'border-gray-300'} rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500`}
+                                disabled={loadingProducts}
+                            >
+                                <option value="">-- {loadingProducts ? "Đang tải sản phẩm..." : "Chọn loại sổ"} --</option>
+                                {availableProducts.map(product => (
+                                    <option key={product.maSo} value={product.maSo.toString()}>
+                                        {product.tenSo}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.soTietKiemSanPhamId && <p className="text-red-500 text-xs mt-1">{errors.soTietKiemSanPhamId}</p>}
+                        </div>
+                        {/* Kỳ hạn và Lãi suất: luôn hiển thị, disabled, tự động đổi nội dung */}
+                        <div className="flex gap-4">
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Kỳ hạn</label>
+                                <input
+                                    type="text"
+                                    value={selectedProductDetails.kyHan ?? ''}
+                                    readOnly
+                                    disabled
+                                    className="w-full text-base text-gray-600 bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 cursor-not-allowed opacity-80"
+                                />
+                            </div>
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Lãi suất</label>
+                                <input
+                                    type="text"
+                                    value={selectedProductDetails.laiSuat ?? ''}
+                                    readOnly
+                                    disabled
+                                    className="w-full text-base text-gray-600 bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 cursor-not-allowed opacity-80"
+                                />
+                            </div>
+                        </div>
+                        
+                        {/* Số Tiền Gửi Ban Đầu */}
+                        <div>
+                            <label htmlFor="soTienGuiBanDau" className="block text-sm font-medium text-gray-700 mb-1">
+                                Số tiền gửi ban đầu (VND) <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="soTienGuiBanDau"
+                                id="soTienGuiBanDau"
+                                value={formData.soTienGuiBanDau}
+                                onChange={formatCurrencyOnChange} // Sử dụng hàm format
+                                placeholder="Nhập số tiền gửi"
+                                className={`w-full text-base text-gray-800 bg-white border ${errors.soTienGuiBanDau ? 'border-red-500' : 'border-gray-300'} rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500`}
+                            />
+                            {errors.soTienGuiBanDau && <p className="text-red-500 text-xs mt-1">{errors.soTienGuiBanDau}</p>}
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row justify-center gap-4 pt-6">
+                            <button
+                                type="button"
+                                onClick={handleCancel}
+                                className="w-full sm:w-auto px-8 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition-colors text-base shadow-sm"
+                            >
+                                HỦY BỎ
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting || loadingProducts}
+                                className="w-full sm:w-auto px-8 py-3 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors text-base shadow-sm disabled:opacity-70"
+                            >
+                                {isSubmitting ? 'ĐANG TẠO SỔ...' : 'TẠO SỔ MỚI'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+             <style jsx global>{`
+                @keyframes modalShow { /* Giữ lại nếu có modal nào khác dùng */
+                    from { opacity: 0; transform: scale(0.95) translateY(-20px); }
+                    to { opacity: 1; transform: scale(1) translateY(0); }
+                }
+                .animate-modalShow {
+                    animation: modalShow 0.3s ease-out forwards;
+                }
+                 .react-datepicker-popper {
+                    z-index: 150 !important; 
+                }
+                .react-datepicker { 
+                    font-family: inherit; 
+                    font-size: 0.9rem;
+                    border-radius: 0.5rem; 
+                    border: 1px solid #d1d5db; 
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+                }
+                /* ... (các style khác cho datepicker nếu cần) ... */
+            `}</style>
+        </div>
+    );
+};

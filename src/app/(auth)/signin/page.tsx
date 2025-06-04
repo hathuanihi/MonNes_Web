@@ -1,49 +1,60 @@
 'use client';
 
 import Image from "next/image";
-import Header from '@/components/Header_SignIn';
-import Logo from '@/assets/logo_monnes.png';
+import Header from '@/components/header/Header_SignIn'; 
+import Logo from '@/assets/logo_monnes.png';    
 import Link from "next/link";
-import eye_open from '@/assets/icon/eyeopen.png';
-import eye_off from '@/assets/icon/eyeoff.png';
-import { useState } from "react";
-import { loginAPI } from '@/services/api';
+import eye_open from '@/assets/icon/eyeopen.png'; 
+import eye_off from '@/assets/icon/eyeoff.png';   
+import { useState, FormEvent } from "react";
+import { loginAPI } from '@/services/api';       
 import { useRouter } from "next/navigation";
 
 export default function SignIn() {
     const [showPassword, setShowPassword] = useState(false);
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
     const [successMsg, setSuccessMsg] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setErrorMsg('');
         setSuccessMsg('');
 
-        // Validate input
-        if (!email || !password) {
-            setErrorMsg('Vui lòng nhập email và mật khẩu.');
+        if (!username || !password) {
+            setErrorMsg('Vui lòng nhập tên đăng nhập và mật khẩu.');
             return;
         }
 
         setIsLoading(true);
+        const loginData: LoginRequest = { username, password };
 
         try {
-            const response = await loginAPI(email, password);
-            // Lưu token vào localStorage
-            localStorage.setItem('token', response.token);
-            setSuccessMsg('Đăng nhập thành công!');
-            // Chuyển hướng theo vai trò
-            const redirectPath = response.user.vaiTro === 0 ? '/admin/home' : '/user/home';
+            const responseData: LoginResponseData = await loginAPI(loginData);
+            console.log('Login response data:', responseData);
+            setSuccessMsg(responseData.message || 'Đăng nhập thành công!');
+            
+            const roleFromServer = responseData.user.vaiTro;
+            const userId = responseData.user.id; 
+            console.log('Vai trò từ server:', roleFromServer);
+            console.log('UserID:', userId);
+
+            if (typeof window !== "undefined") {
+                localStorage.setItem('userId', userId.toString());
+                 // localStorage.setItem('userEmail', responseData.user.email || ''); 
+            }
+
+            const redirectPath = roleFromServer === "ADMIN" ? '/admin/home' : '/user/home';
             setTimeout(() => {
                 router.push(redirectPath);
             }, 1000);
+
         } catch (error: any) {
-            setErrorMsg(error.message || 'Đăng nhập thất bại!');
+            console.error('Login error:', error);
+            setErrorMsg(error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
         } finally {
             setIsLoading(false);
         }
@@ -52,78 +63,84 @@ export default function SignIn() {
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB]">
             <Header />
-            <main className="flex-1 flex justify-center items-start px-6 mt-30">
-                <div className="w-1/2 hidden md:flex flex-col justify-center items-center pt-20 pl-50">
-                    <Image src={Logo} alt="MonNes Large Logo" width={140} height={140} />
+            <main className="flex-1 flex flex-col md:flex-row justify-center items-start md:pt-16 lg:pt-20 px-4 sm:px-6 lg:px-8 py-8">
+                <div className="w-full md:w-1/2 flex flex-col justify-center items-center mb-10 md:mb-0 md:pr-8 lg:pr-12 mt-25">
+                    <Image src={Logo} alt="MonNes Large Logo" width={160} height={160} priority />
                 </div>
-                <div className="flex flex-col w-full max-w-8xl items-center">
-                    <div>
-                        <div className="w-[450px] bg-white p-8 rounded-lg shadow-md">
-                            <div className="flex border-b mb-6">
-                                <button className="w-1/2 text-center pb-2 border-b-2 border-pink-500 font-semibold text-pink-600">
-                                    Đăng nhập
-                                </button>
-                                <Link href="/signup" className="w-1/2 text-center pb-2">
-                                    <button className="text-gray-600 hover:text-pink-600">Đăng ký</button>
+                <div className="w-full md:w-1/2 flex flex-col items-center md:items-start md:justify-start md:pl-8 lg:pl-12 mt-10">
+                    <div className="w-full max-w-lg bg-white p-8 sm:p-10 rounded-xl shadow-2xl">
+                        <div className="flex border-b mb-6">
+                            <button className="w-1/2 text-center pb-3 border-b-2 border-pink-500 font-semibold text-pink-600 text-lg">
+                                Đăng nhập
+                            </button>
+                            <Link href="/signup" className="w-1/2 text-center pb-3">
+                                <div className="text-gray-500 hover:text-pink-600 font-medium text-lg cursor-pointer">Đăng ký</div>
+                            </Link>
+                        </div>
+                        <form className="space-y-6" onSubmit={handleSubmit}>
+                            <div>
+                                <label htmlFor="usernameInput" className="block mb-2 font-medium text-sm text-gray-700">
+                                    Email hoặc Số điện thoại
+                                </label>
+                                <input
+                                    id="usernameInput"
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    placeholder="Nhập email hoặc số điện thoại"
+                                    className="w-full border border-gray-300 rounded-md px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                    disabled={isLoading}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="passwordInput" className="block mb-2 font-medium text-sm text-gray-700">
+                                    Mật khẩu
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        id="passwordInput"
+                                        type={showPassword ? "text" : "password"}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="Nhập mật khẩu"
+                                        className="w-full border border-gray-300 rounded-md px-4 py-3 pr-12 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                        disabled={isLoading}
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute right-0 top-0 h-full px-4 flex items-center text-gray-500 hover:text-pink-600"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                                    >
+                                        <Image
+                                            src={showPassword ? eye_open : eye_off}
+                                            alt={showPassword ? "Hiện mật khẩu" : "Ẩn mật khẩu"}
+                                            width={20}
+                                            height={20}
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <Link
+                                    href={'/resetpassword'}
+                                    className="text-sm text-pink-600 hover:underline hover:text-pink-700 font-medium"
+                                >
+                                    Quên mật khẩu?
                                 </Link>
                             </div>
-                            <form className="space-y-4" onSubmit={handleSubmit}>
-                                <div>
-                                    <label className="block mb-1 font-medium text-sm text-gray-700">
-                                        Email
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="Email"
-                                        className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                        disabled={isLoading}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block mb-1 font-medium text-sm text-gray-700">
-                                        Mật khẩu
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type={showPassword ? "text" : "password"}
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            placeholder="Mật khẩu"
-                                            className="w-full border border-gray-300 rounded px-3 py-2 pr-10 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                            disabled={isLoading}
-                                        />
-                                        <div
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                        >
-                                            <Image
-                                                src={showPassword ? eye_open : eye_off}
-                                                alt={showPassword ? "Eye Open" : "Eye Off"}
-                                                width={20}
-                                                height={20}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <Link
-                                    href={'/resetpassword/emailverified'}
-                                    className="text-right text-sm text-pink-600 hover:underline cursor-pointer"
-                                >
-                                    <div>Quên mật khẩu?</div>
-                                </Link>
-                                <button
-                                    type="submit"
-                                    className="mt-4 w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 rounded disabled:bg-gray-400"
-                                    disabled={isLoading}
-                                >
-                                    {isLoading ? 'Đang đăng nhập...' : 'ĐĂNG NHẬP'}
-                                </button>
-                                {errorMsg && <p className="text-red-500 text-sm mt-2">{errorMsg}</p>}
-                                {successMsg && <p className="text-green-600 text-sm mt-2">{successMsg}</p>}
-                            </form>
-                        </div>
+                            <button
+                                type="submit"
+                                className="w-full bg-pink-500 hover:bg-pink-600 active:bg-pink-700 text-white font-semibold py-3 rounded-md disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-150"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Đang đăng nhập...' : 'ĐĂNG NHẬP'}
+                            </button>
+                            {errorMsg && <p className="text-red-600 text-sm mt-3 text-center">{errorMsg}</p>}
+                            {successMsg && <p className="text-green-600 text-sm mt-3 text-center">{successMsg}</p>}
+                        </form>
                     </div>
                 </div>
             </main>
