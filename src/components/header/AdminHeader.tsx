@@ -31,11 +31,11 @@ const AdminHeader = () => {
     };
 
     const navLinks = [
-        { href: "/admin/home", label: "Home" },
-        { href: "/admin/management", label: "User Management" }, // Rõ ràng hơn
-        { href: "/admin/savings-products-management", label: "Product Types" }, // Link tới trang quản lý loại sổ
-        { href: "/admin/dashboard", label: "Dashboard" }, // Trang thống kê doanh thu
-        { href: "/admin/transactions", label: "Transactions" }, // Trang quản lý giao dịch
+        { href: "/admin/home", label: "Trang Chủ" },
+        { href: "/admin/management", label: "Người Dùng" }, // Rõ ràng hơn
+        { href: "/admin/savings-products-management", label: "Loại Sổ" }, // Link tới trang quản lý loại sổ
+        { href: "/admin/dashboard", label: "Thống Kê" }, // Trang thống kê doanh thu
+        { href: "/admin/transactions", label: "Giao Dịch" }, // Trang quản lý giao dịch
     ];
 
     return (

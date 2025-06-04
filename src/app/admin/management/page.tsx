@@ -75,13 +75,15 @@ function UserListItem({ user, isSelected, onSelect }: UserListItemProps) {
                 className="mr-3 rounded-full bg-gray-200 p-0.5 object-cover flex-shrink-0" 
             />
             <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm text-gray-800 truncate">{user.tenND || user.email || `User ID: ${user.maND}`}</p>
+                <p className="font-semibold text-sm text-gray-800 truncate">{user.tenND || 'Người dùng'}</p>
                 <p className="text-xs text-gray-500 truncate">{user.email || "Chưa có email"}</p>
             </div>
-            <span className={`ml-auto flex-shrink-0 pl-3 px-2 py-0.5 text-xs font-semibold rounded-full ${
-                user.vaiTro === "ADMIN" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
-            }`}>
-                {user.vaiTro}
+            <span className={`ml-auto flex-shrink-0 pl-3`}>
+              <span className={`flex items-center justify-center px-2 py-0.5 text-xs font-semibold rounded-full ${
+                    user.vaiTro === "ADMIN" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+                }`} style={{ minWidth: 60, textAlign: 'center' }}>
+                    {user.vaiTro}
+              </span>
             </span>
         </div>
     );
@@ -102,7 +104,9 @@ function UserDetailPanel({ user, onClose, onEdit, onDelete }: UserDetailPanelPro
                 <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
             </div>
             <div className="flex flex-col items-center mb-6 flex-shrink-0">
-                <Image src={UserAvatarIcon} alt="User Avatar" width={100} height={100} className="rounded-full mb-3 border-2 border-pink-300 shadow-sm"/>
+                <div className="w-24 h-24 rounded-full bg-pink-300 flex items-center justify-center mb-3">
+                            <span className="text-6xl text-white">👤</span>
+                </div>
                 <h3 className="text-xl font-bold text-gray-800">{user.tenND || "Chưa cập nhật tên"}</h3>
                 <p className="text-sm text-gray-500">{user.email}</p>
                 <p className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 ${user.vaiTro === "ADMIN" ? "bg-red-200 text-red-800" : "bg-green-200 text-green-800"}`}>{user.vaiTro}</p>
@@ -140,9 +144,6 @@ function UserDetailPanel({ user, onClose, onEdit, onDelete }: UserDetailPanelPro
                 ) : ( <p className="text-gray-500 italic">Chưa có sổ tiết kiệm nào.</p> )}
             </div>
             {/* Nút hành động */}
-            <div className="mt-auto pt-4 border-t border-gray-200 flex space-x-3 flex-shrink-0">
-                <button onClick={() => onEdit(user)} className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2.5 px-4 rounded-md transition-colors shadow-sm">Sửa thông tin</button>
-            </div>
         </div>
     );
 }
@@ -227,7 +228,9 @@ export default function UserManagementPage() {
     
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
-            <AdminHeader />
+            <div className="fixed top-0 left-0 right-0 z-[100]">
+                <AdminHeader />
+            </div>
             {/* Banner Tiêu đề Trang - KHÔNG sticky, cho phép cuộn */}
             <div className="w-full" style={{marginTop: '5rem'}}>
                 <h1 

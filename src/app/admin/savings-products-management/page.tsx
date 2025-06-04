@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, FormEvent, ChangeEvent } from 'react';
-// AdminHeader sẽ được render bởi AdminLayout.tsx
+import AdminHeader from '@/components/header/AdminHeader';
 import SavingsProductFormModal from '@/components/modal/SavingsProductFormModal'; 
 import { 
     adminGetAllSavingsProducts, 
@@ -72,7 +72,7 @@ export default function SavingsProductManagementPage() {
         } finally { setFormSubmitting(false); }
      };
     const handleDeleteProduct = async (productId: number, productName: string) => { 
-        if (window.confirm(`Bạn có chắc muốn xóa sản phẩm "${productName}" (ID: ${productId})?`)) {
+        if (window.confirm(`Bạn có chắc muốn xóa sản phẩm "${productName}"?`)) {
             try {
                 setLoading(true); await adminDeleteSavingsProduct(productId); await fetchData(); 
             } catch (err: any) {
@@ -85,15 +85,41 @@ export default function SavingsProductManagementPage() {
     return (
         // Thẻ div này sẽ là con của div có style paddingTop trong AdminLayout.tsx
         // Nó sẽ không có AdminHeader ở đây
-        <>
-            {/* Tiêu đề trang và nút Thêm Mới sẽ nằm ở đây, ngay đầu phần nội dung */}
-            <div className="w-full bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB] shadow-md max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-3 border-b border-gray-200 bg-gray-50 relative flex items-center min-h-[56px]">
+        // <>
+        //     {/* Tiêu đề trang và nút Thêm Mới sẽ nằm ở đây, ngay đầu phần nội dung */}
+
+        <div className="min-h-screen flex flex-col bg-gray-50">
+            <div className="fixed top-0 left-0 right-0 z-[100]">
+                <AdminHeader />
+            </div>
+
+            {/* <div className="w-full bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB] shadow-md max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-3 border-b border-gray-200 bg-gray-50 relative flex items-center min-h-[56px]">
                 <h1 className="absolute left-1/2 -translate-x-1/2 text-2xl font-bold text-white whitespace-nowrap">
                     Quản Lý Sản Phẩm Sổ Tiết Kiệm
                 </h1>
                 <button
                     onClick={handleOpenAddModal}
                     className="ml-auto inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-semibold rounded-lg shadow-md text-white bg-pink-500 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95"
+                >
+                    <PlusIcon className="h-5 w-5 mr-2" />
+                    Thêm Sản Phẩm Mới
+                </button>
+            </div> */}
+
+            <div className="w-full" style={{marginTop: '5rem'}}>
+                <h1 
+                    className="w-full text-center text-3xl md:text-4xl font-bold text-white py-5 md:py-6 rounded-b-2xl shadow-lg"
+                    style={{
+                        background: "linear-gradient(90deg, #FF086A 0%, #FB5D5D 50%, #F19BDB 100%)",
+                    }}
+                >
+                    QUẢN LÝ SẢN PHẨM SỔ TIẾT KIỆM
+                </h1>
+            </div>
+            <div className="w-full max-w-7xl mx-auto flex justify-end px-4 sm:px-6 lg:px-8 mt-4 mb-2">
+                <button
+                    onClick={handleOpenAddModal}
+                    className="inline-flex items-center justify-center px-2 py-3 border border-transparent text-sm font-semibold rounded-lg shadow-md text-white bg-pink-500 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95"
                 >
                     <PlusIcon className="h-5 w-5 mr-2" />
                     Thêm Sản Phẩm Mới
@@ -133,7 +159,6 @@ export default function SavingsProductManagementPage() {
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-100">
                                     <tr>
-                                        <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
                                         <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Tên Sản Phẩm</th>
                                         <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Kỳ Hạn</th>
                                         <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Lãi Suất</th>
@@ -146,7 +171,6 @@ export default function SavingsProductManagementPage() {
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {products.map((product) => (
                                         <tr key={product.maSo} className="hover:bg-pink-50/50 transition-colors duration-150">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">{product.maSo}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 max-w-xs truncate" title={product.tenSo}>{product.tenSo}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{product.kyHan === 0 ? "Không kỳ hạn" : `${product.kyHan} tháng`}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{product.laiSuat.toFixed(2)}%</td>
@@ -197,6 +221,6 @@ export default function SavingsProductManagementPage() {
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
                 .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #d1d5db #f3f4f6; }
             `}</style>
-        </> 
+        </div> 
     );
 }
