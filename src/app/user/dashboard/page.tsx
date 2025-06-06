@@ -23,19 +23,6 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-// ... (Các type definition không thay đổi)
-type GiaoDichDTO = {
-    idGiaoDich: number;
-    loaiGiaoDich: "DEPOSIT" | "WITHDRAW" | "INTEREST_ACCRUAL" | "INTEREST_PAYMENT";
-    soTien: number;
-    ngayGD: string; // "YYYY-MM-DD"
-    maKhachHang?: number;
-    tenKhachHang?: string | null;
-    maSoMoTietKiem?: number;
-    tenSoMoTietKiem?: string | null;
-    tenSanPhamSoTietKiem?: string | null;
-};
-
 type AccountSummary = {
   tongSoDuTrongTatCaSo: number;
   tongTienDaNapTuTruocDenNay: number;
@@ -70,7 +57,6 @@ export default function UserDashboard() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // ... (useEffect và các hàm khác giữ nguyên)
   useEffect(() => {
     const fetchData = async () => {
         try {
@@ -97,10 +83,14 @@ export default function UserDashboard() {
 
   const getTransactionDetails = (type: GiaoDichDTO['loaiGiaoDich']) => {
     switch (type) {
-      case "DEPOSIT": return { text: "Gửi tiền", badgeClass: "bg-green-100 text-green-800", amountClass: "text-green-600" };
-      case "WITHDRAW": return { text: "Rút tiền", badgeClass: "bg-red-100 text-red-800", amountClass: "text-red-600" };
-      case "INTEREST_PAYMENT": return { text: "Trả lãi", badgeClass: "bg-blue-100 text-blue-800", amountClass: "text-blue-600" };
-      default: return { text: type, badgeClass: "bg-gray-100 text-gray-800", amountClass: "text-gray-600" };
+      case "DEPOSIT": 
+        return { text: "Gửi tiền", badgeClass: "bg-green-100 text-green-800", amountClass: "text-green-600" };
+      case "WITHDRAW": 
+        return { text: "Rút tiền", badgeClass: "bg-red-100 text-red-800", amountClass: "text-red-600" };
+      case "INTEREST_ACCRUAL": // Thêm mới
+        return { text: "Ghi nhận lãi", badgeClass: "bg-blue-100 text-blue-800", amountClass: "text-blue-600" };
+      default: 
+        return { text: type, badgeClass: "bg-gray-100 text-gray-800", amountClass: "text-gray-600" };
     }
   };
   const handleToggleSavings = (key: string) => { setOpenSavings((prev) => ({ ...prev, [key]: !prev[key] })); };
@@ -110,21 +100,27 @@ export default function UserDashboard() {
 
   if (recentTransactions.length > 0 && overviewData) {
     const sorted = [...recentTransactions].sort((a, b) => new Date(a.ngayGD).getTime() - new Date(b.ngayGD).getTime());
+    
+    // CẬP NHẬT 3: Thêm "INTEREST_ACCRUAL" vào logic tính toán
     const netChange = sorted.reduce((acc, tx) => {
-        if (tx.loaiGiaoDich === 'DEPOSIT' || tx.loaiGiaoDich === 'INTEREST_PAYMENT') return acc + tx.soTien;
+        if (tx.loaiGiaoDich === 'DEPOSIT' || tx.loaiGiaoDich === 'INTEREST_ACCRUAL') return acc + tx.soTien;
         if (tx.loaiGiaoDich === 'WITHDRAW') return acc - tx.soTien;
         return acc;
     }, 0);
+
     let currentBalance = overviewData.accountSummary.tongSoDuTrongTatCaSo - netChange;
     const dateMap: { [date: string]: number } = {};
     const labelsSet = new Set<string>();
+
     sorted.forEach(tx => {
         const date = new Date(tx.ngayGD).toLocaleDateString('vi-VN');
-        if (tx.loaiGiaoDich === 'DEPOSIT' || tx.loaiGiaoDich === 'INTEREST_PAYMENT') currentBalance += tx.soTien;
+        // CẬP NHẬT 3: Thêm "INTEREST_ACCRUAL" vào logic tính toán
+        if (tx.loaiGiaoDich === 'DEPOSIT' || tx.loaiGiaoDich === 'INTEREST_ACCRUAL') currentBalance += tx.soTien;
         else if (tx.loaiGiaoDich === 'WITHDRAW') currentBalance -= tx.soTien;
         dateMap[date] = currentBalance;
         labelsSet.add(date);
     });
+
     const labels = Array.from(labelsSet).sort((a, b) => {
         const [dayA, monthA, yearA] = a.split('/').map(Number);
         const [dayB, monthB, yearB] = b.split('/').map(Number);
@@ -139,27 +135,23 @@ export default function UserDashboard() {
           label: 'Tổng số dư',
           data,
           fill: true,
-          // NÂNG CẤP: Tạo gradient đa sắc cho đường kẻ
           borderColor: (context) => {
             const chart = context.chart;
             const { ctx, chartArea } = chart;
-            if (!chartArea) return undefined; // Fallback
-            // Gradient theo chiều ngang
+            if (!chartArea) return undefined;
             const gradient = ctx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
-            gradient.addColorStop(0, 'rgba(142, 45, 226, 1)');   // Màu Tím
-            gradient.addColorStop(0.5, 'rgba(255, 8, 106, 1)');   // Màu Hồng (màu chính)
-            gradient.addColorStop(1, 'rgba(251, 93, 93, 1)');   // Màu Cam đỏ
+            gradient.addColorStop(0, 'rgba(142, 45, 226, 1)');
+            gradient.addColorStop(0.5, 'rgba(255, 8, 106, 1)');
+            gradient.addColorStop(1, 'rgba(251, 93, 93, 1)');
             return gradient;
           },
-          // NÂNG CẤP: Tinh chỉnh gradient cho vùng nền
           backgroundColor: (context) => {
             const chart = context.chart;
             const {ctx: c, chartArea} = chart;
-            if (!chartArea) return 'rgba(255,8,106,0.03)';
-            // Gradient theo chiều dọc
+            if (!chartArea) return undefined;
             const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            gradient.addColorStop(0, 'rgba(255, 8, 106, 0.3)');  // Màu hồng ở trên
-            gradient.addColorStop(1, 'rgba(251, 93, 93, 0.01)'); // Màu cam trong suốt ở dưới
+            gradient.addColorStop(0, 'rgba(255, 8, 106, 0.3)');
+            gradient.addColorStop(1, 'rgba(251, 93, 93, 0.01)');
             return gradient;
           },
           tension: 0.4,
@@ -168,7 +160,7 @@ export default function UserDashboard() {
           pointBackgroundColor: '#FF086A',
           pointBorderColor: '#fff',
           pointHoverBorderWidth: 3,
-          borderWidth: 3.5, // Tăng độ dày đường kẻ một chút
+          borderWidth: 3.5,
         },
       ],
     };
@@ -190,8 +182,7 @@ export default function UserDashboard() {
         display: true,
         text: 'BIẾN ĐỘNG SỐ DƯ',
         color: '#374151',
-        font: { size: 18, weight: 'bold', family: 'Inter, sans-serif' }, // Tăng cỡ chữ
-        // NÂNG CẤP: Căn giữa tiêu đề
+        font: { size: 18, weight: 'bold', family: 'Inter, sans-serif' },
         align: 'center',
         padding: { top: 5, bottom: 25 },
       },
@@ -254,21 +245,21 @@ export default function UserDashboard() {
 
       <div className="w-full" style={{marginTop: '5rem'}}>
           <div className="relative flex items-center justify-center">
-              <h1
-                className="w-full text-center text-3xl md:text-4xl font-bold text-white py-5 md:py-6 rounded-b-2xl"
-                style={{
+            <h1
+              className="w-full text-center text-3xl md:text-4xl font-bold text-white py-5 md:py-6 rounded-b-2xl"
+              style={{
                 background: "linear-gradient(90deg, #FF086A 0%, #FB5D5D 50%, #F19BDB 100%)",
               }}
-              >
-                {showRevenue ? "TỔNG QUAN SỔ TIẾT KIỆM" : "GIAO DỊCH GẦN ĐÂY"}
-              </h1>
-              <button
-                className="absolute right-6 top-1/2 -translate-y-1/2 text-white text-2xl md:text-3xl hover:text-pink-200 focus:outline-none"
-                onClick={() => setShowQuickPanel(true)}
-                aria-label="Mở bảng thông tin nhanh"
-              >
+            >
+              {showRevenue ? "TỔNG QUAN SỔ TIẾT KIỆM" : "GIAO DỊCH GẦN ĐÂY"}
+            </h1>
+            <button
+              className="absolute right-6 top-1/2 -translate-y-1/2 text-white text-2xl md:text-3xl hover:text-pink-200 focus:outline-none"
+              onClick={() => setShowQuickPanel(true)}
+              aria-label="Mở bảng thông tin nhanh"
+            >
               <FaBars />
-              </button>
+            </button>
           </div>
       </div>
       
