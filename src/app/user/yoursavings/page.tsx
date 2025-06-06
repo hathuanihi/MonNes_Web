@@ -145,7 +145,14 @@ export default function YourSavingsPage() {
                                                     <div className="flex flex-col items-end text-right gap-0.5">
                                                         <p className="text-base md:text-lg font-bold text-gray-800">{(saving.soDuHienTai && saving.soDuHienTai > 0 ? saving.soDuHienTai : 0).toLocaleString()} VND</p>
                                                         <p className="text-xs text-gray-400">Lãi suất: {saving.laiSuatApDungChoSoNay?.toFixed(2)}%</p>
-                                                        <p className={`text-xs font-semibold mt-1 ${saving.trangThaiMoSo === 'DANG_HOAT_DONG' ? 'text-green-600' : 'text-gray-400'}`}>{saving.trangThaiMoSo === 'DANG_HOAT_DONG' ? 'Đang mở' : 'Đã đóng'}</p>
+                                                        <p className={`text-xs font-semibold mt-1 
+                                                            ${saving.trangThaiMoSo === 'DANG_HOAT_DONG' ? 'text-green-600' : 
+                                                                saving.trangThaiMoSo === 'DA_DAO_HAN' ? 'text-orange-500' : 
+                                                                'text-gray-400'}`}>
+                                                            {saving.trangThaiMoSo === 'DANG_HOAT_DONG' ? 'Đang mở' : 
+                                                            saving.trangThaiMoSo === 'DA_DAO_HAN' ? 'Đã đáo hạn' : 
+                                                            'Đã đóng'}
+                                                            </p>
                                                     </div>
                                                     <div className="flex items-center"><ChevronRightIcon /></div>
                                                 </div>

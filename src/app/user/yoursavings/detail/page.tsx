@@ -123,13 +123,18 @@ export default function YourSavingsDetailPage() { // Đổi tên component cho r
                                 </div>
                                 <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 py-3">
                                     <label className="w-full sm:w-2/5 md:w-1/3 text-base text-gray-700 font-medium mb-1 sm:mb-0">Trạng thái</label>
-                                    <div className="w-full sm:w-3/5 md:w-2/3 text-base text-gray-800 bg-gray-100 rounded-md px-3 py-2">
-                                        {savingsDetail.trangThaiMoSo === "DANG_HOAT_DONG" ? "Đang hoạt động" : "Đã đóng"}
+                                    <div className={`w-full sm:w-3/5 md:w-2/3 text-base rounded-md px-3 py-2 
+                                        ${savingsDetail.trangThaiMoSo === 'DANG_HOAT_DONG' ? 'text-green-600 bg-green-50' : 
+                                          savingsDetail.trangThaiMoSo === 'DA_DAO_HAN' ? 'text-orange-500 bg-orange-50' : 
+                                          'text-gray-800 bg-gray-100'}`}>
+                                        {savingsDetail.trangThaiMoSo === 'DANG_HOAT_DONG' ? 'Đang hoạt động' : 
+                                         savingsDetail.trangThaiMoSo === 'DA_DAO_HAN' ? 'Đã đáo hạn' : 
+                                         'Đã đóng'}
                                     </div>
                                 </div>
                             </form>
                             <div className="flex flex-col sm:flex-row gap-4 mt-8 justify-center items-center">
-                                {savingsDetail.trangThaiMoSo === "DANG_HOAT_DONG" ? (
+                                {savingsDetail.trangThaiMoSo === "DANG_HOAT_DONG" || "DA_DAO_HAN"? (
                                     <>
                                         <button
                                             type="button"

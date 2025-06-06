@@ -123,7 +123,7 @@ declare global {
         ngayMo: string; // "YYYY-MM-DD"
         ngayDaoHan?: string | null; // "YYYY-MM-DD"
         soDuHienTai: number;
-        trangThaiMoSo: "DANG_HOAT_DONG" | "DA_DONG";
+        trangThaiMoSo: "DANG_HOAT_DONG" | "DA_DONG" | "DA_DAO_HAN";
         tenNguoiDung?: string | null;
         maSanPhamSoTietKiem?: number;
         tenSanPhamSoTietKiem?: string | null;
@@ -161,7 +161,7 @@ declare global {
 
     interface GiaoDichDTO {
         idGiaoDich: number;
-        loaiGiaoDich: "Gửi tiền" | "Rút tiền";
+        loaiGiaoDich: "DEPOSIT" | "WITHDRAW" | "INTEREST_ACCRUAL" | "INTEREST_PAYMENT";
         soTien: number;
         ngayGD: string; // "YYYY-MM-DD"
         maKhachHang?: number;
@@ -169,6 +169,24 @@ declare global {
         maSoMoTietKiem?: number;
         tenSoMoTietKiem?: string | null;
         tenSanPhamSoTietKiem?: string | null;
+    }
+
+    export type DashboardOverviewDTO = {
+        recentTransactions: GiaoDichDTO[];
+        accountSummary: {
+            tongSoDuTrongTatCaSo: number;
+            tongTienDaNapTuTruocDenNay: number;
+            tongTienDaRutTuTruocDenNay: number;
+        };
+        activeSavingsAccounts: Array<{
+            maMoSo: number;
+            tenSoMo: string;
+            soDuHienTai: number;
+            tenNguoiDung: string;
+            tenSanPhamSoTietKiem: string;
+            kyHanSanPham: number;
+            laiSuatApDungChoSoNay: number;
+        }>;
     }
 
     // ============================

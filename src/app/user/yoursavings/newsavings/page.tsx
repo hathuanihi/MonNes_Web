@@ -140,9 +140,18 @@ export default function CreateNewSavingsPage() {
             // TODO: Hiển thị thông báo thành công (ví dụ: dùng toast)
             router.push("/user/yoursavings"); 
         } catch (error: any) {
-            // Xử lý lỗi thiếu thông tin cá nhân (có thể bị lỗi mã hóa Unicode)
             const errMsg = (error.message || "").toLowerCase();
-            // Kiểm tra các từ khóa phổ biến, cả không dấu và có dấu
+            const statusCode = error.response?.status;
+            
+            if (
+                statusCode === 401 &&
+                error.message?.includes("Full authentication is required to access this resource")
+            ) {
+                setShowProfileUpdatePrompt(true);
+                setApiError("Bạn cần phải cập nhật đầy đủ thông tin cá nhân trước khi mở sổ tiết kiệm.");
+                return;
+            }
+
             if (
                 errMsg.includes("cập nhật") ||
                 errMsg.includes("cap nhat") ||
