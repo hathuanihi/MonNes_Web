@@ -7,6 +7,7 @@ import DatePicker, { registerLocale, setDefaultLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { userGetProfile , adminUpdateUserByAdmin } from "@/services/api";
 import { vi } from 'date-fns/locale/vi'; 
+import ProtectedRoute, { Role } from "@/components/ProtectedRoute";
 registerLocale('vi', vi);
 setDefaultLocale('vi');
 
@@ -154,6 +155,7 @@ export default function UpdateAdminProfilePage() {
     };
 
     return (
+        <ProtectedRoute requiredRole={Role.ADMIN}>
         <div className="min-h-screen flex flex-col bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB]">
             <div className="fixed top-0 left-0 right-0 z-[100]">
                 <AdminHeader />
@@ -280,5 +282,6 @@ export default function UpdateAdminProfilePage() {
                 .react-datepicker__navigation:hover *::before { border-color: #9D174D; }
             `}</style>
         </div>
+        </ProtectedRoute>
     );
 }

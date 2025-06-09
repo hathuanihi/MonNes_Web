@@ -9,6 +9,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { vi } from 'date-fns/locale';
 import { format } from 'date-fns';
+import ProtectedRoute, { Role } from '@/components/ProtectedRoute';
 
 const getTransactionDetails = (type: GiaoDichDTO['loaiGiaoDich']) => {
     switch (type) {
@@ -118,6 +119,7 @@ export default function AllTransactionsPage() {
     }, [recentTransactions, dateFilter, searchTerm]);
 
     return (
+        <ProtectedRoute requiredRole={Role.ADMIN}>
         <div className="min-h-screen flex flex-col bg-gray-50">
             <div className="fixed top-0 left-0 right-0 z-[100]">
                 <AdminHeader />
@@ -206,5 +208,6 @@ export default function AllTransactionsPage() {
                 .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #d1d5db #f9fafb; }
             `}</style>
         </div>
+        </ProtectedRoute>
     );
 }

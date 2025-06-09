@@ -6,6 +6,7 @@ import AdminHeader from "@/components/header/AdminHeader";
 import Link from "next/link";
 import { userGetProfile } from "@/services/api";
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import ProtectedRoute, { Role } from "@/components/ProtectedRoute";
 
 export default function AdminProfilePage() {
     const [userData, setUserData] = useState<UserResponse | null>(null);
@@ -77,6 +78,7 @@ export default function AdminProfilePage() {
     ];
 
     return (
+        <ProtectedRoute requiredRole={Role.ADMIN}>
         <div className="min-h-screen flex flex-col bg-gray-100">
             <div className="fixed top-0 left-0 right-0 z-[100]">
                 <AdminHeader />
@@ -149,5 +151,6 @@ export default function AdminProfilePage() {
                 .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #d1d5db #f3f4f6; }
             `}</style>
         </div>
+        </ProtectedRoute>
     );
 }

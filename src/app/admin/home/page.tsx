@@ -4,9 +4,12 @@ import React from 'react';
 import AdminHeader from '@/components/header/AdminHeader';
 import Image from 'next/image';
 import image from '@/assets/image_home.jpg'; 
+import ProtectedRoute, { Role }from '@/components/ProtectedRoute';
 
+console.log("Giá trị của Role sau khi import:", Role);
 export default function HomePage() {
     return (
+        <ProtectedRoute requiredRole={Role.ADMIN} >
         <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-100 to-yellow-100 text-rose-900 overflow-x-hidden">
             <div className="fixed top-0 left-0 right-0 z-[100]">
                 <AdminHeader />
@@ -98,5 +101,6 @@ export default function HomePage() {
             `}</style>
             
         </div>
+        </ProtectedRoute>
     );
 }

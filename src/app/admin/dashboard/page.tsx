@@ -18,6 +18,7 @@ import {
 } from 'chart.js';
 import { useEffect, useRef, useState } from 'react';
 import { adminGetSystemStatistics } from '@/services/api';
+import ProtectedRoute, { Role }from '@/components/ProtectedRoute';
 
 // Đăng ký các thành phần cần thiết cho Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -184,6 +185,7 @@ export default function DashboardPage() {
     if (!stats) return <div className="min-h-screen flex flex-col"><AdminHeader /><div className="flex-1 flex justify-center items-center" style={{paddingTop: ADMIN_HEADER_HEIGHT_CSS_VAR}}><p className="mt-5 text-gray-600">Không có dữ liệu thống kê để hiển thị.</p></div></div>;
 
     return (
+        <ProtectedRoute requiredRole={Role.ADMIN}>
         <div className="min-h-screen flex flex-col bg-gray-50"> 
             <div className="fixed top-0 left-0 right-0 z-[100]">
                 <AdminHeader />
@@ -345,5 +347,6 @@ export default function DashboardPage() {
                 .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #d1d5db #f3f4f6; }
             `}</style>
         </div>
+        </ProtectedRoute>
     );
 }

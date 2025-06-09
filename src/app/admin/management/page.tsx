@@ -12,6 +12,7 @@ import {
     adminDeleteUserByAdmin 
 } from '@/services/api';
 import AdminHeader from "@/components/header/AdminHeader";
+import ProtectedRoute, { Role } from "@/components/ProtectedRoute";
 
 // --- COMPONENT UserInfoBar ---
 interface UserInfoBarProps {
@@ -237,6 +238,7 @@ export default function UserManagementPage() {
     };
     
     return (
+        <ProtectedRoute requiredRole={Role.ADMIN}>
         <div className="min-h-screen flex flex-col bg-gray-50">
             <div className="fixed top-0 left-0 right-0 z-[100]">
                 <AdminHeader />
@@ -328,5 +330,6 @@ export default function UserManagementPage() {
                 .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #c1c1c1 #f1f1f1; }
             `}</style>
         </div>
+        </ProtectedRoute>
     );
 }

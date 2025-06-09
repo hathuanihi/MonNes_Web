@@ -11,6 +11,7 @@ import {
     adminGetAllLoaiSoTietKiemDanhMuc 
 } from '@/services/api';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import ProtectedRoute, { Role } from '@/components/ProtectedRoute';
 
 interface SavingProductFormState extends Partial<SoTietKiemRequest> {
     maSo?: number; 
@@ -87,7 +88,7 @@ export default function SavingsProductManagementPage() {
         // Nó sẽ không có AdminHeader ở đây
         // <>
         //     {/* Tiêu đề trang và nút Thêm Mới sẽ nằm ở đây, ngay đầu phần nội dung */}
-
+        <ProtectedRoute requiredRole={Role.ADMIN}>
         <div className="min-h-screen flex flex-col bg-gray-50">
             <div className="fixed top-0 left-0 right-0 z-[100]">
                 <AdminHeader />
@@ -230,5 +231,6 @@ export default function SavingsProductManagementPage() {
                 .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #d1d5db #f3f4f6; }
             `}</style>
         </div> 
+        </ProtectedRoute>
     );
 }
