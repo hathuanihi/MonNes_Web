@@ -14,6 +14,7 @@ import {
     userCreateSavingsAccount, 
     userGetAllAvailableSavingsProducts 
 } from "@/services/api"; 
+import ProtectedRoute, { Role }from '@/components/ProtectedRoute';
 
 interface NewSavingsFormState {
     tenSoMo: string;
@@ -192,183 +193,185 @@ export default function CreateNewSavingsPage() {
     const handleCancel = () => router.push("/user/yoursavings");
 
     return (
-        <div className="min-h-screen flex flex-col bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB]">
-            <div className="fixed top-0 left-0 right-0 z-50">
-                <UserHeader />
-            </div>
-
-            <div 
-                className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pb-10"
-                style={{ paddingTop: `calc(${USER_HEADER_HEIGHT_STYLE} + 1rem)` }} // 1rem là khoảng cách thêm từ UserHeader
-            >
-                <div className="w-full max-w-2xl lg:max-w-3xl bg-white rounded-2xl shadow-xl p-6 sm:p-8 md:p-10">
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-pink-600 mb-8 text-center">
-                        Mở Sổ Tiết Kiệm Mới
-                    </h1>
-
-                    {showProfileUpdatePrompt && (
-                        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-md mb-6 text-center shadow-sm animate-modalShow">
-                            <div className="font-semibold text-base mb-2">Bạn cần cập nhật đầy đủ thông tin cá nhân trước khi mở sổ tiết kiệm!</div>
-                            <div className="mb-3 text-sm">Vui lòng bổ sung họ tên, CCCD, địa chỉ trong hồ sơ cá nhân để sử dụng chức năng này.</div>
-                            <button
-                                onClick={() => router.push("/user/profile/updateprofile")}
-                                className="inline-block px-6 py-2 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors text-sm shadow-sm mt-1"
-                            >
-                                Cập nhật hồ sơ cá nhân
-                            </button>
-                        </div>
-                    )}
-
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Tên sổ tiết kiệm (do người dùng đặt) */}
-                        <div>
-                            <label htmlFor="tenSoMo" className="block text-sm font-medium text-gray-700 mb-1">
-                                Tên sổ tiết kiệm <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="tenSoMo"
-                                id="tenSoMo"
-                                value={formData.tenSoMo}
-                                onChange={handleChange}
-                                placeholder="Ví dụ: Quỹ du lịch hè, Tiết kiệm cho con..."
-                                className={`w-full text-base text-gray-800 bg-white border ${errors.tenSoMo ? 'border-red-500' : 'border-gray-300'} rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500`}
-                            />
-                            {errors.tenSoMo && <p className="text-red-500 text-xs mt-1">{errors.tenSoMo}</p>}
-                        </div>
-
-                        {/* Chọn Loại Sản Phẩm Sổ Tiết Kiệm */}
-                        <div>
-                            <label htmlFor="soTietKiemSanPhamId" className="block text-sm font-medium text-gray-700 mb-1">
-                                Loại sổ tiết kiệm <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                name="soTietKiemSanPhamId"
-                                id="soTietKiemSanPhamId"
-                                value={formData.soTietKiemSanPhamId}
-                                onChange={handleChange}
-                                className={`w-full text-base text-gray-800 bg-white border ${errors.soTietKiemSanPhamId ? 'border-red-500' : 'border-gray-300'} rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500`}
-                                disabled={loadingProducts}
-                            >
-                                <option value="">-- {loadingProducts ? "Đang tải sản phẩm..." : "Chọn loại sổ"} --</option>
-                                {availableProducts.map(product => (
-                                    <option key={product.maSo} value={product.maSo.toString()}>
-                                        {product.tenSo}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.soTietKiemSanPhamId && <p className="text-red-500 text-xs mt-1">{errors.soTietKiemSanPhamId}</p>}
-                        </div>
-                        {/* Kỳ hạn và Lãi suất: luôn hiển thị, disabled, tự động đổi nội dung */}
-                        <div className="flex gap-4">
-                            <div className="flex-1">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Kỳ hạn</label>
-                                <input
-                                    type="text"
-                                    value={selectedProductDetails.kyHan ?? ''}
-                                    readOnly
-                                    disabled
-                                    className="w-full text-base text-gray-600 bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 cursor-not-allowed opacity-80"
-                                />
-                            </div>
-                            <div className="flex-1">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Lãi suất</label>
-                                <input
-                                    type="text"
-                                    value={selectedProductDetails.laiSuat ?? ''}
-                                    readOnly
-                                    disabled
-                                    className="w-full text-base text-gray-600 bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 cursor-not-allowed opacity-80"
-                                />
-                            </div>
-                        </div>
-                        
-                        {/* Số Tiền Gửi Ban Đầu */}
-                        <div>
-                            <label htmlFor="soTienGuiBanDau" className="block text-sm font-medium text-gray-700 mb-1">
-                                Số tiền gửi ban đầu (VND) <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="soTienGuiBanDau"
-                                id="soTienGuiBanDau"
-                                value={formData.soTienGuiBanDau}
-                                onChange={formatCurrencyOnChange} // Sử dụng hàm format
-                                placeholder="Nhập số tiền gửi"
-                                className={`w-full text-base text-gray-800 bg-white border ${errors.soTienGuiBanDau ? 'border-red-500' : 'border-gray-300'} rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500`}
-                            />
-                            {errors.soTienGuiBanDau && <p className="text-red-500 text-xs mt-1">{errors.soTienGuiBanDau}</p>}
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row justify-center gap-4 pt-6">
-                            <button
-                                type="button"
-                                onClick={handleCancel}
-                                className="w-full sm:w-auto px-8 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition-colors text-base shadow-sm"
-                            >
-                                HỦY BỎ
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={isSubmitting || loadingProducts}
-                                className="w-full sm:w-auto px-8 py-3 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors text-base shadow-sm disabled:opacity-70"
-                            >
-                                {isSubmitting ? 'ĐANG TẠO SỔ...' : 'TẠO SỔ MỚI'}
-                            </button>
-                        </div>
-                    </form>
+        <ProtectedRoute requiredRole={Role.USER}>
+            <div className="min-h-screen flex flex-col bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB]">
+                <div className="fixed top-0 left-0 right-0 z-50">
+                    <UserHeader />
                 </div>
-            </div>
-            <Toaster 
-                position="top-right"
-                toastOptions={{
-                    duration: 4000,
-                    style: {
-                        background: '#fff',
-                        color: '#333',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        padding: '12px 16px',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                    },
-                    success: {
+
+                <div 
+                    className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pb-10"
+                    style={{ paddingTop: `calc(${USER_HEADER_HEIGHT_STYLE} + 1rem)` }} // 1rem là khoảng cách thêm từ UserHeader
+                >
+                    <div className="w-full max-w-2xl lg:max-w-3xl bg-white rounded-2xl shadow-xl p-6 sm:p-8 md:p-10">
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-pink-600 mb-8 text-center">
+                            Mở Sổ Tiết Kiệm Mới
+                        </h1>
+
+                        {showProfileUpdatePrompt && (
+                            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-md mb-6 text-center shadow-sm animate-modalShow">
+                                <div className="font-semibold text-base mb-2">Bạn cần cập nhật đầy đủ thông tin cá nhân trước khi mở sổ tiết kiệm!</div>
+                                <div className="mb-3 text-sm">Vui lòng bổ sung họ tên, CCCD, địa chỉ trong hồ sơ cá nhân để sử dụng chức năng này.</div>
+                                <button
+                                    onClick={() => router.push("/user/profile/updateprofile")}
+                                    className="inline-block px-6 py-2 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors text-sm shadow-sm mt-1"
+                                >
+                                    Cập nhật hồ sơ cá nhân
+                                </button>
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Tên sổ tiết kiệm (do người dùng đặt) */}
+                            <div>
+                                <label htmlFor="tenSoMo" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Tên sổ tiết kiệm <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="tenSoMo"
+                                    id="tenSoMo"
+                                    value={formData.tenSoMo}
+                                    onChange={handleChange}
+                                    placeholder="Ví dụ: Quỹ du lịch hè, Tiết kiệm cho con..."
+                                    className={`w-full text-base text-gray-800 bg-white border ${errors.tenSoMo ? 'border-red-500' : 'border-gray-300'} rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500`}
+                                />
+                                {errors.tenSoMo && <p className="text-red-500 text-xs mt-1">{errors.tenSoMo}</p>}
+                            </div>
+
+                            {/* Chọn Loại Sản Phẩm Sổ Tiết Kiệm */}
+                            <div>
+                                <label htmlFor="soTietKiemSanPhamId" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Loại sổ tiết kiệm <span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    name="soTietKiemSanPhamId"
+                                    id="soTietKiemSanPhamId"
+                                    value={formData.soTietKiemSanPhamId}
+                                    onChange={handleChange}
+                                    className={`w-full text-base text-gray-800 bg-white border ${errors.soTietKiemSanPhamId ? 'border-red-500' : 'border-gray-300'} rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500`}
+                                    disabled={loadingProducts}
+                                >
+                                    <option value="">-- {loadingProducts ? "Đang tải sản phẩm..." : "Chọn loại sổ"} --</option>
+                                    {availableProducts.map(product => (
+                                        <option key={product.maSo} value={product.maSo.toString()}>
+                                            {product.tenSo}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.soTietKiemSanPhamId && <p className="text-red-500 text-xs mt-1">{errors.soTietKiemSanPhamId}</p>}
+                            </div>
+                            {/* Kỳ hạn và Lãi suất: luôn hiển thị, disabled, tự động đổi nội dung */}
+                            <div className="flex gap-4">
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Kỳ hạn</label>
+                                    <input
+                                        type="text"
+                                        value={selectedProductDetails.kyHan ?? ''}
+                                        readOnly
+                                        disabled
+                                        className="w-full text-base text-gray-600 bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 cursor-not-allowed opacity-80"
+                                    />
+                                </div>
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Lãi suất</label>
+                                    <input
+                                        type="text"
+                                        value={selectedProductDetails.laiSuat ?? ''}
+                                        readOnly
+                                        disabled
+                                        className="w-full text-base text-gray-600 bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 cursor-not-allowed opacity-80"
+                                    />
+                                </div>
+                            </div>
+                            
+                            {/* Số Tiền Gửi Ban Đầu */}
+                            <div>
+                                <label htmlFor="soTienGuiBanDau" className="block text-sm font-medium text-gray-700 mb-1">
+                                    Số tiền gửi ban đầu (VND) <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="soTienGuiBanDau"
+                                    id="soTienGuiBanDau"
+                                    value={formData.soTienGuiBanDau}
+                                    onChange={formatCurrencyOnChange} // Sử dụng hàm format
+                                    placeholder="Nhập số tiền gửi"
+                                    className={`w-full text-base text-gray-800 bg-white border ${errors.soTienGuiBanDau ? 'border-red-500' : 'border-gray-300'} rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500`}
+                                />
+                                {errors.soTienGuiBanDau && <p className="text-red-500 text-xs mt-1">{errors.soTienGuiBanDau}</p>}
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row justify-center gap-4 pt-6">
+                                <button
+                                    type="button"
+                                    onClick={handleCancel}
+                                    className="w-full sm:w-auto px-8 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition-colors text-base shadow-sm"
+                                >
+                                    HỦY BỎ
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting || loadingProducts}
+                                    className="w-full sm:w-auto px-8 py-3 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors text-base shadow-sm disabled:opacity-70"
+                                >
+                                    {isSubmitting ? 'ĐANG TẠO SỔ...' : 'TẠO SỔ MỚI'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <Toaster 
+                    position="top-right"
+                    toastOptions={{
+                        duration: 4000,
                         style: {
-                            border: '1px solid #10b981',
-                            background: '#f0fdf4',
-                            color: '#059669'
+                            background: '#fff',
+                            color: '#333',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            padding: '12px 16px',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                        },
+                        success: {
+                            style: {
+                                border: '1px solid #10b981',
+                                background: '#f0fdf4',
+                                color: '#059669'
+                            }
+                        },
+                        error: {
+                            style: {
+                                border: '1px solid #ef4444',
+                                background: '#fef2f2',
+                                color: '#dc2626'
+                            }
                         }
-                    },
-                    error: {
-                        style: {
-                            border: '1px solid #ef4444',
-                            background: '#fef2f2',
-                            color: '#dc2626'
-                        }
+                    }}
+                />
+                <style jsx global>{`
+                    @keyframes modalShow { /* Giữ lại nếu có modal nào khác dùng */
+                        from { opacity: 0; transform: scale(0.95) translateY(-20px); }
+                        to { opacity: 1; transform: scale(1) translateY(0); }
                     }
-                }}
-            />
-             <style jsx global>{`
-                @keyframes modalShow { /* Giữ lại nếu có modal nào khác dùng */
-                    from { opacity: 0; transform: scale(0.95) translateY(-20px); }
-                    to { opacity: 1; transform: scale(1) translateY(0); }
-                }
-                .animate-modalShow {
-                    animation: modalShow 0.3s ease-out forwards;
-                }
-                 .react-datepicker-popper {
-                    z-index: 150 !important; 
-                }
-                .react-datepicker { 
-                    font-family: inherit; 
-                    font-size: 0.9rem;
-                    border-radius: 0.5rem; 
-                    border: 1px solid #d1d5db; 
-                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
-                }
-                /* ... (các style khác cho datepicker nếu cần) ... */
-            `}</style>
-        </div>
+                    .animate-modalShow {
+                        animation: modalShow 0.3s ease-out forwards;
+                    }
+                    .react-datepicker-popper {
+                        z-index: 150 !important; 
+                    }
+                    .react-datepicker { 
+                        font-family: inherit; 
+                        font-size: 0.9rem;
+                        border-radius: 0.5rem; 
+                        border: 1px solid #d1d5db; 
+                        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+                    }
+                    /* ... (các style khác cho datepicker nếu cần) ... */
+                `}</style>
+            </div>
+        </ProtectedRoute>
     );
 };

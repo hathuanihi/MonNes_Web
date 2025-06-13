@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image"; // Cho icon search (nếu có)
 import { userGetAllMySavingsAccounts } from "@/services/api"; // API lấy sổ của user
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline"; // Icon search ví dụ
+import ProtectedRoute, { Role }from '@/components/ProtectedRoute';
 
 // Placeholder cho icon nếu bạn không có dropdownIcon thực sự cho các mục sổ
 const ChevronRightIcon = () => (
@@ -64,6 +65,7 @@ export default function YourSavingsPage() {
     };
 
     return (
+        <ProtectedRoute requiredRole={Role.USER}>
         <div className="min-h-screen flex flex-col bg-gray-50"> {/* Nền xám nhạt cho body */}
             <div className="fixed top-0 left-0 right-0 z-[100]">
                 <UserHeader />
@@ -173,5 +175,6 @@ export default function YourSavingsPage() {
                 .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #D1D5DB #F9FAFB; }
             `}</style>
         </div>
+        </ProtectedRoute>
     );
 }

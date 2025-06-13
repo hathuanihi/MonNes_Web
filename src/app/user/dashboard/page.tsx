@@ -20,6 +20,7 @@ import {
   ChartData,
   TooltipItem
 } from 'chart.js';
+import ProtectedRoute, { Role }from '@/components/ProtectedRoute';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -234,128 +235,195 @@ export default function UserDashboard() {
   };
 
   return (
-    <div
-      className="min-h-screen bg-gray-50"
-      ref={scrollRef}
-      style={{ transition: "opacity 0.4s" }}
-    >
-      <div className="fixed top-0 left-0 right-0 z-[100]">
-        <UserHeader />
-      </div>
-
-      <div className="w-full" style={{marginTop: '5rem'}}>
-          <div className="relative flex items-center justify-center">
-            <h1
-              className="w-full text-center text-3xl md:text-4xl font-bold text-white py-5 md:py-6 rounded-b-2xl"
-              style={{
-                background: "linear-gradient(90deg, #FF086A 0%, #FB5D5D 50%, #F19BDB 100%)",
-              }}
-            >
-              {showRevenue ? "TỔNG QUAN SỔ TIẾT KIỆM" : "GIAO DỊCH GẦN ĐÂY"}
-            </h1>
-            <button
-              className="absolute right-6 top-1/2 -translate-y-1/2 text-white text-2xl md:text-3xl hover:text-pink-200 focus:outline-none"
-              onClick={() => setShowQuickPanel(true)}
-              aria-label="Mở bảng thông tin nhanh"
-            >
-              <FaBars />
-            </button>
-          </div>
-      </div>
-      
-       {showQuickPanel && overviewData && (
-        <div className="fixed top-0 right-0 h-full w-[340px] md:w-[400px] bg-gradient-to-br from-[#FF086A]/90 via-[#FB5D5D]/90 to-[#F19BDB]/90 shadow-2xl z-[100] flex flex-col p-6 animate-slideIn">
-        <button
-          className="absolute top-4 right-4 text-white text-2xl hover:text-pink-200 focus:outline-none"
-          onClick={() => setShowQuickPanel(false)}
-          aria-label="Đóng bảng thông tin nhanh"
-        >
-          ×
-        </button>
-        <div className="flex flex-col items-center mt-8 mb-6">
-          <div className="w-24 h-24 rounded-full bg-white/40 flex items-center justify-center mb-3">
-            <span className="text-6xl text-white">👤</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="text-xl font-bold text-white">{overviewData.activeSavingsAccounts?.[0]?.tenNguoiDung || "--"}</div>
-            <button
-              className="text-white/80 hover:text-white text-lg p-1"
-              onClick={() => { setShowQuickPanel(false); router.push('/user/profile'); }}
-              aria-label="Chỉnh sửa hồ sơ"
-            >
-              <FaPen />
-            </button>
-          </div>
+     <ProtectedRoute requiredRole={Role.USER}>
+      <div
+        className="min-h-screen bg-gray-50"
+        ref={scrollRef}
+        style={{ transition: "opacity 0.4s" }}
+      >
+        <div className="fixed top-0 left-0 right-0 z-[100]">
+          <UserHeader />
         </div>
-        <div className="flex flex-col gap-4 mb-6">
-          {overviewData.activeSavingsAccounts?.map((s) => (
-            <div key={s.maMoSo} className="bg-white/20 rounded-lg px-4 pt-3 pb-2">
-              <div className="flex items-center justify-between cursor-pointer" onClick={() => handleToggleSavings(String(s.maMoSo))}>
-                <span className="text-white text-base font-medium">{s.tenSoMo}</span>
-                <span className="text-white text-base font-semibold">{s.soDuHienTai.toLocaleString('vi-VN')} VND</span>
-                <span className="ml-2 text-white text-lg">
-                  {openSavings[String(s.maMoSo)] ? <FaChevronUp /> : <FaChevronDown />}
-                </span>
+
+        <div className="w-full" style={{marginTop: '5rem'}}>
+            <div className="relative flex items-center justify-center">
+              <h1
+                className="w-full text-center text-3xl md:text-4xl font-bold text-white py-5 md:py-6 rounded-b-2xl"
+                style={{
+                  background: "linear-gradient(90deg, #FF086A 0%, #FB5D5D 50%, #F19BDB 100%)",
+                }}
+              >
+                {showRevenue ? "TỔNG QUAN SỔ TIẾT KIỆM" : "GIAO DỊCH GẦN ĐÂY"}
+              </h1>
+              <button
+                className="absolute right-6 top-1/2 -translate-y-1/2 text-white text-2xl md:text-3xl hover:text-pink-200 focus:outline-none"
+                onClick={() => setShowQuickPanel(true)}
+                aria-label="Mở bảng thông tin nhanh"
+              >
+                <FaBars />
+              </button>
+            </div>
+        </div>
+        
+        {showQuickPanel && overviewData && (
+          <div className="fixed top-0 right-0 h-full w-[340px] md:w-[400px] bg-gradient-to-br from-[#FF086A]/90 via-[#FB5D5D]/90 to-[#F19BDB]/90 shadow-2xl z-[100] flex flex-col p-6 animate-slideIn">
+          <button
+            className="absolute top-4 right-4 text-white text-2xl hover:text-pink-200 focus:outline-none"
+            onClick={() => setShowQuickPanel(false)}
+            aria-label="Đóng bảng thông tin nhanh"
+          >
+            ×
+          </button>
+          <div className="flex flex-col items-center mt-8 mb-6">
+            <div className="w-24 h-24 rounded-full bg-white/40 flex items-center justify-center mb-3">
+              <span className="text-6xl text-white">👤</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="text-xl font-bold text-white">{overviewData.activeSavingsAccounts?.[0]?.tenNguoiDung || "--"}</div>
+              <button
+                className="text-white/80 hover:text-white text-lg p-1"
+                onClick={() => { setShowQuickPanel(false); router.push('/user/profile'); }}
+                aria-label="Chỉnh sửa hồ sơ"
+              >
+                <FaPen />
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-col gap-4 mb-6">
+            {overviewData.activeSavingsAccounts?.map((s) => (
+              <div key={s.maMoSo} className="bg-white/20 rounded-lg px-4 pt-3 pb-2">
+                <div className="flex items-center justify-between cursor-pointer" onClick={() => handleToggleSavings(String(s.maMoSo))}>
+                  <span className="text-white text-base font-medium">{s.tenSoMo}</span>
+                  <span className="text-white text-base font-semibold">{s.soDuHienTai.toLocaleString('vi-VN')} VND</span>
+                  <span className="ml-2 text-white text-lg">
+                    {openSavings[String(s.maMoSo)] ? <FaChevronUp /> : <FaChevronDown />}
+                  </span>
+                </div>
+                {openSavings[String(s.maMoSo)] && (
+                  <div className="mt-3 bg-white/30 rounded-lg p-3 text-sm text-white">
+                    <div className="flex justify-between py-1 border-b border-white/30 last:border-b-0"><span>Chủ sở hữu</span><span>{s.tenNguoiDung}</span></div>
+                    <div className="flex justify-between py-1 border-b border-white/30 last:border-b-0"><span>Sổ</span><span>{s.tenSanPhamSoTietKiem}</span></div>
+                    <div className="flex justify-between py-1 border-b border-white/30 last:border-b-0"><span>Số dư</span><span>{s.soDuHienTai.toLocaleString('vi-VN')} VND</span></div>
+                    <div className="flex justify-between py-1 border-b border-white/30 last:border-b-0"><span>Kỳ hạn</span><span>{s.kyHanSanPham ? `${s.kyHanSanPham} tháng` : 'Không kỳ hạn'}</span></div>
+                    <div className="flex justify-between py-1"><span>Lãi suất</span><span>{s.laiSuatApDungChoSoNay ? `${s.laiSuatApDungChoSoNay.toFixed(2)}%/năm` : '--'}</span></div>
+                  </div>
+                )}
               </div>
-              {openSavings[String(s.maMoSo)] && (
-                <div className="mt-3 bg-white/30 rounded-lg p-3 text-sm text-white">
-                  <div className="flex justify-between py-1 border-b border-white/30 last:border-b-0"><span>Chủ sở hữu</span><span>{s.tenNguoiDung}</span></div>
-                  <div className="flex justify-between py-1 border-b border-white/30 last:border-b-0"><span>Sổ</span><span>{s.tenSanPhamSoTietKiem}</span></div>
-                  <div className="flex justify-between py-1 border-b border-white/30 last:border-b-0"><span>Số dư</span><span>{s.soDuHienTai.toLocaleString('vi-VN')} VND</span></div>
-                  <div className="flex justify-between py-1 border-b border-white/30 last:border-b-0"><span>Kỳ hạn</span><span>{s.kyHanSanPham ? `${s.kyHanSanPham} tháng` : 'Không kỳ hạn'}</span></div>
-                  <div className="flex justify-between py-1"><span>Lãi suất</span><span>{s.laiSuatApDungChoSoNay ? `${s.laiSuatApDungChoSoNay.toFixed(2)}%/năm` : '--'}</span></div>
-                </div>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
+          <div className="flex items-center justify-between bg-white/20 rounded-lg px-4 py-2 mb-2">
+            <span className="text-white text-base font-medium">Tổng số dư các sổ</span>
+            <span className="text-white text-base font-semibold">{overviewData.accountSummary?.tongSoDuTrongTatCaSo?.toLocaleString('vi-VN') || '--'} VND</span>
+          </div>
         </div>
-        <div className="flex items-center justify-between bg-white/20 rounded-lg px-4 py-2 mb-2">
-          <span className="text-white text-base font-medium">Tổng số dư các sổ</span>
-          <span className="text-white text-base font-semibold">{overviewData.accountSummary?.tongSoDuTrongTatCaSo?.toLocaleString('vi-VN') || '--'} VND</span>
-        </div>
-      </div>
-       )}
+        )}
 
-      <div className="max-w-7xl mx-auto pt-10 px-4 sm:px-6 lg:px-8" style={{ opacity: isTransitioning ? 0.5 : 1, transition: "opacity 0.4s" }}>
-        {showRevenue && (
-            <>
-            <div className="flex flex-col md:flex-row gap-6 lg:gap-8 justify-center mt-0">
-                <div className="flex-1 min-w-[280px] bg-white rounded-2xl p-6 flex flex-col items-center shadow-sm border border-gray-200/80">
-                    <FaWallet className="text-3xl text-pink-500 mb-3" />
-                    <div className="text-base text-gray-500">Tổng số dư các sổ</div>
-                    <div className="text-2xl lg:text-3xl font-bold text-gray-800 mt-2">{overviewData?.accountSummary?.tongSoDuTrongTatCaSo?.toLocaleString('vi-VN') || '--'} VND</div>
-                </div>
-                <div className="flex-1 min-w-[280px] bg-white rounded-2xl p-6 flex flex-col items-center shadow-sm border border-gray-200/80">
-                    <FaMoneyBillWave className="text-3xl text-red-500 mb-3" />
-                    <div className="text-base text-gray-500">Tổng tiền đã rút</div>
-                    <div className="text-2xl lg:text-3xl font-bold text-gray-800 mt-2">{overviewData?.accountSummary?.tongTienDaRutTuTruocDenNay?.toLocaleString('vi-VN') || '--'} VND</div>
-                </div>
-                <div className="flex-1 min-w-[280px] bg-white rounded-2xl p-6 flex flex-col items-center shadow-sm border border-gray-200/80">
-                    <MdOutlineSavings className="text-3xl text-green-500 mb-3" />
-                    <div className="text-base text-gray-500">Tổng tiền đã nạp</div>
-                    <div className="text-2xl lg:text-3xl font-bold text-gray-800 mt-2">{overviewData?.accountSummary?.tongTienDaNapTuTruocDenNay?.toLocaleString('vi-VN') || '--'} VND</div>
-                </div>
+        <div className="max-w-7xl mx-auto pt-10 px-4 sm:px-6 lg:px-8" style={{ opacity: isTransitioning ? 0.5 : 1, transition: "opacity 0.4s" }}>
+          {showRevenue && (
+              <>
+              <div className="flex flex-col md:flex-row gap-6 lg:gap-8 justify-center mt-0">
+                  <div className="flex-1 min-w-[280px] bg-white rounded-2xl p-6 flex flex-col items-center shadow-sm border border-gray-200/80">
+                      <FaWallet className="text-3xl text-pink-500 mb-3" />
+                      <div className="text-base text-gray-500">Tổng số dư các sổ</div>
+                      <div className="text-2xl lg:text-3xl font-bold text-gray-800 mt-2">{overviewData?.accountSummary?.tongSoDuTrongTatCaSo?.toLocaleString('vi-VN') || '--'} VND</div>
+                  </div>
+                  <div className="flex-1 min-w-[280px] bg-white rounded-2xl p-6 flex flex-col items-center shadow-sm border border-gray-200/80">
+                      <FaMoneyBillWave className="text-3xl text-red-500 mb-3" />
+                      <div className="text-base text-gray-500">Tổng tiền đã rút</div>
+                      <div className="text-2xl lg:text-3xl font-bold text-gray-800 mt-2">{overviewData?.accountSummary?.tongTienDaRutTuTruocDenNay?.toLocaleString('vi-VN') || '--'} VND</div>
+                  </div>
+                  <div className="flex-1 min-w-[280px] bg-white rounded-2xl p-6 flex flex-col items-center shadow-sm border border-gray-200/80">
+                      <MdOutlineSavings className="text-3xl text-green-500 mb-3" />
+                      <div className="text-base text-gray-500">Tổng tiền đã nạp</div>
+                      <div className="text-2xl lg:text-3xl font-bold text-gray-800 mt-2">{overviewData?.accountSummary?.tongTienDaNapTuTruocDenNay?.toLocaleString('vi-VN') || '--'} VND</div>
+                  </div>
+              </div>
+              
+              {recentTransactions.length > 0 && overviewData ? (
+                  <div className="mt-12 bg-white rounded-2xl shadow-lg shadow-gray-200/50 p-6 lg:p-8 border border-gray-200/80">
+                      <div className="h-[280px] md:h-[350px]">
+                          <Line data={lineChartData} options={lineChartOptions} />
+                      </div>
+                  </div>
+              ) : (
+                  <div className="mt-12 text-center text-gray-500 py-16 bg-white rounded-2xl shadow-md">
+                      Không đủ dữ liệu để vẽ biểu đồ.
+                  </div>
+              )}
+              
+              <div className="flex justify-center mt-12">
+                <button
+                  onClick={() => {
+                    if (!isTransitioning) {
+                      setIsTransitioning(true);
+                      setTimeout(() => {
+                        setShowRevenue(false);
+                        setIsTransitioning(false);
+                      }, 400);
+                    }
+                  }}
+                  className="w-14 h-14 bg-[#FF086A] rounded-full flex items-center justify-center hover:bg-[#FB5D5D] transition-colors shadow-lg"
+                  disabled={isTransitioning}
+                >
+                  <FaArrowDown className="text-white text-3xl" />
+                </button>
+              </div>
+            </>
+          )}
+
+          {!showRevenue && (
+          <>
+            <div className="flex flex-col items-center mt-0">
+              <div className="w-full">
+                {recentTransactions.length > 0 ? (
+                  <div className="bg-white shadow-2xl rounded-2xl overflow-hidden">
+                    <div className="overflow-x-auto custom-scrollbar">
+                      <table className="min-w-full divide-y divide-gray-200 text-base">
+                        <thead className="bg-gray-100">
+                          <tr>
+                            <th className="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider align-middle">Loại</th>
+                            <th className="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider align-middle">Ngày</th>
+                            <th className="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider align-middle">Sổ Tiết Kiệm</th>
+                            <th className="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider align-middle">Số Tiền (VND)</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {recentTransactions.map((tx) => {
+                            const details = getTransactionDetails(tx.loaiGiaoDich);
+                            return (
+                                <tr key={tx.idGiaoDich} className="hover:bg-pink-50/60 transition-colors duration-150">
+                                <td className="px-6 py-4 whitespace-nowrap text-base text-center align-middle">
+                                    <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full items-center ${details.badgeClass}`}>
+                                    {details.text}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-base text-center align-middle text-gray-500">
+                                    {new Date(tx.ngayGD).toLocaleDateString('vi-VN')}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-base text-center align-middle text-gray-800 font-medium max-w-[220px] truncate" title={tx.tenSoMoTietKiem || undefined}>
+                                    {tx.tenSoMoTietKiem || 'N/A'}
+                                </td>
+                                <td className={`px-6 py-4 whitespace-nowrap text-base text-center align-middle font-bold ${details.amountClass}`}>
+                                    {tx.soTien.toLocaleString('vi-VN')} VND
+                                </td>
+                                </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : <div className="text-center text-gray-500 py-8">Không có giao dịch gần đây.</div>}
+              </div>
             </div>
             
-            {recentTransactions.length > 0 && overviewData ? (
-                <div className="mt-12 bg-white rounded-2xl shadow-lg shadow-gray-200/50 p-6 lg:p-8 border border-gray-200/80">
-                    <div className="h-[280px] md:h-[350px]">
-                        <Line data={lineChartData} options={lineChartOptions} />
-                    </div>
-                </div>
-            ) : (
-                <div className="mt-12 text-center text-gray-500 py-16 bg-white rounded-2xl shadow-md">
-                    Không đủ dữ liệu để vẽ biểu đồ.
-                </div>
-            )}
-            
-            <div className="flex justify-center mt-12">
+            <div className="flex justify-center mt-10">
               <button
                 onClick={() => {
                   if (!isTransitioning) {
                     setIsTransitioning(true);
                     setTimeout(() => {
-                      setShowRevenue(false);
+                      setShowRevenue(true);
                       setIsTransitioning(false);
                     }, 400);
                   }
@@ -363,78 +431,13 @@ export default function UserDashboard() {
                 className="w-14 h-14 bg-[#FF086A] rounded-full flex items-center justify-center hover:bg-[#FB5D5D] transition-colors shadow-lg"
                 disabled={isTransitioning}
               >
-                <FaArrowDown className="text-white text-3xl" />
+                <FaArrowUp className="text-white text-3xl" />
               </button>
             </div>
           </>
         )}
-
-        {!showRevenue && (
-         <>
-           <div className="flex flex-col items-center mt-0">
-             <div className="w-full">
-               {recentTransactions.length > 0 ? (
-                 <div className="bg-white shadow-2xl rounded-2xl overflow-hidden">
-                   <div className="overflow-x-auto custom-scrollbar">
-                     <table className="min-w-full divide-y divide-gray-200 text-base">
-                       <thead className="bg-gray-100">
-                         <tr>
-                           <th className="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider align-middle">Loại</th>
-                           <th className="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider align-middle">Ngày</th>
-                           <th className="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider align-middle">Sổ Tiết Kiệm</th>
-                           <th className="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider align-middle">Số Tiền (VND)</th>
-                         </tr>
-                       </thead>
-                       <tbody className="bg-white divide-y divide-gray-200">
-                         {recentTransactions.map((tx) => {
-                           const details = getTransactionDetails(tx.loaiGiaoDich);
-                           return (
-                               <tr key={tx.idGiaoDich} className="hover:bg-pink-50/60 transition-colors duration-150">
-                               <td className="px-6 py-4 whitespace-nowrap text-base text-center align-middle">
-                                   <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full items-center ${details.badgeClass}`}>
-                                   {details.text}
-                                   </span>
-                               </td>
-                               <td className="px-6 py-4 whitespace-nowrap text-base text-center align-middle text-gray-500">
-                                   {new Date(tx.ngayGD).toLocaleDateString('vi-VN')}
-                               </td>
-                               <td className="px-6 py-4 whitespace-nowrap text-base text-center align-middle text-gray-800 font-medium max-w-[220px] truncate" title={tx.tenSoMoTietKiem || undefined}>
-                                   {tx.tenSoMoTietKiem || 'N/A'}
-                               </td>
-                               <td className={`px-6 py-4 whitespace-nowrap text-base text-center align-middle font-bold ${details.amountClass}`}>
-                                   {tx.soTien.toLocaleString('vi-VN')} VND
-                               </td>
-                               </tr>
-                           );
-                         })}
-                       </tbody>
-                     </table>
-                   </div>
-                 </div>
-               ) : <div className="text-center text-gray-500 py-8">Không có giao dịch gần đây.</div>}
-             </div>
-           </div>
-           
-           <div className="flex justify-center mt-10">
-             <button
-               onClick={() => {
-                 if (!isTransitioning) {
-                   setIsTransitioning(true);
-                   setTimeout(() => {
-                     setShowRevenue(true);
-                     setIsTransitioning(false);
-                   }, 400);
-                 }
-               }}
-               className="w-14 h-14 bg-[#FF086A] rounded-full flex items-center justify-center hover:bg-[#FB5D5D] transition-colors shadow-lg"
-               disabled={isTransitioning}
-             >
-               <FaArrowUp className="text-white text-3xl" />
-             </button>
-           </div>
-         </>
-       )}
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

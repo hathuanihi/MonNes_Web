@@ -5,6 +5,7 @@ import Header from '@/components/header/Header_SignIn';
 import Logo from '@/assets/logo_monnes.png';
 import Image from "next/image";
 import { sendPasscodeAPI, verifyPasscodeAPI, resetPasswordAPI } from '@/services/api';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 import eye_open from '@/assets/icon/eyeopen.png';
 import eye_off from '@/assets/icon/eyeoff.png';
@@ -219,18 +220,20 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB]">
-      <Header />
-      <main className="flex-1 flex flex-col md:flex-row justify-center items-start md:pt-16 lg:pt-20 px-4 sm:px-6 lg:px-8 py-8">
-        <div className="w-full md:w-1/2 flex flex-col justify-center items-center mb-10 md:mb-0 md:pr-8 lg:pr-12 mt-25">
-          <Image src={Logo} alt="MonNes Large Logo" width={160} height={160} priority />
-        </div>
-        <div className="w-full md:w-1/2 flex flex-col items-center md:items-start md:justify-start md:pl-8 lg:pl-12 mt-10">
-          <div className="w-full max-w-lg bg-white p-8 sm:p-10 rounded-xl shadow-2xl">
-            {renderContent()}
+    <ProtectedRoute isGuestRoute={true}>
+      <div className="min-h-screen flex flex-col bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB]">
+        <Header />
+        <main className="flex-1 flex flex-col md:flex-row justify-center items-start md:pt-16 lg:pt-20 px-4 sm:px-6 lg:px-8 py-8">
+          <div className="w-full md:w-1/2 flex flex-col justify-center items-center mb-10 md:mb-0 md:pr-8 lg:pr-12 mt-25">
+            <Image src={Logo} alt="MonNes Large Logo" width={160} height={160} priority />
           </div>
-        </div>
-      </main>
-    </div>
+          <div className="w-full md:w-1/2 flex flex-col items-center md:items-start md:justify-start md:pl-8 lg:pl-12 mt-10">
+            <div className="w-full max-w-lg bg-white p-8 sm:p-10 rounded-xl shadow-2xl">
+              {renderContent()}
+            </div>
+          </div>
+        </main>
+      </div>
+    </ProtectedRoute>
   );
 }

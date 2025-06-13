@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import UserHeader from "@/components/header/UserHeader";
 import { useSearchParams, useRouter } from "next/navigation";
 import { userWithdrawFromAccount, userGetMySavingsAccountDetails } from "@/services/api";
+import ProtectedRoute, { Role }from '@/components/ProtectedRoute';
 
 export default function WithdrawalPage() {
   const searchParams = useSearchParams();
@@ -86,18 +87,25 @@ export default function WithdrawalPage() {
         router.push("/user/yoursavings");
       }, 1000);
     } catch (err: any) {
-      const statusCode = err?.response?.status;
+      console.log('Error object:', err); // Debug log
+      console.log('Error response:', err?.response); // Debug log
+      console.log('Status code:', err?.response?.status); // Debug log
+      
+      const statusCode = err?.response?.status || err?.status;
       
       if (statusCode === 500) {
-        // Nếu là phương thức không kỳ hạn và lỗi 500
+        // Phân biệt thông báo theo loại sổ tiết kiệm
         if (!savingsDetail?.kyHanSanPham || savingsDetail.kyHanSanPham === 0) {
-          setError("Bạn chỉ có thể rút tiền sau 15 ngày (đối với phương thức không kỳ hạn).");
+          setError("Bạn chỉ có thể rút tiền sau 15 ngày kể từ ngày mở sổ.");
         } else {
-          setError("Có lỗi xảy ra, vui lòng thử lại.");
+          setError("Bạn chỉ được phép rút tiền từ ngày đáo hạn.");
         }
-      } else {
-        setError(err?.response?.data?.message || err?.message || "Có lỗi xảy ra, vui lòng thử lại.");
+        return; // Đảm bảo không chạy xuống else
       }
+      
+      // Xử lý các lỗi khác
+      const errorMessage = err?.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -107,86 +115,88 @@ export default function WithdrawalPage() {
   const isTermDeposit = savingsDetail?.kyHanSanPham && savingsDetail.kyHanSanPham > 0;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB]">
-      <div className="fixed top-0 left-0 right-0 z-[100]">
-        <UserHeader />
-      </div>
-      <div className="flex-1 flex items-center justify-center pt-20 md:pt-24 px-4 pb-10">
-        <div className="w-full max-w-xl lg:max-w-2xl bg-white rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 my-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-pink-600 mb-6 sm:mb-8 text-center">
-            Rút Tiền Từ Sổ Tiết Kiệm
-          </h2>
-          {error && <p className="text-red-600 bg-red-100 p-3 rounded-md mb-4 text-sm text-center">{error}</p>}
-          {success && <p className="text-green-600 bg-green-100 p-3 rounded-md mb-4 text-sm text-center">{success}</p>}
-          
-          {/* Thêm thông báo cho phương thức có kỳ hạn */}
-          {isTermDeposit && (
-            <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-6">
-              <p className="text-yellow-700 text-sm">
-                <strong>Lưu ý:</strong> Đây là sổ tiết kiệm có kỳ hạn. Bạn bắt buộc phải rút toàn bộ số dư.
-              </p>
-            </div>
-          )}
-          <form onSubmit={handleWithdraw} className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 py-3">
-              <label className="w-full sm:w-2/5 md:w-1/3 text-base text-gray-700 font-medium mb-1 sm:mb-0">Số dư hiện tại</label>
-              <div className="w-full sm:w-3/5 md:w-2/3 text-base text-gray-800 bg-gray-100 rounded-md px-3 py-2">
-                {savingsDetail ? `${savingsDetail.soDuHienTai.toLocaleString('vi-VN')} VND` : '--'}
+    <ProtectedRoute requiredRole={Role.USER}>
+      <div className="min-h-screen flex flex-col bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB]">
+        <div className="fixed top-0 left-0 right-0 z-[100]">
+          <UserHeader />
+        </div>
+        <div className="flex-1 flex items-center justify-center pt-20 md:pt-24 px-4 pb-10">
+          <div className="w-full max-w-xl lg:max-w-2xl bg-white rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 my-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-pink-600 mb-6 sm:mb-8 text-center">
+              Rút Tiền Từ Sổ Tiết Kiệm
+            </h2>
+            {error && <p className="text-red-600 bg-red-100 p-3 rounded-md mb-4 text-sm text-center">{error}</p>}
+            {success && <p className="text-green-600 bg-green-100 p-3 rounded-md mb-4 text-sm text-center">{success}</p>}
+            
+            {/* Thêm thông báo cho phương thức có kỳ hạn */}
+            {isTermDeposit && (
+              <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-6">
+                <p className="text-yellow-700 text-sm">
+                  <strong>Lưu ý:</strong> Đây là sổ tiết kiệm có kỳ hạn. Bạn bắt buộc phải rút toàn bộ số dư.
+                </p>
               </div>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 py-3">
-              <label className="w-full sm:w-2/5 md:w-1/3 text-base text-gray-700 font-medium mb-1 sm:mb-0">Lãi suất áp dụng</label>
-              <div className="w-full sm:w-3/5 md:w-2/3 text-base text-gray-800 bg-gray-100 rounded-md px-3 py-2">
-                {savingsDetail?.laiSuatApDungChoSoNay ? `${savingsDetail.laiSuatApDungChoSoNay.toFixed(2)}%/năm` : '--'}
+            )}
+            <form onSubmit={handleWithdraw} className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 py-3">
+                <label className="w-full sm:w-2/5 md:w-1/3 text-base text-gray-700 font-medium mb-1 sm:mb-0">Số dư hiện tại</label>
+                <div className="w-full sm:w-3/5 md:w-2/3 text-base text-gray-800 bg-gray-100 rounded-md px-3 py-2">
+                  {savingsDetail ? `${savingsDetail.soDuHienTai.toLocaleString('vi-VN')} VND` : '--'}
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 py-3">
-              <label className="w-full sm:w-2/5 md:w-1/3 text-base text-gray-700 font-medium mb-1 sm:mb-0">Kỳ hạn</label>
-              <div className="w-full sm:w-3/5 md:w-2/3 text-base text-gray-800 bg-gray-100 rounded-md px-3 py-2">
-                {savingsDetail?.kyHanSanPham ? `${savingsDetail.kyHanSanPham} tháng` : 'Không kỳ hạn'}
+              <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 py-3">
+                <label className="w-full sm:w-2/5 md:w-1/3 text-base text-gray-700 font-medium mb-1 sm:mb-0">Lãi suất áp dụng</label>
+                <div className="w-full sm:w-3/5 md:w-2/3 text-base text-gray-800 bg-gray-100 rounded-md px-3 py-2">
+                  {savingsDetail?.laiSuatApDungChoSoNay ? `${savingsDetail.laiSuatApDungChoSoNay.toFixed(2)}%/năm` : '--'}
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 py-3">
-              <label className="w-full sm:w-2/5 md:w-1/3 text-base text-gray-700 font-medium mb-1 sm:mb-0">Số tiền rút</label>
-              <div className="w-full sm:w-3/5 md:w-2/3">
-                <input
-                  type="text"
-                  value={withdrawAmount}
-                  onChange={handleAmountChange}
-                  readOnly={!!isTermDeposit}
-                  className={`w-full text-base text-gray-800 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500 ${
-                    isTermDeposit ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
-                  }`}
-                  placeholder={isTermDeposit ? "Bắt buộc rút toàn bộ" : "Nhập số tiền muốn rút"}
+              <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 py-3">
+                <label className="w-full sm:w-2/5 md:w-1/3 text-base text-gray-700 font-medium mb-1 sm:mb-0">Kỳ hạn</label>
+                <div className="w-full sm:w-3/5 md:w-2/3 text-base text-gray-800 bg-gray-100 rounded-md px-3 py-2">
+                  {savingsDetail?.kyHanSanPham ? `${savingsDetail.kyHanSanPham} tháng` : 'Không kỳ hạn'}
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 py-3">
+                <label className="w-full sm:w-2/5 md:w-1/3 text-base text-gray-700 font-medium mb-1 sm:mb-0">Số tiền rút</label>
+                <div className="w-full sm:w-3/5 md:w-2/3">
+                  <input
+                    type="text"
+                    value={withdrawAmount}
+                    onChange={handleAmountChange}
+                    readOnly={!!isTermDeposit}
+                    className={`w-full text-base text-gray-800 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500 ${
+                      isTermDeposit ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
+                    }`}
+                    placeholder={isTermDeposit ? "Bắt buộc rút toàn bộ" : "Nhập số tiền muốn rút"}
+                    disabled={loading}
+                  />
+                  {!isTermDeposit && savingsDetail && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Số tiền tối đa: {savingsDetail.soDuHienTai.toLocaleString('vi-VN')} VND
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-6 pt-8">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="w-full sm:w-auto px-8 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition-colors text-sm uppercase shadow-sm"
                   disabled={loading}
-                />
-                {!isTermDeposit && savingsDetail && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    Số tiền tối đa: {savingsDetail.soDuHienTai.toLocaleString('vi-VN')} VND
-                  </p>
-                )}
+                >
+                  HỦY
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full sm:w-auto px-8 py-3 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors text-sm uppercase shadow-sm disabled:opacity-70"
+                >
+                  {loading ? 'ĐANG RÚT...' : 'RÚT TIỀN'}
+                </button>
               </div>
-            </div>
-            <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-6 pt-8">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="w-full sm:w-auto px-8 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition-colors text-sm uppercase shadow-sm"
-                disabled={loading}
-              >
-                HỦY
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full sm:w-auto px-8 py-3 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors text-sm uppercase shadow-sm disabled:opacity-70"
-              >
-                {loading ? 'ĐANG RÚT...' : 'RÚT TIỀN'}
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

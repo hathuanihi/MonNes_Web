@@ -5,7 +5,7 @@ import { ReactNode } from 'react';
 
 export enum Role {
     ADMIN = "ADMIN",
-       USER = "USER"
+    USER = "USER"
 }
 
 interface ProtectedRouteProps {
@@ -27,12 +27,12 @@ const ProtectedRoute = ({ children, requiredRole, isGuestRoute }: ProtectedRoute
 
     if (isAuthenticated) {
         if (isGuestRoute) {
-            router.push(userRole === Role.ADMIN ? '/admin' : '/user');
+            router.push(userRole === Role.ADMIN ? '/admin/home' : '/user/home');
             return null; 
         }
         if (requiredRole && userRole !== requiredRole) {
             alert("Bạn không có quyền truy cập trang này.");
-            router.push(userRole === Role.ADMIN ? '/admin' : '/user');
+            router.push(userRole === Role.ADMIN ? '/admin/home' : '/user/home');
             return null;
         }
     } else {
