@@ -20,8 +20,15 @@ export default function WithdrawalPage() {
     userGetMySavingsAccountDetails(Number(moSoIdParam))
       .then((detail) => {
         setSavingsDetail(detail);
+        // Nếu có kỳ hạn thì mặc định rút toàn bộ, nếu không kỳ hạn thì để trống
         if (detail && typeof detail.soDuHienTai === 'number') {
-          setWithdrawAmount(detail.soDuHienTai.toLocaleString('vi-VN'));
+          if (detail.kyHanSanPham && detail.kyHanSanPham > 0) {
+            // Có kỳ hạn: bắt buộc rút toàn bộ
+            setWithdrawAmount(detail.soDuHienTai.toLocaleString('vi-VN'));
+          } else {
+            // Không kỳ hạn: để trống cho user nhập
+            setWithdrawAmount("");
+          }
         }
       })
       .catch(() => setSavingsDetail(null));
@@ -31,22 +38,45 @@ export default function WithdrawalPage() {
     window.history.back();
   };
 
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Chỉ cho phép thay đổi nếu không có kỳ hạn
+    if (!savingsDetail?.kyHanSanPham || savingsDetail.kyHanSanPham === 0) {
+      const value = e.target.value.replace(/[^\d]/g, "");
+      if (value) {
+        setWithdrawAmount(Number(value).toLocaleString('vi-VN'));
+      } else {
+        setWithdrawAmount("");
+      }
+    }
+  };
+
   const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+    
     if (!moSoIdParam) {
       setError("Không tìm thấy mã sổ tiết kiệm.");
       return;
     }
+
     let soTien = 0;
     try {
       soTien = Number(withdrawAmount.replace(/[^\d]/g, ""));
       if (!soTien || soTien <= 0) throw new Error("Số tiền không hợp lệ");
+      
+      // Kiểm tra số tiền rút với số dư hiện tại (chỉ áp dụng cho không kỳ hạn)
+      if (savingsDetail && (!savingsDetail.kyHanSanPham || savingsDetail.kyHanSanPham === 0)) {
+        if (soTien > savingsDetail.soDuHienTai) {
+          setError("Số tiền rút không thể lớn hơn số dư hiện tại.");
+          return;
+        }
+      }
     } catch {
       setError("Số tiền rút không hợp lệ.");
       return;
     }
+
     setLoading(true);
     try {
       await userWithdrawFromAccount(Number(moSoIdParam), { soTien });
@@ -56,11 +86,25 @@ export default function WithdrawalPage() {
         router.push("/user/yoursavings");
       }, 1000);
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || "Có lỗi xảy ra, vui lòng thử lại.");
+      const statusCode = err?.response?.status;
+      
+      if (statusCode === 500) {
+        // Nếu là phương thức không kỳ hạn và lỗi 500
+        if (!savingsDetail?.kyHanSanPham || savingsDetail.kyHanSanPham === 0) {
+          setError("Bạn chỉ có thể rút tiền sau 15 ngày (đối với phương thức không kỳ hạn).");
+        } else {
+          setError("Có lỗi xảy ra, vui lòng thử lại.");
+        }
+      } else {
+        setError(err?.response?.data?.message || err?.message || "Có lỗi xảy ra, vui lòng thử lại.");
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  // Kiểm tra xem có phải loại có kỳ hạn không
+  const isTermDeposit = savingsDetail?.kyHanSanPham && savingsDetail.kyHanSanPham > 0;
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB]">
@@ -74,6 +118,15 @@ export default function WithdrawalPage() {
           </h2>
           {error && <p className="text-red-600 bg-red-100 p-3 rounded-md mb-4 text-sm text-center">{error}</p>}
           {success && <p className="text-green-600 bg-green-100 p-3 rounded-md mb-4 text-sm text-center">{success}</p>}
+          
+          {/* Thêm thông báo cho phương thức có kỳ hạn */}
+          {isTermDeposit && (
+            <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-6">
+              <p className="text-yellow-700 text-sm">
+                <strong>Lưu ý:</strong> Đây là sổ tiết kiệm có kỳ hạn. Bạn bắt buộc phải rút toàn bộ số dư.
+              </p>
+            </div>
+          )}
           <form onSubmit={handleWithdraw} className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 py-3">
               <label className="w-full sm:w-2/5 md:w-1/3 text-base text-gray-700 font-medium mb-1 sm:mb-0">Số dư hiện tại</label>
@@ -99,11 +152,19 @@ export default function WithdrawalPage() {
                 <input
                   type="text"
                   value={withdrawAmount}
-                  readOnly
-                  className="w-full text-base text-gray-800 bg-gray-100 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500 cursor-not-allowed"
-                  placeholder="Nhập số tiền rút"
+                  onChange={handleAmountChange}
+                  readOnly={!!isTermDeposit}
+                  className={`w-full text-base text-gray-800 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500 ${
+                    isTermDeposit ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
+                  }`}
+                  placeholder={isTermDeposit ? "Bắt buộc rút toàn bộ" : "Nhập số tiền muốn rút"}
                   disabled={loading}
                 />
+                {!isTermDeposit && savingsDetail && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Số tiền tối đa: {savingsDetail.soDuHienTai.toLocaleString('vi-VN')} VND
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-6 pt-8">
