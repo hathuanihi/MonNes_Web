@@ -87,7 +87,7 @@ export default function UserDashboard() {
         return { text: "Gửi tiền", badgeClass: "bg-green-100 text-green-800", amountClass: "text-green-600" };
       case "WITHDRAW": 
         return { text: "Rút tiền", badgeClass: "bg-red-100 text-red-800", amountClass: "text-red-600" };
-      case "INTEREST_ACCRUAL": // Thêm mới
+      case "INTEREST": // Thêm mới
         return { text: "Ghi nhận lãi", badgeClass: "bg-blue-100 text-blue-800", amountClass: "text-blue-600" };
       default: 
         return { text: type, badgeClass: "bg-gray-100 text-gray-800", amountClass: "text-gray-600" };
@@ -103,7 +103,7 @@ export default function UserDashboard() {
     
     // CẬP NHẬT 3: Thêm "INTEREST_ACCRUAL" vào logic tính toán
     const netChange = sorted.reduce((acc, tx) => {
-        if (tx.loaiGiaoDich === 'DEPOSIT' || tx.loaiGiaoDich === 'INTEREST_ACCRUAL') return acc + tx.soTien;
+        if (tx.loaiGiaoDich === 'DEPOSIT' || tx.loaiGiaoDich === 'INTEREST') return acc + tx.soTien;
         if (tx.loaiGiaoDich === 'WITHDRAW') return acc - tx.soTien;
         return acc;
     }, 0);
@@ -115,7 +115,7 @@ export default function UserDashboard() {
     sorted.forEach(tx => {
         const date = new Date(tx.ngayGD).toLocaleDateString('vi-VN');
         // CẬP NHẬT 3: Thêm "INTEREST_ACCRUAL" vào logic tính toán
-        if (tx.loaiGiaoDich === 'DEPOSIT' || tx.loaiGiaoDich === 'INTEREST_ACCRUAL') currentBalance += tx.soTien;
+        if (tx.loaiGiaoDich === 'DEPOSIT' || tx.loaiGiaoDich === 'INTEREST') currentBalance += tx.soTien;
         else if (tx.loaiGiaoDich === 'WITHDRAW') currentBalance -= tx.soTien;
         dateMap[date] = currentBalance;
         labelsSet.add(date);

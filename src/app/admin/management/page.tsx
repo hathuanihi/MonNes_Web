@@ -132,7 +132,11 @@ function UserDetailPanel({ user, onClose, onEdit, onDelete }: UserDetailPanelPro
                                     <p><strong>Lãi suất:</strong> {saving.laiSuatApDungChoSoNay}%/năm</p>
                                     <p><strong>Ngày mở:</strong> {new Date(saving.ngayMo).toLocaleDateString('vi-VN')}</p>
                                     {saving.ngayDaoHan && <p><strong>Ngày đáo hạn:</strong> {new Date(saving.ngayDaoHan).toLocaleDateString('vi-VN')}</p>}
-                                    <p><strong>Trạng thái:</strong> {saving.trangThaiMoSo === "DANG_HOAT_DONG" ? "Đang hoạt động" : "Đã đóng"}</p>
+                                    <p><strong>Trạng thái:</strong> {
+                                        saving.trangThaiMoSo === "DANG_HOAT_DONG" ? "Đang hoạt động" :
+                                        saving.trangThaiMoSo === "DA_DAO_HAN" ? "Đã đáo hạn" :
+                                        "Đã đóng"
+                                    }</p>
                                 </div>
                             )}
                         </div>

@@ -161,7 +161,7 @@ declare global {
 
     interface GiaoDichDTO {
         idGiaoDich: number;
-        loaiGiaoDich: "DEPOSIT" | "WITHDRAW" | "INTEREST_ACCRUAL" | "INTEREST_PAYMENT";
+        loaiGiaoDich: "DEPOSIT" | "WITHDRAW" | "INTEREST";
         soTien: number;
         ngayGD: string; // "YYYY-MM-DD"
         maKhachHang?: number;

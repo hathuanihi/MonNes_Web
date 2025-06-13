@@ -17,10 +17,8 @@ const getTransactionDetails = (type: GiaoDichDTO['loaiGiaoDich']) => {
             return { text: "Gửi tiền", badgeClass: "bg-green-100 text-green-800", amountClass: "text-green-600" };
         case "WITHDRAW":
             return { text: "Rút tiền", badgeClass: "bg-red-100 text-red-800", amountClass: "text-red-600" };
-        case "INTEREST_ACCRUAL":
+        case "INTEREST":
             return { text: "Ghi nhận lãi", badgeClass: "bg-blue-100 text-blue-800", amountClass: "text-blue-600" };
-        case "INTEREST_PAYMENT":
-             return { text: "Trả lãi", badgeClass: "bg-yellow-100 text-yellow-800", amountClass: "text-yellow-600" };
         default:
             return { text: type, badgeClass: "bg-gray-100 text-gray-800", amountClass: "text-gray-600" };
     }

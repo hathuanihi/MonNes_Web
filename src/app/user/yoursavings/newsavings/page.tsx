@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, FormEvent, ChangeEvent } from "react";
+import React, 
+{ 
+    useState, 
+    useEffect, 
+    FormEvent, 
+    ChangeEvent 
+} from "react";
+import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from "next/navigation";
 import UserHeader from "@/components/header/UserHeader"; 
 import { 
@@ -8,7 +15,6 @@ import {
     userGetAllAvailableSavingsProducts 
 } from "@/services/api"; 
 
-// Interface cho state của form
 interface NewSavingsFormState {
     tenSoMo: string;
     soTienGuiBanDau: string; 
@@ -17,7 +23,7 @@ interface NewSavingsFormState {
 
 // Giá trị khởi tạo cho form
 const initialFormState: NewSavingsFormState = {
-    tenSoMo: "", // Để trống cho người dùng tự đặt hoặc gợi ý "Sổ tiết kiệm của [Tên User]"
+    tenSoMo: "", 
     soTienGuiBanDau: "",
     soTietKiemSanPhamId: "", 
 };
@@ -26,7 +32,13 @@ export default function CreateNewSavingsPage() {
     const router = useRouter();
     const [formData, setFormData] = useState<NewSavingsFormState>(initialFormState);
     const [availableProducts, setAvailableProducts] = useState<SoTietKiemDTO[]>([]);
-    const [selectedProductDetails, setSelectedProductDetails] = useState<{ kyHan: string | null, laiSuat: string | null }>({ kyHan: null, laiSuat: null });
+    const [selectedProductDetails, setSelectedProductDetails] = useState<{ 
+        kyHan: string | null, 
+        laiSuat: string | null 
+    }>({ 
+        kyHan: null, 
+        laiSuat: null 
+    });
     
     const [loadingProducts, setLoadingProducts] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,8 +46,7 @@ export default function CreateNewSavingsPage() {
     const [apiError, setApiError] = useState<string | null>(null);
     const [showProfileUpdatePrompt, setShowProfileUpdatePrompt] = useState(false);
 
-    const USER_HEADER_HEIGHT_STYLE = '5rem'; // Giả sử UserHeader cao 5rem (h-20)
-    const PAGE_TITLE_BANNER_HEIGHT_STYLE = '4.5rem'; // Ước tính
+    const USER_HEADER_HEIGHT_STYLE = '5rem'; 
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -46,7 +57,7 @@ export default function CreateNewSavingsPage() {
                 setAvailableProducts(Array.isArray(productsData) ? productsData : []);
             } catch (error: any) {
                 console.error("Lỗi khi tải danh sách sản phẩm sổ tiết kiệm:", error);
-                setApiError(error.message || "Không thể tải danh sách sản phẩm để tạo sổ.");
+                toast.error("Không thể tải danh sách sản phẩm để tạo sổ.");
             } finally {
                 setLoadingProducts(false);
             }
@@ -137,18 +148,25 @@ export default function CreateNewSavingsPage() {
 
             const response = await userCreateSavingsAccount(requestData);
             console.log("Sổ tiết kiệm đã được tạo:", response);
-            // TODO: Hiển thị thông báo thành công (ví dụ: dùng toast)
+            toast.success("Tạo sổ tiết kiệm thành công!");
             router.push("/user/yoursavings"); 
         } catch (error: any) {
             const errMsg = (error.message || "").toLowerCase();
             const statusCode = error.response?.status;
             
+            // Kiểm tra message cụ thể từ backend
             if (
-                statusCode === 401 &&
+                statusCode === 401 && 
                 error.message?.includes("Full authentication is required to access this resource")
             ) {
                 setShowProfileUpdatePrompt(true);
-                setApiError("Bạn cần phải cập nhật đầy đủ thông tin cá nhân trước khi mở sổ tiết kiệm.");
+                toast.error("Bạn cần phải cập nhật đầy đủ thông tin cá nhân trước");
+                return;
+            }
+            
+            if (statusCode === 401 || statusCode === 400) {
+                setShowProfileUpdatePrompt(true);
+                toast.error("Bạn cần phải cập nhật thông tin cá nhân trước khi mở sổ tiết kiệm.");
                 return;
             }
 
@@ -160,10 +178,12 @@ export default function CreateNewSavingsPage() {
                 errMsg.includes("thong tin cá nhân")
             ) {
                 setShowProfileUpdatePrompt(true);
-                setApiError(null);
-            } else {
-                setApiError(error.message || "Tạo sổ tiết kiệm thất bại. Vui lòng thử lại.");
+                toast.error("Bạn cần cập nhật đầy đủ thông tin cá nhân trước khi mở sổ tiết kiệm.");
+                return;
             }
+            
+            // Các lỗi khác
+            toast.error(error.message || "Tạo sổ tiết kiệm thất bại. Vui lòng thử lại.");
         } finally {
             setIsSubmitting(false);
         }
@@ -185,22 +205,6 @@ export default function CreateNewSavingsPage() {
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-pink-600 mb-8 text-center">
                         Mở Sổ Tiết Kiệm Mới
                     </h1>
-
-                    {/* Thông báo lỗi đặc biệt khi thiếu thông tin cá nhân */}
-                    {apiError && apiError.includes("Vui lòng cập nhật đầy đủ thông tin cá nhân") ? (
-                        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-md mb-6 text-center shadow-sm text-sm flex flex-col items-center gap-2">
-                            <span>{apiError}</span>
-                            <button
-                                type="button"
-                                onClick={() => router.push("/user/profile/updateprofile")}
-                                className="mt-2 px-5 py-2 bg-yellow-400 text-yellow-900 font-semibold rounded hover:bg-yellow-500 transition-colors text-sm shadow"
-                            >
-                                Cập nhật hồ sơ cá nhân
-                            </button>
-                        </div>
-                    ) : apiError && (
-                        <p className="text-red-600 bg-red-100 p-3 rounded-md mb-6 text-center shadow-sm text-sm">{apiError}</p>
-                    )}
 
                     {showProfileUpdatePrompt && (
                         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-md mb-6 text-center shadow-sm animate-modalShow">
@@ -315,6 +319,36 @@ export default function CreateNewSavingsPage() {
                     </form>
                 </div>
             </div>
+            <Toaster 
+                position="top-right"
+                toastOptions={{
+                    duration: 4000,
+                    style: {
+                        background: '#fff',
+                        color: '#333',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        padding: '12px 16px',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                    },
+                    success: {
+                        style: {
+                            border: '1px solid #10b981',
+                            background: '#f0fdf4',
+                            color: '#059669'
+                        }
+                    },
+                    error: {
+                        style: {
+                            border: '1px solid #ef4444',
+                            background: '#fef2f2',
+                            color: '#dc2626'
+                        }
+                    }
+                }}
+            />
              <style jsx global>{`
                 @keyframes modalShow { /* Giữ lại nếu có modal nào khác dùng */
                     from { opacity: 0; transform: scale(0.95) translateY(-20px); }
