@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext'; 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 
 export enum Role {
     ADMIN = "ADMIN",
@@ -16,30 +16,52 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, requiredRole, isGuestRoute }: ProtectedRouteProps) => {
     const { user, isLoading } = useAuth();
-    const router = useRouter();
+    const router = useRouter();    useEffect(() => {
+        if (isLoading) return;
 
-    if (isLoading) {
+        const isAuthenticated = !!user;
+        const userRole = user?.vaiTro;
+
+        console.log('ProtectedRoute:', { isAuthenticated, userRole, requiredRole, isGuestRoute });
+
+        if (isAuthenticated) {
+            if (isGuestRoute) {
+                const redirectPath = userRole === Role.ADMIN ? '/admin/home' : '/user/home';
+                console.log('Redirecting authenticated user from guest route to:', redirectPath);
+                router.push(redirectPath);
+                return;
+            }
+            if (requiredRole && userRole !== requiredRole) {
+                console.log('User role mismatch, redirecting...');
+                alert("Bạn không có quyền truy cập trang này.");
+                router.push(userRole === Role.ADMIN ? '/admin/home' : '/user/home');
+                return;
+            }
+        } else {
+            if (!isGuestRoute) {
+                console.log('User not authenticated, redirecting to signin...');
+                router.push('/signin');
+                return;
+            }
+        }
+    }, [user, isLoading, requiredRole, isGuestRoute, router]);if (isLoading) {
         return <div>Checking permissions...</div>; 
     }
 
     const isAuthenticated = !!user;
     const userRole = user?.vaiTro;
 
-    if (isAuthenticated) {
-        if (isGuestRoute) {
-            router.push(userRole === Role.ADMIN ? '/admin/home' : '/user/home');
-            return null; 
-        }
-        if (requiredRole && userRole !== requiredRole) {
-            alert("Bạn không có quyền truy cập trang này.");
-            router.push(userRole === Role.ADMIN ? '/admin/home' : '/user/home');
-            return null;
-        }
-    } else {
-        if (!isGuestRoute) {
-            router.push('/auth/signin');
-            return null;
-        }
+    // Chỉ render loading/redirect states sau khi isLoading = false
+    if (isAuthenticated && isGuestRoute) {
+        return <div>Redirecting...</div>;
+    }
+
+    if (isAuthenticated && requiredRole && userRole !== requiredRole) {
+        return <div>Redirecting...</div>;
+    }
+
+    if (!isAuthenticated && !isGuestRoute) {
+        return <div>Redirecting...</div>;
     }
     
     return <>{children}</>;

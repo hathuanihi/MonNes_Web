@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import logoHeader from '@/assets/logoHeader.png'; 
-import userIcon from '@/assets/user.png'; // Đổi tên biến
-import { usePathname, useRouter } from 'next/navigation'; // Thêm useRouter
+import userIcon from '@/assets/user.png'; 
+import { usePathname, useRouter } from 'next/navigation'; 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
 
 const UserHeader = () => {
+    const { logout } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -15,55 +17,47 @@ const UserHeader = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     useEffect(() => {
-        // Kiểm tra token hoặc thông tin user trong localStorage để xác định trạng thái đăng nhập
         const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-        const userEmail = typeof window !== "undefined" ? localStorage.getItem("userEmail") : null; // Hoặc tên user nếu có
+        const userEmail = typeof window !== "undefined" ? localStorage.getItem("userEmail") : null; 
         
         if (token) {
             setIsLoggedIn(true);
-            setUserName(userEmail ? userEmail.split('@')[0] : "User"); // Hiển thị phần trước @ của email hoặc "User"
+            setUserName(userEmail ? userEmail.split('@')[0] : "User"); 
         } else {
             setIsLoggedIn(false);
             setUserName(null);
         }
-    }, [pathname]); // Re-check khi path thay đổi, phòng trường hợp token bị xóa ở trang khác
+    }, [pathname]); 
 
     const handleLogout = () => {
-        if (typeof window !== "undefined") {
-            localStorage.removeItem("token");
-            localStorage.removeItem("role");
-            localStorage.removeItem("userId");
-            localStorage.removeItem("userEmail");
-        }
+        logout(); 
         setIsLoggedIn(false);
         setUserName(null);
         setIsDropdownOpen(false);
-        router.push('/'); // Chuyển về trang đăng nhập
     };
 
     const navLinks = [
-        { href: "/user/home", label: "Trang Chủ" }, // Dịch sang tiếng Việt
-        { href: "/user/yoursavings", label: "Sổ Của Bạn" }, // Đổi tên path cho nhất quán (ví dụ)
-        { href: "/user/dashboard", label: "Thống Kê" } // Link đến dashboard của user
+        { href: "/user/home", label: "Trang Chủ" }, 
+        { href: "/user/yoursavings", label: "Sổ Của Bạn" }, 
+        { href: "/user/dashboard", label: "Thống Kê" } 
     ];
 
     return (
-        <header className="bg-white text-gray-800 p-4 shadow-md sticky top-0 z-50 h-16 md:h-20"> {/* Sticky header, chiều cao cố định */}
+        <header className="bg-white text-gray-800 p-4 shadow-md sticky top-0 z-50 h-16 md:h-20"> 
             <nav className="container mx-auto flex justify-between items-center h-full">
                 {/* Logo */}
                 <div className="flex-shrink-0">
-                    <Link href={isLoggedIn ? "/user/home" : "/"}> {/* Link về home của user nếu đã login */}
+                    <Link href={isLoggedIn ? "/user/home" : "/"}> 
                         <Image
                             src={logoHeader} 
                             alt="MonNes Logo"
-                            width={150} // Điều chỉnh kích thước nếu cần
+                            width={150} 
                             height={70}
                             priority 
                         />
                     </Link>
                 </div>
                 
-                {/* Navigation Links (Chỉ hiển thị nếu đã đăng nhập) */}
                 {isLoggedIn && (
                     <ul className="hidden md:flex flex-row space-x-6 lg:space-x-10 items-center">
                         {navLinks.map((link) => (
@@ -83,7 +77,6 @@ const UserHeader = () => {
                     </ul>
                 )}
 
-                {/* User Info / Login Button */}
                 <div className="relative">
                     <button 
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}

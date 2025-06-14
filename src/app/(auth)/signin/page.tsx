@@ -9,7 +9,8 @@ import eye_off from '@/assets/icon/eyeoff.png';
 import { useState, FormEvent } from "react";
 import { loginAPI } from '@/services/api';       
 import { useRouter } from "next/navigation";
-import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedRoute, { Role } from '@/components/ProtectedRoute';
+import { useAuth } from '@/context/AuthContext';
 
 export default function SignIn() {
     const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +20,7 @@ export default function SignIn() {
     const [successMsg, setSuccessMsg] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const { refreshUser } = useAuth();
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -31,9 +33,7 @@ export default function SignIn() {
         }
 
         setIsLoading(true);
-        const loginData: LoginRequest = { username, password };
-
-        try {
+        const loginData: LoginRequest = { username, password };        try {
             const responseData: LoginResponseData = await loginAPI(loginData);
             console.log('Login response data:', responseData);
             setSuccessMsg(responseData.message || 'Đăng nhập thành công!');
@@ -48,7 +48,12 @@ export default function SignIn() {
                  // localStorage.setItem('userEmail', responseData.user.email || ''); 
             }
 
+            // Trigger AuthContext to validate user after successful login
+            console.log('[SignIn] Triggering refreshUser after login success');
+            await refreshUser();
+
             const redirectPath = roleFromServer === "ADMIN" ? '/admin/home' : '/user/home';
+            console.log('[SignIn] Redirecting to:', redirectPath);
             setTimeout(() => {
                 router.push(redirectPath);
             }, 1000);

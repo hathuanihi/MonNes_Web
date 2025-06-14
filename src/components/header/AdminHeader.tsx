@@ -2,58 +2,53 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation'; // Thêm useRouter
+import { usePathname, useRouter } from 'next/navigation'; 
 import logoHeader from '@/assets/logoHeader.png';
-import userIcon from '@/assets/user.png'; // Đổi tên biến cho rõ ràng
+import userIcon from '@/assets/user.png'; 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
 
 const AdminHeader = () => {
+    const { logout } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
     const [adminName, setAdminName] = useState<string | null>(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     useEffect(() => {
-        // Lấy thông tin admin từ localStorage (ví dụ: email hoặc tên)
         const email = typeof window !== "undefined" ? localStorage.getItem("userEmail") : null;
-        // Hoặc bạn có thể lưu tên người dùng đầy đủ nếu UserResponse có
         setAdminName(email); 
     }, []);
 
     const handleLogout = () => {
-        if (typeof window !== "undefined") {
-            localStorage.removeItem("token");
-            localStorage.removeItem("role");
-            localStorage.removeItem("userId");
-            localStorage.removeItem("userEmail");
-        }
-        router.push('/'); // Chuyển hướng về trang đăng nhập
+        logout(); 
+        setIsDropdownOpen(false);
     };
 
     const navLinks = [
         { href: "/admin/home", label: "Trang Chủ" },
-        { href: "/admin/management", label: "Người Dùng" }, // Rõ ràng hơn
-        { href: "/admin/savings-products-management", label: "Loại Sổ" }, // Link tới trang quản lý loại sổ
-        { href: "/admin/dashboard", label: "Thống Kê" }, // Trang thống kê doanh thu
-        { href: "/admin/transactions", label: "Giao Dịch" }, // Trang quản lý giao dịch
+        { href: "/admin/management", label: "Người Dùng" }, 
+        { href: "/admin/savings-products-management", label: "Loại Sổ" }, 
+        { href: "/admin/dashboard", label: "Thống Kê" }, 
+        { href: "/admin/transactions", label: "Giao Dịch" }, 
     ];
 
     return (
-        <header className="bg-white text-black p-4 shadow-md sticky top-0 z-50 h-20"> {/* sticky top-0 z-50 để cố định header, tăng chiều cao h-20 */}
-            <nav className="container mx-auto flex justify-between items-center h-full"> {/* Thêm container mx-auto */}
-                <div> {/* Bọc logo trong div */}
+        <header className="bg-white text-black p-4 shadow-md sticky top-0 z-50 h-20"> 
+            <nav className="container mx-auto flex justify-between items-center h-full"> 
+                <div> 
                     <Link href="/admin/home">
                         <Image
                             src={logoHeader} 
                             alt="MonNes Logo"
-                            width={150}  // Có thể điều chỉnh
-                            height={70} // Có thể điều chỉnh
+                            width={150}  
+                            height={70} 
                             priority 
                         />
                     </Link>
                 </div>
                 
-                <ul className="flex flex-row space-x-6 lg:space-x-8 items-center"> {/* Bỏ absolute, căn giữa bằng flex của nav */}
+                <ul className="flex flex-row space-x-6 lg:space-x-8 items-center"> 
                     {navLinks.map((link) => (
                         <li key={link.href}>
                             <Link 
@@ -77,7 +72,6 @@ const AdminHeader = () => {
                     >
                         <Image src={userIcon} alt="User" width={32} height={32} className="rounded-full" />
                         {adminName && <span className="text-sm font-medium hidden md:inline">{adminName.split('@')[0]}</span>} 
-                        {/* Hiển thị phần trước @ của email */}
                     </button>
                     {isDropdownOpen && (
                         <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
