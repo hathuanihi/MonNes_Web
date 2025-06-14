@@ -39,7 +39,8 @@ const UserHeader = () => {
     const navLinks = [
         { href: "/user/home", label: "Trang Chủ" }, 
         { href: "/user/yoursavings", label: "Sổ Của Bạn" }, 
-        { href: "/user/dashboard", label: "Thống Kê" } 
+        { href: "/user/dashboard", label: "Thống Kê" },
+        { href: "/user/reports", label: "Báo Cáo" }
     ];
 
     return (

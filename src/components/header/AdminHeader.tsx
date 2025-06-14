@@ -31,6 +31,7 @@ const AdminHeader = () => {
         { href: "/admin/savings-products-management", label: "Loại Sổ" }, 
         { href: "/admin/dashboard", label: "Thống Kê" }, 
         { href: "/admin/transactions", label: "Giao Dịch" }, 
+        { href: "/admin/reports", label: "Báo Cáo" }, 
     ];
 
     return (

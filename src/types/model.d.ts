@@ -230,9 +230,38 @@ declare global {
         password: string;
         confirmPassword?: string;
         passcode: string;
+    }    // ============================
+    // TRANSACTION REPORT DTOs
+    // ============================
+    interface TransactionReportDTO {
+        transactionId: number;
+        transactionDate: string; // "YYYY-MM-DD"
+        transactionType: string;
+        amount: number;
+        description?: string;
+        accountId: number;
+        accountName: string;
+        customerName?: string;
+        balanceAfter: number;
+    }    interface TransactionReportRequest {
+        fromDate: string; // "YYYY-MM-DD"
+        toDate: string; // "YYYY-MM-DD"
     }
 
-    // Cho Pageable response từ Spring Data
+    interface TransactionReportResponse {
+        transactions: TransactionReportDTO[];
+        totalTransactions: number;
+        totalAmount: number;
+        reportPeriod: {
+            from: string;
+            to: string;
+        };
+        generatedAt: string;
+    }
+
+    // ============================
+    // PAGEABLE & EXISTING DTOs
+    // ============================
     interface Page<T> {
         content: T[];
         pageable: {

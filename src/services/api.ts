@@ -166,6 +166,48 @@ export const userGetAllAvailableSavingsProducts = (): Promise<SoTietKiemDTO[]> =
     // Backend cần tạo endpoint này và nó sẽ gọi SoTietKiemService.getAllSoTietKiemDTOs()
 };
 
+// ============================
+// REPORTS APIs
+// ============================
+
+// Admin Reports - System wide
+export const adminGetTransactionReportData = async (params: TransactionReportRequest): Promise<TransactionReportDTO[]> => {
+    return axiosInstance.get('/reports/transactions', { params });
+};
+
+export const adminExportTransactionReportPDF = async (params: TransactionReportRequest): Promise<Blob> => {
+    return axiosInstance.get('/reports/transactions/export/pdf', { 
+        params,
+        responseType: 'blob'
+    });
+};
+
+export const adminExportTransactionReportExcel = async (params: TransactionReportRequest): Promise<Blob> => {
+    return axiosInstance.get('/reports/transactions/export/excel', { 
+        params,
+        responseType: 'blob'
+    });
+};
+
+// User Reports - Personal
+export const userGetTransactionReportData = async (params: TransactionReportRequest): Promise<TransactionReportDTO[]> => {
+    return axiosInstance.get('/reports/transactions/user', { params });
+};
+
+export const userExportTransactionReportPDF = async (params: TransactionReportRequest): Promise<Blob> => {
+    return axiosInstance.get('/reports/transactions/user/export/pdf', { 
+        params,
+        responseType: 'blob'
+    });
+};
+
+export const userExportTransactionReportExcel = async (params: TransactionReportRequest): Promise<Blob> => {
+    return axiosInstance.get('/reports/transactions/user/export/excel', { 
+        params,
+        responseType: 'blob'
+    });
+};
+
 export const adminGetAllLoaiSoTietKiemDanhMuc = (): Promise<LoaiSoTietKiemDanhMucDTO[]> => {
     return axiosInstance.get('/admin/savings-categories'); 
 };
