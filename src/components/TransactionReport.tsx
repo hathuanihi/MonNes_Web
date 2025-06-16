@@ -21,7 +21,7 @@ const getTransactionDetails = (type: string) => {
             return { text: "Gửi tiền", badgeClass: "bg-green-100 text-green-800", amountClass: "text-green-600" };
         case "Rút tiền":
             return { text: "Rút tiền", badgeClass: "bg-red-100 text-red-800", amountClass: "text-red-600" };
-        case "Trả lãi":
+        case "Ghi nhận lãi":
             return { text: "Ghi nhận lãi", badgeClass: "bg-blue-100 text-blue-800", amountClass: "text-blue-600" };
         default:
             return { text: type, badgeClass: "bg-gray-100 text-gray-800", amountClass: "text-gray-600" };
@@ -204,7 +204,7 @@ const TransactionReport: React.FC<TransactionReportProps> = ({ isAdmin }) => {
                                 <option value="">Tất cả loại giao dịch</option>
                                 <option value="Gửi tiền">Gửi tiền</option>
                                 <option value="Rút tiền">Rút tiền</option>
-                                <option value="Trả lãi">Ghi nhận lãi</option>
+                                <option value="Ghi nhận lãi">Ghi nhận lãi</option>
                             </select>
                         </div>
                     </div>

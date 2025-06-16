@@ -91,6 +91,15 @@ export const adminGetAllSystemTransactions = (page?: number, size?: number, sort
     return axiosInstance.get('/admin/transactions', { params: { page, size, sort } });
 };
 
+// New API for admin transactions with better pagination support
+export const adminGetTransactions = (page: number = 0, size: number = 20, sort: string = 'ngayThucHien,DESC'): Promise<Page<GiaoDichDTO>> => {
+    return axiosInstance.post('/admin/transactions', { 
+        page, 
+        size, 
+        sort 
+    });
+};
+
 // ============================
 // USER - Profile APIs
 // ============================
