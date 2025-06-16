@@ -1,32 +1,22 @@
 "use client";
 
-import { useState, useEffect, FormEvent, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import AdminHeader from '@/components/header/AdminHeader';
-import SavingsProductFormModal from '@/components/modal/SavingsProductFormModal'; 
 import { 
     adminGetAllSavingsProducts, 
-    adminCreateSavingsProduct, 
-    adminUpdateSavingsProduct, 
     adminDeleteSavingsProduct,
     adminGetAllLoaiSoTietKiemDanhMuc 
 } from '@/services/api';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import ProtectedRoute, { Role } from '@/components/ProtectedRoute';
 
-interface SavingProductFormState extends Partial<SoTietKiemRequest> {
-    maSo?: number; 
-}
-
 export default function SavingsProductManagementPage() {
+    const router = useRouter();
     const [products, setProducts] = useState<SoTietKiemDTO[]>([]);
     const [categories, setCategories] = useState<LoaiSoTietKiemDanhMucDTO[]>([]);
     const [loading, setLoading] = useState(true);
-    const [formSubmitting, setFormSubmitting] = useState(false);
     const [pageError, setPageError] = useState<string | null>(null);
-    const [modalFormError, setModalFormError] = useState<string | null>(null);
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [currentEditingProductData, setCurrentEditingProductData] = useState<SavingProductFormState | null>(null);
 
     // Logic fetch, open/close modal, save, delete giữ nguyên như phiên bản trước
     const fetchData = async () => {
@@ -44,34 +34,11 @@ export default function SavingsProductManagementPage() {
             setProducts([]); setCategories([]);
         } finally { setLoading(false); }
     };
-    useEffect(() => { fetchData(); }, []);
-    const handleOpenAddModal = () => {
-        setCurrentEditingProductData(null); 
-        setModalFormError(null); setIsModalOpen(true);
+    useEffect(() => { fetchData(); }, []);    const handleOpenAddModal = () => {
+        router.push('/admin/savings-products-management/create-savings-products');
+    };    const handleOpenEditModal = (product: SoTietKiemDTO) => {        router.push(`/admin/savings-products-management/edit-savings-products?id=${product.maSo}`);
     };
-    const handleOpenEditModal = (product: SoTietKiemDTO) => {
-        setCurrentEditingProductData({
-            maSo: product.maSo, tenSo: product.tenSo, kyHan: product.kyHan, laiSuat: product.laiSuat,
-            tienGuiBanDauToiThieu: product.tienGuiBanDauToiThieu, tienGuiThemToiThieu: product.tienGuiThemToiThieu,
-            soNgayGuiToiThieuDeRut: product.soNgayGuiToiThieuDeRut || null,
-            maLoaiDanhMuc: product.loaiSoTietKiemDanhMuc?.maLoaiSoTietKiem || undefined,
-        });
-        setModalFormError(null); setIsModalOpen(true);
-    };
-    const handleCloseModal = () => {
-        setIsModalOpen(false); setCurrentEditingProductData(null); setModalFormError(null);
-     };
-    const handleSaveProduct = async (productData: SoTietKiemRequest, id?: number) => {
-        setFormSubmitting(true); setModalFormError(null);
-        try {
-            if (id) { await adminUpdateSavingsProduct(id, productData); } 
-            else { await adminCreateSavingsProduct(productData); }
-            await fetchData(); handleCloseModal();
-        } catch (err: any) {
-            setModalFormError(err.message || "Có lỗi xảy ra khi lưu sản phẩm.");
-            console.error("Lỗi khi lưu sản phẩm:", err);
-        } finally { setFormSubmitting(false); }
-     };
+
     const handleDeleteProduct = async (productId: number, productName: string) => { 
         if (window.confirm(`Bạn có chắc muốn xóa sản phẩm "${productName}"?`)) {
             try {
@@ -199,37 +166,8 @@ export default function SavingsProductManagementPage() {
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                )}
+                    </div>                )}
             </main>
-
-            {isModalOpen && (
-                <SavingsProductFormModal
-                    isOpen={isModalOpen}
-                    onClose={handleCloseModal}
-                    onSave={handleSaveProduct}
-                    initialData={currentEditingProductData}
-                    categories={categories}
-                    formError={modalFormError}
-                    setFormError={setModalFormError} 
-                    formLoading={formSubmitting}
-                />
-            )}
-             <style jsx global>{`
-                /* ... (keyframes modalShow và custom-scrollbar giữ nguyên) ... */
-                @keyframes modalShow {
-                    from { opacity: 0; transform: scale(0.95) translateY(-20px); }
-                    to { opacity: 1; transform: scale(1) translateY(0); }
-                }
-                .animate-modalShow {
-                    animation: modalShow 0.3s ease-out forwards;
-                }
-                .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-                .custom-scrollbar::-webkit-scrollbar-track { background: #f3f4f6; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-                .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #d1d5db #f3f4f6; }
-            `}</style>
         </div> 
         </ProtectedRoute>
     );
