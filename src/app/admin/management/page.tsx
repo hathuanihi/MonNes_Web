@@ -2,10 +2,10 @@
 
 import Image from "next/image";
 import { useState, useEffect, ChangeEvent } from "react";
+import { useRouter } from "next/navigation";
 import SearchIcon from "@/assets/icon/Vector.png"; 
 import UserAvatarIcon from "@/assets/icon/Name.png"; 
-import DropdownArrowIcon from "@/assets/icon/DropdownArrow.png";
-import UserInfoModal from '@/components/modal/UserInforModal'; 
+import DropdownArrowIcon from "@/assets/icon/DropdownArrow.png"; 
 
 import { 
     adminGetAllUsersWithDetails, 
@@ -165,11 +165,10 @@ function UserDetailPanel({ user, onClose, onEdit, onDelete }: UserDetailPanelPro
 
 // --- COMPONENT UserManagementPage ---
 export default function UserManagementPage() {
+    const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
     const [users, setUsers] = useState<UserDetailDTO[]>([]);
     const [selectedUser, setSelectedUser] = useState<UserDetailDTO | null>(null);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [userToEdit, setUserToEdit] = useState<UserDetailDTO | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -198,31 +197,9 @@ export default function UserManagementPage() {
         setSelectedUser(prevUser => (prevUser && prevUser.maND === user.maND) ? null : user);
     };
     
-    const handleOpenEditModal = (userToEditData: UserDetailDTO) => { 
-        setUserToEdit(userToEditData);
-        setIsEditModalOpen(true);
+    const handleEditUser = (userToEdit: UserDetailDTO) => {
+        router.push(`/admin/management/updateprofile?userId=${userToEdit.maND}`);
     };
-
-    const handleCloseEditModal = () => {
-        setIsEditModalOpen(false);
-        setUserToEdit(null);
-     };
-    
-    const handleUpdateUserSuccess = async (updatedUserResponse: UserResponse) => {
-        fetchUsers(); 
-        handleCloseEditModal();
-        if (selectedUser && selectedUser.maND === updatedUserResponse.id) {
-            try {
-                 const refreshedUsers = await adminGetAllUsersWithDetails();
-                 const foundUser = refreshedUsers.find(u => u.maND === updatedUserResponse.id);
-                 if (foundUser) setSelectedUser(foundUser);
-                 else setSelectedUser(null); 
-            } catch (e) {
-                console.error("Lỗi khi làm mới selected user:", e);
-                setSelectedUser(null);
-            }
-        }
-     };
 
     const handleDeleteUser = async (userId: number, userName: string) => { 
         if (window.confirm(`Bạn có chắc muốn xóa người dùng "${userName}" (ID: ${userId})?`)) {
@@ -276,7 +253,7 @@ export default function UserManagementPage() {
             {/* Container cho toàn bộ nội dung bên dưới search bar */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col overflow-hidden">
-                    {error && !isEditModalOpen && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4 text-center">{error}</p>}
+                    {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4 text-center">{error}</p>}
 
                     {/* Container cho 2 cột */}
                     <div className="flex-1 flex flex-col md:flex-row gap-6 overflow-hidden">
@@ -306,7 +283,7 @@ export default function UserManagementPage() {
                                 <UserDetailPanel 
                                     user={selectedUser} 
                                     onClose={() => setSelectedUser(null)}
-                                    onEdit={handleOpenEditModal}
+                                    onEdit={handleEditUser}
                                     onDelete={handleDeleteUser}
                                 />
                             ) : (
@@ -319,13 +296,6 @@ export default function UserManagementPage() {
                 </main>
             </div>
 
-            {isEditModalOpen && userToEdit && (
-                <UserInfoModal
-                    userToEdit={userToEdit}
-                    onUpdateSuccess={handleUpdateUserSuccess}
-                    onClose={handleCloseEditModal}
-                />
-            )}
             <style jsx global>{`
                 .custom-scrollbar::-webkit-scrollbar { width: 6px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
