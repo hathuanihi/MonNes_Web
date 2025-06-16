@@ -52,7 +52,11 @@ export default function DepositPage() {
         router.push("/user/yoursavings");
       }, 1000);
     } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || "Có lỗi xảy ra, vui lòng thử lại.");
+      if (err?.response?.status === 500) {
+        setError("Bạn chưa được phép nạp tiền vào sổ này.");
+      } else {
+        setError("Bạn chưa được phép nạp tiền vào sổ này.");
+      }
     } finally {
       setLoading(false);
     }

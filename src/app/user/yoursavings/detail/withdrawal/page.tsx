@@ -87,25 +87,13 @@ export default function WithdrawalPage() {
         router.push("/user/yoursavings");
       }, 1000);
     } catch (err: any) {
-      console.log('Error object:', err); // Debug log
-      console.log('Error response:', err?.response); // Debug log
-      console.log('Status code:', err?.response?.status); // Debug log
-      
       const statusCode = err?.response?.status || err?.status;
       
-      if (statusCode === 500) {
-        // Phân biệt thông báo theo loại sổ tiết kiệm
-        if (!savingsDetail?.kyHanSanPham || savingsDetail.kyHanSanPham === 0) {
-          setError("Bạn chỉ có thể rút tiền sau 15 ngày kể từ ngày mở sổ.");
-        } else {
-          setError("Bạn chỉ được phép rút tiền từ ngày đáo hạn.");
-        }
-        return; // Đảm bảo không chạy xuống else
+      if (statusCode == 500) {
+        setError("Bạn chưa được phép rút tiền từ sổ này.");
+      } else {
+        setError("Bạn chưa được phép rút tiền từ sổ này.");
       }
-      
-      // Xử lý các lỗi khác
-      const errorMessage = err?.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại.";
-      setError(errorMessage);
     } finally {
       setLoading(false);
     }

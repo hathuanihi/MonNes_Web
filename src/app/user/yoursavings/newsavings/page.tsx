@@ -7,7 +7,6 @@ import React,
     FormEvent, 
     ChangeEvent 
 } from "react";
-import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from "next/navigation";
 import UserHeader from "@/components/header/UserHeader"; 
 import { 
@@ -45,6 +44,7 @@ export default function CreateNewSavingsPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [apiError, setApiError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
     const [showProfileUpdatePrompt, setShowProfileUpdatePrompt] = useState(false);
 
     const USER_HEADER_HEIGHT_STYLE = '5rem'; 
@@ -58,7 +58,7 @@ export default function CreateNewSavingsPage() {
                 setAvailableProducts(Array.isArray(productsData) ? productsData : []);
             } catch (error: any) {
                 console.error("Lỗi khi tải danh sách sản phẩm sổ tiết kiệm:", error);
-                toast.error("Không thể tải danh sách sản phẩm để tạo sổ.");
+                setApiError("Không thể tải danh sách sản phẩm để tạo sổ.");
             } finally {
                 setLoadingProducts(false);
             }
@@ -92,6 +92,13 @@ export default function CreateNewSavingsPage() {
         }));
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
+        }
+        // Clear error and success messages when user starts typing
+        if (apiError) {
+            setApiError(null);
+        }
+        if (success) {
+            setSuccess(null);
         }
         if (name === "soTietKiemSanPhamId" && value === "") { // Reset chi tiết nếu không chọn sản phẩm
              setSelectedProductDetails({ kyHan: null, laiSuat: null });
@@ -134,6 +141,7 @@ export default function CreateNewSavingsPage() {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setApiError(null);
+        setSuccess(null);
         setShowProfileUpdatePrompt(false);
         if (!validateForm()) {
             return;
@@ -149,8 +157,10 @@ export default function CreateNewSavingsPage() {
 
             const response = await userCreateSavingsAccount(requestData);
             console.log("Sổ tiết kiệm đã được tạo:", response);
-            toast.success("Tạo sổ tiết kiệm thành công!");
-            router.push("/user/yoursavings"); 
+            setSuccess("Tạo sổ tiết kiệm thành công!");
+            setTimeout(() => {
+                router.push("/user/yoursavings");
+            }, 1500);
         } catch (error: any) {
             const errMsg = (error.message || "").toLowerCase();
             const statusCode = error.response?.status;
@@ -161,13 +171,13 @@ export default function CreateNewSavingsPage() {
                 error.message?.includes("Full authentication is required to access this resource")
             ) {
                 setShowProfileUpdatePrompt(true);
-                toast.error("Bạn cần phải cập nhật đầy đủ thông tin cá nhân trước");
+                setApiError("Bạn cần phải cập nhật đầy đủ thông tin cá nhân trước");
                 return;
             }
             
             if (statusCode === 401 || statusCode === 400) {
                 setShowProfileUpdatePrompt(true);
-                toast.error("Bạn cần phải cập nhật thông tin cá nhân trước khi mở sổ tiết kiệm.");
+                setApiError("Bạn cần phải cập nhật thông tin cá nhân trước khi mở sổ tiết kiệm.");
                 return;
             }
 
@@ -179,12 +189,12 @@ export default function CreateNewSavingsPage() {
                 errMsg.includes("thong tin cá nhân")
             ) {
                 setShowProfileUpdatePrompt(true);
-                toast.error("Bạn cần cập nhật đầy đủ thông tin cá nhân trước khi mở sổ tiết kiệm.");
+                setApiError("Bạn cần cập nhật đầy đủ thông tin cá nhân trước khi mở sổ tiết kiệm.");
                 return;
             }
             
             // Các lỗi khác
-            toast.error(error.message || "Tạo sổ tiết kiệm thất bại. Vui lòng thử lại.");
+            setApiError(error.message || "Tạo sổ tiết kiệm thất bại. Vui lòng thử lại.");
         } finally {
             setIsSubmitting(false);
         }
@@ -218,6 +228,20 @@ export default function CreateNewSavingsPage() {
                                 >
                                     Cập nhật hồ sơ cá nhân
                                 </button>
+                            </div>
+                        )}
+
+                        {/* Error Message */}
+                        {apiError && (
+                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                                {apiError}
+                            </div>
+                        )}
+
+                        {/* Success Message */}
+                        {success && (
+                            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+                                {success}
                             </div>
                         )}
 
@@ -321,36 +345,6 @@ export default function CreateNewSavingsPage() {
                         </form>
                     </div>
                 </div>
-                <Toaster 
-                    position="top-right"
-                    toastOptions={{
-                        duration: 4000,
-                        style: {
-                            background: '#fff',
-                            color: '#333',
-                            border: '1px solid #e2e8f0',
-                            borderRadius: '8px',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            padding: '12px 16px',
-                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        },
-                        success: {
-                            style: {
-                                border: '1px solid #10b981',
-                                background: '#f0fdf4',
-                                color: '#059669'
-                            }
-                        },
-                        error: {
-                            style: {
-                                border: '1px solid #ef4444',
-                                background: '#fef2f2',
-                                color: '#dc2626'
-                            }
-                        }
-                    }}
-                />
                 <style jsx global>{`
                     @keyframes modalShow { /* Giữ lại nếu có modal nào khác dùng */
                         from { opacity: 0; transform: scale(0.95) translateY(-20px); }
