@@ -102,7 +102,7 @@ export default function UserDashboard() {
   if (recentTransactions.length > 0 && overviewData) {
     const sorted = [...recentTransactions].sort((a, b) => new Date(a.ngayGD).getTime() - new Date(b.ngayGD).getTime());
     
-    // CẬP NHẬT 3: Thêm "INTEREST_ACCRUAL" vào logic tính toán
+    // Logic tính toán cho biểu đồ số dư
     const netChange = sorted.reduce((acc, tx) => {
         if (tx.loaiGiaoDich === 'DEPOSIT' || tx.loaiGiaoDich === 'INTEREST') return acc + tx.soTien;
         if (tx.loaiGiaoDich === 'WITHDRAW') return acc - tx.soTien;
@@ -115,7 +115,7 @@ export default function UserDashboard() {
 
     sorted.forEach(tx => {
         const date = new Date(tx.ngayGD).toLocaleDateString('vi-VN');
-        // CẬP NHẬT 3: Thêm "INTEREST_ACCRUAL" vào logic tính toán
+        // Cập nhật số dư theo từng giao dịch
         if (tx.loaiGiaoDich === 'DEPOSIT' || tx.loaiGiaoDich === 'INTEREST') currentBalance += tx.soTien;
         else if (tx.loaiGiaoDich === 'WITHDRAW') currentBalance -= tx.soTien;
         dateMap[date] = currentBalance;
