@@ -243,7 +243,9 @@ declare global {
         accountName: string;
         customerName?: string;
         balanceAfter: number;
-    }    interface TransactionReportRequest {
+    }
+
+    interface TransactionReportRequest {
         fromDate: string; // "YYYY-MM-DD"
         toDate: string; // "YYYY-MM-DD"
     }
@@ -257,6 +259,28 @@ declare global {
             to: string;
         };
         generatedAt: string;
+    }
+
+    // ============================
+    // BM5.1 - DAILY REPORT DTOs
+    // ============================
+    interface DailyReportDTO {
+        stt: number;
+        loaiTietKiem: string; // Tên sản phẩm sổ tiết kiệm
+        tongThu: number;      // Tổng tiền gửi vào
+        tongChi: number;      // Tổng lãi phải trả
+        chenhLech: number;    // Chênh lệch (tongThu - tongChi)
+    }
+
+    // ============================
+    // BM5.2 - MONTHLY REPORT DTOs
+    // ============================
+    interface MonthlyReportDTO {
+        stt: number;
+        ngay: string;         // Ngày (DD/MM/YYYY)
+        soSoMo: number;       // Số sổ mở trong ngày
+        soSoDong: number;     // Số sổ đóng trong ngày
+        chenhLech: number;    // Chênh lệch (soSoMo - soSoDong)
     }
 
     // ============================

@@ -179,7 +179,7 @@ export const userGetAllAvailableSavingsProducts = (): Promise<SoTietKiemDTO[]> =
 // REPORTS APIs
 // ============================
 
-// Admin Reports - System wide
+// Admin Reports - System wide (Legacy)
 export const adminGetTransactionReportData = async (params: TransactionReportRequest): Promise<TransactionReportDTO[]> => {
     return axiosInstance.get('/reports/transactions', { params });
 };
@@ -198,7 +198,45 @@ export const adminExportTransactionReportExcel = async (params: TransactionRepor
     });
 };
 
-// User Reports - Personal
+// BM5.1 - Báo Cáo Doanh Số Hoạt Động Ngày
+export const adminGetDailyReport = async (reportDate: string): Promise<DailyReportDTO[]> => {
+    return axiosInstance.get('/reports/daily', { params: { reportDate } });
+};
+
+export const adminExportDailyReportPDF = async (reportDate: string): Promise<Blob> => {
+    return axiosInstance.get('/reports/daily/export/pdf', { 
+        params: { reportDate },
+        responseType: 'blob'
+    });
+};
+
+export const adminExportDailyReportExcel = async (reportDate: string): Promise<Blob> => {
+    return axiosInstance.get('/reports/daily/export/excel', { 
+        params: { reportDate },
+        responseType: 'blob'
+    });
+};
+
+// BM5.2 - Báo Cáo Mở/Đóng Sổ Tháng
+export const adminGetMonthlyReport = async (fromDate: string, toDate: string): Promise<MonthlyReportDTO[]> => {
+    return axiosInstance.get('/reports/monthly', { params: { fromDate, toDate } });
+};
+
+export const adminExportMonthlyReportPDF = async (fromDate: string, toDate: string): Promise<Blob> => {
+    return axiosInstance.get('/reports/monthly/export/pdf', { 
+        params: { fromDate, toDate },
+        responseType: 'blob'
+    });
+};
+
+export const adminExportMonthlyReportExcel = async (fromDate: string, toDate: string): Promise<Blob> => {
+    return axiosInstance.get('/reports/monthly/export/excel', { 
+        params: { fromDate, toDate },
+        responseType: 'blob'
+    });
+};
+
+// User Reports - Personal (Legacy)
 export const userGetTransactionReportData = async (params: TransactionReportRequest): Promise<TransactionReportDTO[]> => {
     return axiosInstance.get('/reports/transactions/user', { params });
 };

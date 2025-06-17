@@ -168,70 +168,70 @@ export default function UserDashboard() {
   }
 
   const lineChartOptions: ChartOptions<'line'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: { duration: 1200, easing: 'easeOutQuart' },
-    interaction: {
-      intersect: false,
-      mode: 'index',
-    },
-    plugins: {
-      legend: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 1200, easing: 'easeOutQuart' },
+      interaction: {
+          intersect: false,
+          mode: 'index',
+      },
+      plugins: {
+          legend: {
+            display: false,  
+          },
+          title: {
+          display: true,
+          text: 'BIẾN ĐỘNG SỐ DƯ',
+          color: '#374151',
+          font: { size: 18, weight: 'bold', family: 'Inter, sans-serif' },
+          align: 'center',
+          padding: { top: 5, bottom: 25 },
+              },
+       tooltip: {
+      enabled: true,
+      backgroundColor: '#1F2937',
+      titleColor: '#F9FAFB',
+      bodyColor: '#F9FAFB',
+      titleFont: { size: 14, weight: 'bold' },
+      bodyFont: { size: 12 },
+      padding: 12,
+      cornerRadius: 8,
+      displayColors: false,
+      boxPadding: 4,
+      caretSize: 8,
+      callbacks: {
+        title: (context) => `Ngày: ${context[0].label}`,
+        label: (ctx: TooltipItem<'line'>) => `Số dư: ${Number(ctx.parsed.y).toLocaleString('vi-VN')} VND`,
+      },
+          },
+        },
+        scales: {
+          y: {
+      beginAtZero: false,
+      ticks: {
+          color: '#6B7280',
+          font: { size: 12 },
+                // Cập nhật callback để hiển thị số chi tiết hơn
+          callback: (value) => {
+        const num = Number(value);
+                    // Bạn có thể đặt một stepSize ở đây nếu muốn các bước nhảy cố định
+                    // Ví dụ: stepSize: 100000, // 100k
+        return num.toLocaleString('vi-VN'); // Hiển thị số đầy đủ với dấu phẩy ngăn cách
+          }
+      },
+      grid: {
+        color: '#E5E7EB',
+        // @ts-ignore
+        borderDash: [5, 5],
+      },
+          },
+          x: {
+      ticks: { color: '#6B7280', font: { size: 12 } },
+      grid: {
         display: false,
       },
-      title: {
-        display: true,
-        text: 'BIẾN ĐỘNG SỐ DƯ',
-        color: '#374151',
-        font: { size: 18, weight: 'bold', family: 'Inter, sans-serif' },
-        align: 'center',
-        padding: { top: 5, bottom: 25 },
+          },
       },
-      tooltip: {
-        enabled: true,
-        backgroundColor: '#1F2937',
-        titleColor: '#F9FAFB',
-        bodyColor: '#F9FAFB',
-        titleFont: { size: 14, weight: 'bold' },
-        bodyFont: { size: 12 },
-        padding: 12,
-        cornerRadius: 8,
-        displayColors: false,
-        boxPadding: 4,
-        caretSize: 8,
-        callbacks: {
-          title: (context) => `Ngày: ${context[0].label}`,
-          label: (ctx: TooltipItem<'line'>) => `Số dư: ${Number(ctx.parsed.y).toLocaleString('vi-VN')} VND`,
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: false,
-        ticks: { 
-            color: '#6B7280', 
-            font: { size: 12 },
-            callback: (value) => {
-                const num = Number(value);
-                if (num >= 1e9) return `${(num / 1e9).toFixed(1)} tỷ`;
-                if (num >= 1e6) return `${(num / 1e6).toFixed(0)} tr`;
-                if (num >= 1e3) return `${(num / 1e3).toFixed(0)} k`;
-                return num.toLocaleString('vi-VN');
-            }
-        },
-        grid: {
-          color: '#E5E7EB',
-          // @ts-ignore
-          borderDash: [5, 5],
-        },
-      },
-      x: {
-        ticks: { color: '#6B7280', font: { size: 12 } },
-        grid: {
-          display: false,
-        },
-      },
-    },
   };
 
   return (

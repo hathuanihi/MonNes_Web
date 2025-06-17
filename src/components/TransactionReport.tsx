@@ -154,17 +154,7 @@ const TransactionReport: React.FC<TransactionReportProps> = ({ isAdmin }) => {
     const totalTransactions = reportData?.length || 0;
     const totalAmount = reportData?.reduce((sum, transaction) => sum + transaction.amount, 0) || 0;    return (
         <div className="min-h-screen flex flex-col bg-gray-50">
-            {/* Title Header */}
-            <div className="w-full">
-                <h1
-                    className="w-full text-center text-3xl md:text-4xl font-bold text-white py-5 md:py-6 rounded-b-2xl shadow-lg"
-                    style={{
-                        background: "linear-gradient(90deg, #FF086A 0%, #FB5D5D 50%, #F19BDB 100%)",
-                    }}
-                >
-                    {isAdmin ? 'BÁO CÁO GIAO DỊCH HỆ THỐNG' : 'BÁO CÁO GIAO DỊCH CÁ NHÂN'}
-                </h1>
-            </div>            {/* Filter Form */}
+            {/* Filter Form */}
             <div className="w-full flex justify-center px-4 md:px-6 mt-8 mb-6">
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-gray-200 rounded-xl p-6 w-full max-w-5xl shadow-md">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
