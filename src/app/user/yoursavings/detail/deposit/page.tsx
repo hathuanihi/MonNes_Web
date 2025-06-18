@@ -52,11 +52,9 @@ export default function DepositPage() {
         router.push("/user/yoursavings");
       }, 1000);
     } catch (err: any) {
-      if (err?.response?.status === 500) {
-        setError("Bạn chưa được phép nạp tiền vào sổ này.");
-      } else {
-        setError("Bạn chưa được phép nạp tiền vào sổ này.");
-      }
+      console.error("Deposit error:", err);
+      // Sử dụng error message từ API interceptor
+      setError(err.message || "Không thể thực hiện giao dịch nạp tiền. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }

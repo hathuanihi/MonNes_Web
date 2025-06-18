@@ -194,7 +194,7 @@ export default function CreateNewSavingsPage() {
             }
             
             // Các lỗi khác
-            setApiError(error.message || "Tạo sổ tiết kiệm thất bại. Vui lòng thử lại.");
+            setApiError("Bạn cần cập nhật đầy đủ thông tin cá nhân trước khi mở sổ tiết kiệm.");
         } finally {
             setIsSubmitting(false);
         }
