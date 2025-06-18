@@ -134,7 +134,9 @@ const AdminReportsPage = () => {
                     >
                         HỆ THỐNG BÁO CÁO
                     </h1>
-                </div>                {/* Tab Navigation */}
+                </div>                
+                
+                {/* Tab Navigation */}
                 <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1">
                         <div className="flex space-x-1">
@@ -170,14 +172,18 @@ const AdminReportsPage = () => {
                             </button>
                         </div>
                     </div>
-                </div>                {/* Error Message */}
+                </div>                
+                
+                {/* Error Message */}
                 {error && (
                     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
                         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                             {error}
                         </div>
                     </div>
-                )}                {/* Tab Content */}
+                )}                
+                
+                {/* Tab Content */}
                 <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
                     {activeTab === 'legacy' && (
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -185,7 +191,9 @@ const AdminReportsPage = () => {
                         </div>
                     )}                    {activeTab === 'daily' && (
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                            <div className="min-h-screen flex flex-col bg-gray-50">                                {/* Filter Form */}
+                            <div className="min-h-screen flex flex-col bg-gray-50">                                
+                                
+                                {/* Filter Form */}
                                 <div className="w-full flex justify-center px-4 md:px-6 mt-8 mb-6">
                                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-gray-200 rounded-xl p-6 w-full max-w-5xl shadow-md">
                                         <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
@@ -202,7 +210,9 @@ const AdminReportsPage = () => {
                                             </div>
                                         </div>
                                     </div>
-                                </div>                                {/* Action Buttons */}
+                                </div>                                
+                                
+                                {/* Action Buttons */}
                                 <div className="w-full flex justify-center px-4 md:px-6 mb-8">
                                     <div className="flex flex-wrap gap-4 justify-center">
                                         <button
@@ -307,31 +317,33 @@ const AdminReportsPage = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                    )}                                    {/* Daily Report Table */}
+                                    )}                                    
+                                    
+                                    {/* Daily Report Table */}
                                     {dailyReportData.length > 0 && (
                                         <div className="overflow-x-auto">
                                             <table className="min-w-full divide-y divide-gray-200">
                                                 <thead className="bg-gray-50">
                                                     <tr>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STT</th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại Tiết Kiệm</th>
-                                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng Thu (VND)</th>
-                                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng Chi (VND)</th>
-                                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Chênh Lệch (VND)</th>
+                                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">STT</th>
+                                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Loại Tiết Kiệm</th>
+                                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng Thu (VND)</th>
+                                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Tổng Chi (VND)</th>
+                                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Chênh Lệch (VND)</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="bg-white divide-y divide-gray-200">
                                                     {dailyReportData.map((item) => (
                                                         <tr key={item.stt} className="hover:bg-gray-50">
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.stt}</td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.loaiTietKiem}</td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-green-600 font-medium">
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">{item.stt}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">{item.loaiTietKiem}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-green-600 font-medium">
                                                                 {item.tongThu.toLocaleString('vi-VN')}
                                                             </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-red-600 font-medium">
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-red-600 font-medium">
                                                                 {item.tongChi.toLocaleString('vi-VN')}
                                                             </td>
-                                                            <td className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${
+                                                            <td className={`px-6 py-4 whitespace-nowrap text-sm text-center font-medium ${
                                                                 item.chenhLech >= 0 ? 'text-green-600' : 'text-red-600'
                                                             }`}>
                                                                 {item.chenhLech.toLocaleString('vi-VN')}
@@ -347,7 +359,9 @@ const AdminReportsPage = () => {
                         </div>
                     )}                    {activeTab === 'monthly' && (
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                            <div className="min-h-screen flex flex-col bg-gray-50">                                {/* Filter Form */}
+                            <div className="min-h-screen flex flex-col bg-gray-50">                                
+                                
+                                {/* Filter Form */}
                                 <div className="w-full flex justify-center px-4 md:px-6 mt-8 mb-6">
                                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-gray-200 rounded-xl p-6 w-full max-w-5xl shadow-md">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -375,7 +389,9 @@ const AdminReportsPage = () => {
                                             </div>
                                         </div>
                                     </div>
-                                </div>                                {/* Action Buttons */}
+                                </div>                                
+                                
+                                {/* Action Buttons */}
                                 <div className="w-full flex justify-center px-4 md:px-6 mb-8">
                                     <div className="flex flex-wrap gap-4 justify-center">
                                         <button
@@ -480,14 +496,16 @@ const AdminReportsPage = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                    )}                                    {/* Monthly Report Table */}
+                                    )}                                    
+                                    
+                                    {/* Monthly Report Table */}
                                     {monthlyReportData.length > 0 && (
                                         <div className="overflow-x-auto">
                                             <table className="min-w-full divide-y divide-gray-200">
                                                 <thead className="bg-gray-50">
                                                     <tr>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STT</th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày</th>
+                                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">STT</th>
+                                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày</th>
                                                         <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Số Sổ Mở</th>
                                                         <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Số Sổ Đóng</th>
                                                         <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Chênh Lệch</th>
@@ -496,8 +514,8 @@ const AdminReportsPage = () => {
                                                 <tbody className="bg-white divide-y divide-gray-200">
                                                     {monthlyReportData.map((item) => (
                                                         <tr key={item.stt} className="hover:bg-gray-50">
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.stt}</td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.ngay}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">{item.stt}</td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">{item.ngay}</td>
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-blue-600 font-medium">
                                                                 {item.soSoMo}
                                                             </td>

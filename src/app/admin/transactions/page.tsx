@@ -485,7 +485,8 @@ export default function AllTransactionsPage() {
                         </div>
                     </div>
                 )}
-            </main>            <style jsx global>{`
+            </main>            
+            <style jsx global>{`
                 .custom-scrollbar::-webkit-scrollbar { 
                     width: 8px; 
                     height: 8px; 
