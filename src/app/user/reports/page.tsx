@@ -9,7 +9,8 @@ const UserReportsPage = () => {
             <div className="min-h-screen bg-gray-50">
                 <div className="fixed top-0 left-0 right-0 z-[100]">
                     <UserHeader />
-                </div>                <div className="w-full" style={{marginTop: '5rem'}}>
+                </div>                
+                <div className="w-full" style={{marginTop: '5rem'}}>
                     <h1
                         className="w-full text-center text-3xl md:text-4xl font-bold text-white py-5 md:py-6 rounded-b-2xl shadow-lg"
                         style={{

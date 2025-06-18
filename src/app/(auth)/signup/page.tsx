@@ -61,7 +61,7 @@ export default function SignUp() {
             setStep(3);
             setSuccessMessage('Xác thực thành công. Vui lòng hoàn tất thông tin đăng ký.');
         } catch (err: any) {
-            setError(err?.response?.data?.message || err?.message || 'Mã xác thực không đúng.');
+            setError('Mã xác thực không đúng.');
         } finally {
             setIsLoading(false);
         }
@@ -92,7 +92,7 @@ export default function SignUp() {
                 router.push('/signin');
             }, 2000);
         } catch (err: any) {
-            setError(err?.response?.data?.message || err?.message || 'Đăng ký thất bại.');
+            setError('Đăng ký thất bại.');
         } finally {
             setIsLoading(false);
         }

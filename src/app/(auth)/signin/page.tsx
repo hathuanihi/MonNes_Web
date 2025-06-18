@@ -59,8 +59,7 @@ export default function SignIn() {
             }, 1000);
 
         } catch (error: any) {
-            console.error('Login error:', error);
-            setErrorMsg(error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
+            setErrorMsg('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
         } finally {
             setIsLoading(false);
         }

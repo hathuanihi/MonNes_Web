@@ -34,7 +34,7 @@ export default function ResetPasswordPage() {
       setModalStep(2); // Chuyển sang bước nhập passcode
       setErrorMsg("");
     } catch (err: any) {
-      setErrorMsg(err?.response?.data?.message || err?.message || "Lỗi khi gửi mã xác thực.");
+      setErrorMsg("Lỗi khi gửi mã xác thực.");
     } finally {
       setIsLoading(false);
     }
@@ -54,7 +54,7 @@ export default function ResetPasswordPage() {
       setModalStep(3); // Chuyển sang bước đặt lại mật khẩu
       setErrorMsg("");
     } catch (err: any) {
-      setErrorMsg(err?.response?.data?.message || err?.message || "Mã xác thực không đúng. Vui lòng thử lại.");
+      setErrorMsg("Mã xác thực không đúng. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +80,7 @@ export default function ResetPasswordPage() {
       alert("Đặt lại mật khẩu thành công! Hãy đăng nhập lại.");
       window.location.href = "/signin";
     } catch (err: any) {
-      setErrorMsg(err?.response?.data?.message || err?.message || "Lỗi khi đặt lại mật khẩu.");
+      setErrorMsg("Lỗi khi đặt lại mật khẩu.");
       setIsLoading(false);
     }
   };
