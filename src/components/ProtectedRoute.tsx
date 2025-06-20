@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext'; 
 import { ReactNode, useEffect } from 'react';
+import LoadingScreen from './display/LoadingScreen';
 
 export enum Role {
     ADMIN = "ADMIN",
@@ -53,15 +54,15 @@ const ProtectedRoute = ({ children, requiredRole, isGuestRoute }: ProtectedRoute
 
     // Chỉ render loading/redirect states sau khi isLoading = false
     if (isAuthenticated && isGuestRoute) {
-        return <div>Redirecting...</div>;
+        return <LoadingScreen />;
     }
 
     if (isAuthenticated && requiredRole && userRole !== requiredRole) {
-        return <div>Redirecting...</div>;
+        return <LoadingScreen />;
     }
 
     if (!isAuthenticated && !isGuestRoute) {
-        return <div>Redirecting...</div>;
+        return <LoadingScreen />;
     }
     
     return <>{children}</>;

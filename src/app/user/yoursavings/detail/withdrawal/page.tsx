@@ -122,7 +122,7 @@ export default function WithdrawalPage() {
       const errorMessage = err?.message || "Đã có lỗi xảy ra khi rút tiền.";
       
       if (statusCode === 500) {
-        setError("Hệ thống tạm thời không thể xử lý giao dịch rút tiền. Vui lòng thử lại sau ít phút hoặc liên hệ bộ phận hỗ trợ.");
+        setError("Chưa đến thời gian rút tiền từ sổ tiết kiệm này. Vui lòng kiểm tra lại.");
       } else if (statusCode === 400) {
         setError(errorMessage);
       } else if (statusCode === 403) {

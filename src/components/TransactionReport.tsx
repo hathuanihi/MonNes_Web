@@ -57,7 +57,8 @@ const TransactionReport: React.FC<TransactionReportProps> = ({ isAdmin }) => {
         }
 
         setLoading(true);
-        setError(null);        try {
+        setError(null);        
+        try {
             const params: TransactionReportRequest = {
                 fromDate: fromDate,
                 toDate: toDate
@@ -65,7 +66,7 @@ const TransactionReport: React.FC<TransactionReportProps> = ({ isAdmin }) => {
 
             const response = isAdmin 
                 ? await adminGetTransactionReportData(params)
-                : await userGetTransactionReportData(params);            // Apply client-side filtering if transaction type is selected
+                : await userGetTransactionReportData(params);            
             let filteredData = response;
             if (transactionType) {
                 console.log('Filtering by transaction type:', transactionType);
@@ -92,7 +93,8 @@ const TransactionReport: React.FC<TransactionReportProps> = ({ isAdmin }) => {
         }
 
         setLoading(true);
-        setError(null);        try {
+        setError(null);        
+        try {
             const params: TransactionReportRequest = {
                 fromDate: fromDate,
                 toDate: toDate
@@ -144,10 +146,8 @@ const TransactionReport: React.FC<TransactionReportProps> = ({ isAdmin }) => {
             style: 'currency',
             currency: 'VND'
         }).format(amount);
-    };
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleString('vi-VN');
+    };    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('vi-VN');
     };
 
     // Calculate summary from array data
@@ -199,10 +199,11 @@ const TransactionReport: React.FC<TransactionReportProps> = ({ isAdmin }) => {
                         </div>
                     </div>
                 </div>
-            </div>            {/* Action Buttons */}
+            </div>            
+            {/* Action Buttons */}
             <div className="w-full flex justify-center px-4 md:px-6 mb-8">
                 <div className="flex flex-wrap gap-4 justify-center">
-                    <button
+                    {/* <button
                         onClick={handleGetReportData}
                         disabled={loading}
                         className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all duration-200 border border-blue-500 hover:shadow-lg transform hover:-translate-y-0.5"
@@ -255,6 +256,46 @@ const TransactionReport: React.FC<TransactionReportProps> = ({ isAdmin }) => {
                                 <span>Xuất Excel</span>
                             </div>
                         )}
+                    </button> */}
+                    <button
+                        onClick={handleGetReportData}
+                        disabled={loading}
+                        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all duration-200 border border-blue-500 hover:shadow-lg transform hover:-translate-y-0.5"
+                    >
+                        {loading ? (
+                            <div className="flex items-center space-x-2">
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    <span>Đang tải...</span>
+                                </div>
+                            ) : (
+                                'Xem báo cáo'
+                        )}
+                    </button>
+                                        
+                    <button
+                        onClick={handleExportPDF}
+                        disabled={loading}
+                        className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium rounded-lg hover:from-red-600 hover:to-red-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all duration-200 border border-red-500 hover:shadow-lg transform hover:-translate-y-0.5"
+                    >
+                        <div className="flex items-center space-x-2">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                            <span>Xuất PDF</span>
+                        </div>
+                    </button>
+                                        
+                    <button
+                        onClick={handleExportExcel}
+                        disabled={loading}
+                        className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-medium rounded-lg hover:from-green-600 hover:to-green-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all duration-200 border border-green-500 hover:shadow-lg transform hover:-translate-y-0.5"
+                    >
+                        <div className="flex items-center space-x-2">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                            <span>Xuất Excel</span>
+                        </div>
                     </button>
                 </div>
             </div>

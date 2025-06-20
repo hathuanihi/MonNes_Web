@@ -1,7 +1,6 @@
-// api.customize.ts
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import { stat } from "fs";
 
-// Hàm tiện ích để kiểm tra môi trường client-side
 const isBrowser = () => typeof window !== "undefined";
 
 const instance = axios.create({
@@ -25,25 +24,30 @@ instance.interceptors.request.use(
 );
 
 // Interceptor cho Response
-instance.interceptors.response.use(
-    function (response: AxiosResponse) {
-        // Xử lý logic khi đăng nhập thành công
-        // Backend LoginResponse: { user: { ..., vaiTro: "ADMIN" | "USER" }, token: "..." }
+instance.interceptors.response.use(    function (response: AxiosResponse) {
         const { url } = response.config;
         const { data } = response;
 
-        if (url === '/auth/signin' && data.token && data.user?.vaiTro) {
+        console.log('[API Interceptor] Response received:', { url, hasToken: !!data.token, hasUser: !!data.user });
+
+        if ((url === '/auth/signin' || url?.includes('/signin')) && data.token && data.user?.vaiTro) {
             if (isBrowser()) {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('role', data.user.vaiTro); // vaiTro là "ADMIN" hoặc "USER"
                 localStorage.setItem('userId', data.user.id);
                 localStorage.setItem('userEmail', data.user.email);
+                
+                console.log('[API Interceptor] Login successful, stored user data:', {
+                    role: data.user.vaiTro,
+                    userId: data.user.id,
+                    email: data.user.email
+                });
             }
         }
         
         // Chỉ trả về phần data cho các lời gọi API thành công
         return data ?? response;
-    },    function (error: AxiosError<any>) {
+    },function (error: AxiosError<any>) {
         // Xử lý lỗi tập trung
         let errorMessage = "Đã có lỗi xảy ra từ server.";
         const statusCode = error.response?.status;
@@ -53,7 +57,8 @@ instance.interceptors.response.use(
             errorMessage = error.response.data.message;
         } else if (error.message) {
             errorMessage = error.message;
-        }        // Xử lý chi tiết lỗi 400 cho deposit và withdraw
+        }       
+         // Xử lý chi tiết lỗi 400 cho deposit và withdraw
         if (statusCode === 400) {
             if (url?.includes('/deposit')) {
                 if (errorMessage.toLowerCase().includes('amount') || 
@@ -91,12 +96,11 @@ instance.interceptors.response.use(
                 }
             }
         }
-        
-        // Hiển thị thông báo lỗi cho người dùng (tùy chọn)
-        // toast.error(errorMessage);
+        else if (statusCode === 500) {
+            if (url?.includes('/deposit'))
+                errorMessage = "Chưa đến thời gian nạp tiền vào sổ."
+        }
 
-        // Quan trọng: Trả về một Promise.reject với một đối tượng Error tùy chỉnh
-        // để các block .catch() ở nơi gọi API có thể bắt được thông tin chi tiết.
         const customError = new Error(errorMessage);
         (customError as any).response = {
             statusCode: statusCode,
@@ -115,7 +119,7 @@ export const logout = () => {
         localStorage.removeItem('userId');
         localStorage.removeItem('userEmail');
         // Redirect về trang đăng nhập
-        window.location.href = '/auth/signin';
+        window.location.href = '/signin';
     }
 };
 

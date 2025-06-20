@@ -1,20 +1,15 @@
-// utils/download.ts
 export const downloadFile = (blob: Blob, filename: string) => {
-    // Tạo URL object từ blob
     const url = window.URL.createObjectURL(blob);
     
-    // Tạo một element <a> để trigger download
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
     link.style.display = 'none';
     
-    // Thêm vào DOM, click, và remove
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     
-    // Cleanup object URL
     window.URL.revokeObjectURL(url);
 };
 

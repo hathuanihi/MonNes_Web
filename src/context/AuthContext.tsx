@@ -21,7 +21,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true); 
     const router = useRouter();
 
-    useEffect(() => {        const validateToken = async () => {
+    useEffect(() => {        
+        const validateToken = async () => {
             const token = localStorage.getItem('token');
             console.log('AuthContext: validating token:', token ? 'Token exists' : 'No token');
               if (token) {
@@ -59,9 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setUser(null);
             }
         }
-    };
-
-    const logout = () => {
+    };    const logout = () => {
         setUser(null);
         // Xóa tất cả localStorage items liên quan đến auth
         if (typeof window !== "undefined") {
@@ -83,10 +82,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return (
         <ErrorDisplay 
           title="Lỗi Xác thực" 
-          message={error}
+          message={error}         
           onRetry={() => {
             setError(null);
-            router.push('/auth/signin');
+            router.push('/signin');
           }}
         />
       );
