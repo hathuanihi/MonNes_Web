@@ -157,13 +157,12 @@ declare global {
         ngayRut: string; // ISO Date string
         laiSuatKhiRut?: number | null;
         tienLaiThucNhan?: number | null;
-    }
-
-    interface GiaoDichDTO {
+    }    interface GiaoDichDTO {
         idGiaoDich: number;
         loaiGiaoDich: "DEPOSIT" | "WITHDRAW" | "INTEREST";
         soTien: number;
-        ngayGD: string; // "YYYY-MM-DD"
+        ngayGD?: string; // "YYYY-MM-DD" - có thể có hoặc không
+        ngayThucHien?: string; // "YYYY-MM-DD" - field chính từ backend
         maKhachHang?: number;
         tenKhachHang?: string | null;
         maSoMoTietKiem?: number;

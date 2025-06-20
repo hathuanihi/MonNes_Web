@@ -38,10 +38,13 @@ function TransactionRow({ transaction }: TransactionRowProps) {
                 <span className={`px-3 py-2 inline-flex text-xs leading-5 font-bold rounded-full items-center shadow-sm ${details.badgeClass} group-hover:shadow-md transition-shadow`}>
                     {details.text}
                 </span>
-            </td>
+            </td>           
             {/* Ngày giao dịch */}
             <td className="px-6 py-4 whitespace-nowrap text-sm text-center align-middle text-gray-600 font-medium">
-                {new Date(transaction.ngayGD).toLocaleDateString('vi-VN')}
+                {(() => {
+                    const dateField = (transaction as any).ngayThucHien || transaction.ngayGD;
+                    return dateField ? new Date(dateField).toLocaleDateString('vi-VN') : 'N/A';
+                })()}
             </td>
             {/* Khách hàng */}
             <td className="px-6 py-4 whitespace-nowrap text-sm text-center align-middle text-gray-800 font-semibold max-w-[160px] truncate" title={transaction.tenKhachHang || undefined}>
@@ -106,12 +109,13 @@ export default function AllTransactionsPage() {
         setCurrentPage(0);
     }, [pageSize]);
 
-    useEffect(() => {
+    useEffect(() => {        
         let filtered = allTransactions;
         if (dateFilter) {
             const filterDateStr = format(dateFilter, 'yyyy-MM-dd');
             filtered = filtered.filter((tran: GiaoDichDTO) => {
-                const tranDate = format(new Date(tran.ngayGD), 'yyyy-MM-dd');
+                const dateField = (tran as any).ngayThucHien || tran.ngayGD;
+                const tranDate = format(new Date(dateField), 'yyyy-MM-dd');
                 return tranDate === filterDateStr;
             });
         }
@@ -143,10 +147,12 @@ export default function AllTransactionsPage() {
                     className="w-full text-center text-3xl md:text-4xl font-bold text-white py-5 md:py-6 rounded-b-2xl shadow-lg"
                     style={{
                         background: "linear-gradient(90deg, #FF086A 0%, #FB5D5D 50%, #F19BDB 100%)",
-                    }}                >
+                    }}                
+                >
                     QUẢN LÝ GIAO DỊCH HỆ THỐNG
                 </h1>
-            </div>            {/* Filter & Search */}
+            </div>            
+            {/* Filter & Search */}
             <div className="w-full flex justify-center px-4 md:px-6 mt-6 mb-4">
                 <div className="flex items-center bg-white border border-gray-200 rounded-xl p-4 w-full max-w-4xl shadow-lg">
                     <div className="flex items-center gap-3 flex-1">

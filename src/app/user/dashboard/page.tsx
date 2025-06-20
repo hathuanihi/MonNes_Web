@@ -100,7 +100,11 @@ export default function UserDashboard() {
   let lineChartData: ChartData<'line'> = { labels: [], datasets: [] };
 
   if (recentTransactions.length > 0 && overviewData) {
-    const sorted = [...recentTransactions].sort((a, b) => new Date(a.ngayGD).getTime() - new Date(b.ngayGD).getTime());
+    const sorted = [...recentTransactions].sort((a, b) => {
+      const dateA = (a as any).ngayThucHien || a.ngayGD;
+      const dateB = (b as any).ngayThucHien || b.ngayGD;
+      return new Date(dateA).getTime() - new Date(dateB).getTime();
+    });
     
     // Logic tính toán cho biểu đồ số dư
     const netChange = sorted.reduce((acc, tx) => {
@@ -114,7 +118,8 @@ export default function UserDashboard() {
     const labelsSet = new Set<string>();
 
     sorted.forEach(tx => {
-        const date = new Date(tx.ngayGD).toLocaleDateString('vi-VN');
+        const dateField = (tx as any).ngayThucHien || tx.ngayGD;
+        const date = new Date(dateField).toLocaleDateString('vi-VN');
         // Cập nhật số dư theo từng giao dịch
         if (tx.loaiGiaoDich === 'DEPOSIT' || tx.loaiGiaoDich === 'INTEREST') currentBalance += tx.soTien;
         else if (tx.loaiGiaoDich === 'WITHDRAW') currentBalance -= tx.soTien;
@@ -398,7 +403,10 @@ export default function UserDashboard() {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-base text-center align-middle text-gray-500">
-                                    {new Date(tx.ngayGD).toLocaleDateString('vi-VN')}
+                                    {(() => {
+                                        const dateField = (tx as any).ngayThucHien || tx.ngayGD;
+                                        return dateField ? new Date(dateField).toLocaleDateString('vi-VN') : 'N/A';
+                                    })()}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-base text-center align-middle text-gray-800 font-medium max-w-[220px] truncate" title={tx.tenSoMoTietKiem || undefined}>
                                     {tx.tenSoMoTietKiem || 'N/A'}

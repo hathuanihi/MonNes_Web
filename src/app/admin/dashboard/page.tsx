@@ -1,188 +1,243 @@
 "use client";
 
 import AdminHeader from '@/components/header/AdminHeader';
+import { useEffect, useState } from 'react';
+import { adminGetSystemStatistics, adminGetAllSystemTransactions } from '@/services/api';
+import ProtectedRoute, { Role } from '@/components/ProtectedRoute';
 import { Bar } from 'react-chartjs-2';
 import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    ChartOptions,
-    ChartData,
-    ChartType, 
-    TooltipItem
-    // Scale, CoreScaleOptions, ScriptableContext, Color 
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartOptions,
+  ChartData,
+  TooltipItem
 } from 'chart.js';
-import { useEffect, useRef, useState } from 'react';
-import { adminGetSystemStatistics } from '@/services/api';
-import ProtectedRoute, { Role }from '@/components/ProtectedRoute';
 
-// Đăng ký các thành phần cần thiết cho Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
 
 // Component Dashboard chính
 export default function DashboardPage() {
-    const chartRefTodayRevenue = useRef<ChartJS<'bar', number[], string>>(null);
-    const chartRefAccessToday = useRef<ChartJS<'bar', number[], string>>(null);
-    const chartRefThisMonth = useRef<ChartJS<'bar', number[], string>>(null);
-    
-    // const [showTransactionDetails, setShowTransactionDetails] = useState(false); 
-
     const [stats, setStats] = useState<ThongKeDTO | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
-    const initialChartData: ChartData<'bar'> = { labels: [], datasets: [] };
-    const [todayRevenueChartData, setTodayRevenueChartData] = useState<ChartData<'bar'>>(initialChartData);
-    const [accessTodayChartData, setAccessTodayChartData] = useState<ChartData<'bar'>>(initialChartData);
-    const [thisMonthChartData, setThisMonthChartData] = useState<ChartData<'bar'>>(initialChartData);
+    const [monthlyRevenueData, setMonthlyRevenueData] = useState<ChartData<'bar'> | null>(null);
 
     const ADMIN_HEADER_HEIGHT_CSS_VAR = 'var(--admin-header-height, 5rem)'; 
 
-    // Hàm tạo gradient 
-    const createGradient = (chartInstance: ChartJS<ChartType, number[], string>, colorStops: {offset: number, color: string}[]) => {
-        const { ctx, chartArea } = chartInstance;
-        if (!chartArea || !ctx) return undefined;
-        const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-        colorStops.forEach(stop => gradient.addColorStop(stop.offset, stop.color));
-        return gradient;
-    };
-    
-    // useEffects để áp dụng gradient 
-    useEffect(() => { 
-        const chartInstance = chartRefTodayRevenue.current;
-        if (chartInstance?.data?.datasets?.[0]?.data?.length) {
-            // Gradient màu hồng cho doanh thu hôm nay
-            const gradient = createGradient(chartInstance, [
-                {offset: 0, color: '#FBB6CE'}, 
-                {offset: 0.5, color: '#FB5D5D'}, 
-                {offset: 1, color: '#FF086A'} 
-            ]);
-            if (gradient && chartInstance.data.datasets[0]) chartInstance.data.datasets[0].backgroundColor = gradient;
-            if (chartInstance.data.datasets[0]) chartInstance.data.datasets[0].borderColor = '#FF086A';
-            if (chartInstance.data.datasets[0]) chartInstance.data.datasets[0].borderWidth = 2;
-            chartInstance.update('none');
+    // Function để xử lý dữ liệu giao dịch thành biểu đồ tháng
+    const processTransactionsToMonthlyChart = (transactions: GiaoDichDTO[]): ChartData<'bar'> => {
+        console.log('Bắt đầu xử lý dữ liệu giao dịch:', transactions.length);
+        
+        // Tạo 12 tháng gần nhất với kiểu dữ liệu rõ ràng
+        const months: Array<{
+            label: string;
+            key: string;
+            totalRevenue: number;
+        }> = [];
+        
+        const currentDate = new Date();
+        
+        for (let i = 11; i >= 0; i--) {
+            const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+            months.push({
+                label: date.toLocaleDateString('vi-VN', { month: 'short', year: 'numeric' }),
+                key: `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`,
+                totalRevenue: 0
+            });
         }
-    }, [todayRevenueChartData]);
-    useEffect(() => { 
-        const chartInstance = chartRefAccessToday.current;
-        if (chartInstance?.data?.datasets?.[0]?.data?.length) {
-            const gradient = createGradient(chartInstance, [
-                {offset: 0, color: '#BFDBFE'}, 
-                {offset: 0.5, color: '#3B82F6'}, 
-                {offset: 1, color: '#1E40AF'} 
-            ]);
-            if (gradient && chartInstance.data.datasets[0]) chartInstance.data.datasets[0].backgroundColor = gradient;
-            if (chartInstance.data.datasets[0]) chartInstance.data.datasets[0].borderColor = '#1E40AF';
-            if (chartInstance.data.datasets[0]) chartInstance.data.datasets[0].borderWidth = 2;
-            chartInstance.update('none');
-        }
-    }, [accessTodayChartData]);
-    useEffect(() => { 
-        const chartInstance = chartRefThisMonth.current;
-        if (chartInstance?.data?.datasets?.length) {
-            const gradientRevenue = createGradient(chartInstance, [
-                {offset: 0, color: '#FED7AA'}, 
-                {offset: 0.5, color: '#FB923C'}, 
-                {offset: 1, color: '#EA580C'} 
-            ]);
-            const gradientAccounts = createGradient(chartInstance, [
-                {offset: 0, color: '#A7F3D0'}, 
-                {offset: 0.5, color: '#2DD4BF'}, 
-                {offset: 1, color: '#0D9488'} 
-            ]);
-            const gradientDataTraffic = createGradient(chartInstance, [
-                {offset: 0, color: '#E0E7FF'}, 
-                {offset: 0.5, color: '#A78BFA'}, 
-                {offset: 1, color: '#7C3AED'} 
-            ]);
-            if (chartInstance.data.datasets[0]) {
-                if(gradientRevenue) chartInstance.data.datasets[0].backgroundColor = gradientRevenue;
-                chartInstance.data.datasets[0].borderColor = '#EA580C';
-                chartInstance.data.datasets[0].borderWidth = 2;
+
+        // Xử lý từng giao dịch - cộng tất cả số tiền giao dịch
+        let processedCount = 0;
+        transactions.forEach((transaction: GiaoDichDTO) => {
+            // Ưu tiên sử dụng ngayThucHien từ backend, fallback về ngayGD nếu cần
+            const dateField = (transaction as any).ngayThucHien || transaction.ngayGD;
+            if (!dateField) {
+                console.warn('Transaction missing date field:', transaction);
+                return;
             }
-            if (chartInstance.data.datasets[1]) {
-                if(gradientAccounts) chartInstance.data.datasets[1].backgroundColor = gradientAccounts;
-                chartInstance.data.datasets[1].borderColor = '#0D9488';
-                chartInstance.data.datasets[1].borderWidth = 2;
+            
+            const transactionDate = new Date(dateField);
+            const monthKey = `${transactionDate.getFullYear()}-${(transactionDate.getMonth() + 1).toString().padStart(2, '0')}`;
+            
+            const monthData = months.find(m => m.key === monthKey);
+            if (monthData) {
+                if (transaction.loaiGiaoDich === 'DEPOSIT') { 
+                    monthData.totalRevenue += transaction.soTien; 
+                }
+                else if (transaction.loaiGiaoDich === 'INTEREST') {
+                    monthData.totalRevenue -= transaction.soTien ; 
+                }
             }
-            if (chartInstance.data.datasets[2]) {
-                if(gradientDataTraffic) chartInstance.data.datasets[2].backgroundColor = gradientDataTraffic;
-                chartInstance.data.datasets[2].borderColor = '#7C3AED';
-                chartInstance.data.datasets[2].borderWidth = 2;
-            }
-            chartInstance.update('none');
-        }
-    }, [thisMonthChartData]);
+        });
+
+        console.log(`Đã xử lý ${processedCount}/${transactions.length} giao dịch`);
+        console.log('Dữ liệu biểu đồ theo tháng:', months);
+
+        return {
+            labels: months.map(m => m.label),
+            datasets: [
+                {
+                    label: 'Tổng doanh thu',
+                    data: months.map(m => m.totalRevenue),
+                    backgroundColor: (context) => {
+                        const chart = context.chart;
+                        const {ctx, chartArea} = chart;
+                        if (!chartArea) return 'rgba(34, 197, 94, 0.8)';
+                        const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                        gradient.addColorStop(0, 'rgba(34, 197, 94, 0.8)');
+                        gradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.8)');
+                        gradient.addColorStop(1, 'rgba(147, 51, 234, 0.8)');
+                        return gradient;
+                    },
+                    borderColor: (context) => {
+                        const chart = context.chart;
+                        const {ctx, chartArea} = chart;
+                        if (!chartArea) return 'rgb(34, 197, 94)';
+                        const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                        gradient.addColorStop(0, 'rgb(34, 197, 94)');
+                        gradient.addColorStop(0.5, 'rgb(59, 130, 246)');
+                        gradient.addColorStop(1, 'rgb(147, 51, 234)');
+                        return gradient;
+                    },
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }
+            ]
+        };
+    }; 
 
     useEffect(() => {
         const fetchData = async () => { 
             try {
-                setLoading(true); setError(null);
+                setLoading(true); 
+                setError(null);
+                
+                // Fetch thống kê hệ thống
                 const statsData = await adminGetSystemStatistics();
                 setStats(statsData);
 
-                setTodayRevenueChartData({
-                    labels: ['Hôm nay'],
-                    datasets: [{ label: 'Doanh thu (VND)', data: [statsData.doanhThuHomNay || 0] }],
-                });
-                setAccessTodayChartData({
-                    labels: ['Hôm nay'],
-                    datasets: [{ label: 'Lượt truy cập', data: [statsData.luotTruyCapHomNay || 0] }],
-                });
-                setThisMonthChartData({
-                    labels: ['Tháng này'],
-                    datasets: [
-                        { label: 'Doanh thu (VND)', data: [statsData.doanhThuThangNay || 0] },
-                        { label: 'Sổ đang hoạt động', data: [statsData.tongSoTaiKhoanTietKiemDangHoatDong || 0] }
-                    ],
-                });
+                // Fetch dữ liệu giao dịch để tạo biểu đồ
+                // Sử dụng page size lớn hơn để giảm số lần request
+                console.log('Bắt đầu fetch dữ liệu giao dịch...');
+                const pageSize = 500; // Tăng page size để giảm số request
+                const firstPageTransactions = await adminGetAllSystemTransactions(0, pageSize, 'ngayThucHien,DESC');
+                let allTransactions: GiaoDichDTO[] = [...firstPageTransactions.content];
+                
+                console.log(`Trang đầu: ${firstPageTransactions.content.length} giao dịch, tổng ${firstPageTransactions.totalElements} giao dịch`);
+                
+                // Nếu có nhiều trang, fetch tất cả các trang còn lại
+                if (firstPageTransactions.totalPages > 1) {
+                    const fetchPromises = [];
+                    for (let page = 1; page < firstPageTransactions.totalPages; page++) {
+                        fetchPromises.push(adminGetAllSystemTransactions(page, pageSize, 'ngayThucHien,DESC'));
+                    }
+                    
+                    console.log(`Đang fetch ${fetchPromises.length} trang còn lại...`);
+                    const remainingPages = await Promise.all(fetchPromises);
+                    remainingPages.forEach(pageData => {
+                        allTransactions = allTransactions.concat(pageData.content);
+                    });
+                }
+
+                console.log(`Đã fetch tổng cộng ${allTransactions.length} giao dịch`);
+                
+                // Xử lý dữ liệu thành biểu đồ tháng
+                const chartData = processTransactionsToMonthlyChart(allTransactions);
+                setMonthlyRevenueData(chartData);
+
+                console.log('Hoàn thành tạo biểu đồ doanh thu theo tháng');
+                
             } catch (err: any) {
                 setError(err.message || "Không thể tải dữ liệu thống kê.");
                 console.error("Error fetching stats:", err);
-            } finally { setLoading(false); }
+            } finally { 
+                setLoading(false); 
+            }
         };
         fetchData();
     }, []);
 
-    const commonChartOptions: ChartOptions<'bar'> = { 
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-            legend: { display: true, position: 'top', labels:{color: '#4B5563', font: {size: 12}} },
-            title: { display: false },
-            tooltip: { callbacks: { label: (context: TooltipItem<'bar'>): string => {
-                let label = context.dataset.label || '';
-                if (label) { label += ': '; }
-                if (context.parsed.y !== null) { 
-                    label += Number(context.parsed.y)
-                                .toLocaleString() + (context.dataset.label?.includes('VND') ? ' VND' : (context.dataset.label === 'Lượt truy cập' || context.dataset.label === 'Sổ đang hoạt động' ? '' : '')); 
-                            }
-                return label;
-            }}}
-        },
-        scales: {
-            y: { beginAtZero: true, ticks: { color: '#6B7280', font: { size: 10 }, callback: (value) => {
-                if (typeof value === 'number') {
-                   if (value >= 1000000) return (value/1000000).toLocaleString() + ' Tr';
-                   if (value >= 1000) return (value/1000).toLocaleString() + ' K';
-                   return value.toLocaleString();
-                } return value;
-            }}, grid: { color: 'rgba(200, 200, 200, 0.2)' }},
-            x: { ticks: { color: '#6B7280', font: { size: 12 } }, grid: { display: false } },
-        },
-        elements: { bar: { borderRadius: 6, borderSkipped: false, borderWidth: 1 } }
-    };
-    const todayRevenueOptions: ChartOptions<'bar'> = { ...commonChartOptions, plugins: { ...commonChartOptions.plugins, title: {display: true, text: "Doanh Thu Hôm Nay", color: '#D14F69', font: {size: 16, weight: 600}, padding: {top:5, bottom:15} }}};
-    const accessTodayOptions: ChartOptions<'bar'> = { ...commonChartOptions, plugins: { ...commonChartOptions.plugins, title: {display: true, text: "Lượt Truy Cập Hôm Nay", color: '#3B82F6', font: {size: 16, weight: 600}, padding: {top:5, bottom:15} }}};
-    const thisMonthOptions: ChartOptions<'bar'> = { ...commonChartOptions, plugins: { ...commonChartOptions.plugins, title: {display: true, text: "Tổng Quan Tháng Này", color: '#0D9488', font: {size: 16, weight: 600}, padding: {top:5, bottom:15} }}};
-
     if (loading) return <div className="min-h-screen flex flex-col"><AdminHeader /><div className="flex-1 flex justify-center items-center" style={{paddingTop: ADMIN_HEADER_HEIGHT_CSS_VAR}}><p className="text-lg text-gray-600">Đang tải dữ liệu...</p></div></div>;
     if (error) return <div className="min-h-screen flex flex-col"><AdminHeader /><div className="flex-1 flex justify-center items-center" style={{paddingTop: ADMIN_HEADER_HEIGHT_CSS_VAR}}><p className="mt-5 text-red-600 bg-red-100 p-4 rounded-md shadow-md">{error}</p></div></div>;
     if (!stats) return <div className="min-h-screen flex flex-col"><AdminHeader /><div className="flex-1 flex justify-center items-center" style={{paddingTop: ADMIN_HEADER_HEIGHT_CSS_VAR}}><p className="mt-5 text-gray-600">Không có dữ liệu thống kê để hiển thị.</p></div></div>;
+
+    const monthlyRevenueChartOptions: ChartOptions<'bar'> = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 1200, easing: 'easeOutQuart' },
+        interaction: {
+            intersect: false,
+            mode: 'index',
+        },
+        plugins: {
+            legend: {
+                display: false,
+            },
+            title: {
+                display: true,
+                text: 'TỔNG DOANH THU THEO THÁNG (12 THÁNG GẦN NHẤT)',
+                color: '#374151',
+                font: { size: 18, weight: 'bold', family: 'Inter, sans-serif' },
+                align: 'center',
+                padding: { top: 5, bottom: 25 },
+            },
+            tooltip: {
+                enabled: true,
+                backgroundColor: '#1F2937',
+                titleColor: '#F9FAFB',
+                bodyColor: '#F9FAFB',
+                titleFont: { size: 14, weight: 'bold' },
+                bodyFont: { size: 12 },
+                padding: 12,
+                cornerRadius: 8,
+                displayColors: false,
+                boxPadding: 4,
+                caretSize: 8,
+                callbacks: {
+                    title: (context) => `Tháng ${context[0].label}`,
+                    label: (ctx: TooltipItem<'bar'>) => `Tổng doanh thu: ${Number(ctx.parsed.y).toLocaleString('vi-VN')} VND`,
+                },
+            },
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    color: '#6B7280',
+                    font: { size: 12 },
+                    callback: (value) => {
+                        const num = Number(value);
+                        if (num >= 1000000000) return `${(num / 1000000000).toFixed(1)}B`;
+                        if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+                        if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+                        return num.toLocaleString('vi-VN');
+                    }
+                },
+                grid: {
+                    color: '#E5E7EB',
+                    // @ts-ignore
+                    borderDash: [5, 5],
+                },
+            },
+            x: {
+                ticks: { 
+                    color: '#6B7280', 
+                    font: { size: 11 },
+                    maxRotation: 45,
+                    minRotation: 45
+                },
+                grid: {
+                    display: false,
+                },
+            },
+        },
+    };
 
     return (
         <ProtectedRoute requiredRole={Role.ADMIN}>
@@ -221,122 +276,21 @@ export default function DashboardPage() {
                             </div>
                         ))}
                     </div>
-                    {/* Biểu đồ */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-10 w-full max-w-6xl">
-                        <div className="bg-gradient-to-br from-pink-200 via-pink-50 to-white rounded-xl shadow-2xl p-4 lg:p-6 h-[350px] md:h-[400px] border-2 border-pink-300 transition-all duration-300 transform hover:scale-[1.03] hover:shadow-[0_8px_32px_0_rgba(255,8,106,0.18)]">
-                            <Bar ref={chartRefTodayRevenue} data={{
-                                ...todayRevenueChartData,
-                                datasets: todayRevenueChartData.datasets.map(ds => ({
-                                    ...ds,
-                                    backgroundColor: chartRefTodayRevenue.current
-                                        ? createGradient(
-                                            chartRefTodayRevenue.current,
-                                            [
-                                                { offset: 0, color: '#FBB6CE' },
-                                                { offset: 0.5, color: '#FB5D5D' },
-                                                { offset: 1, color: '#FF086A' }
-                                            ]
-                                        )
-                                        : ds.backgroundColor,
-                                    borderColor: '#FF086A',
-                                    borderWidth: 3
-                                }))
-                            }} options={todayRevenueOptions} />
-                        </div>
-                        <div className="bg-gradient-to-br from-blue-200 via-blue-50 to-white rounded-xl shadow-2xl p-4 lg:p-6 h-[350px] md:h-[400px] border-2 border-blue-300 transition-all duration-300 transform hover:scale-[1.03] hover:shadow-[0_8px_32px_0_rgba(59,130,246,0.18)]">
-                            <Bar
-                                ref={chartRefAccessToday}
-                                data={{
-                                    ...accessTodayChartData,
-                                    datasets: accessTodayChartData.datasets.map(ds => ({
-                                        ...ds,
-                                        backgroundColor: chartRefAccessToday.current
-                                            ? createGradient(
-                                                chartRefAccessToday.current as ChartJS<'bar', number[], string>,
-                                                [
-                                                    { offset: 0, color: '#BFDBFE' },
-                                                    { offset: 0.5, color: '#3B82F6' },
-                                                    { offset: 1, color: '#1E40AF' }
-                                                ]
-                                            )
-                                            : ds.backgroundColor,
-                                        borderColor: '#1E40AF',
-                                        borderWidth: 3
-                                    }))
-                                }}
-                                options={accessTodayOptions}
-                            />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 w-full max-w-6xl mb-8">
-                        <div className="bg-gradient-to-br from-orange-200 via-orange-50 to-white rounded-xl shadow-2xl p-4 lg:p-6 h-[400px] md:h-[500px] border-2 border-orange-300 transition-all duration-300 transform hover:scale-[1.03] hover:shadow-[0_8px_32px_0_rgba(251,146,60,0.18)]">
-                          {/* Doanh thu tháng này */}
-                          <Bar
-                            ref={chartRefThisMonth}
-                            data={{
-                              ...thisMonthChartData,
-                              datasets: thisMonthChartData.datasets
-                                .filter((_, i) => i === 0)
-                                .map(ds => ({
-                                  ...ds,
-                                  backgroundColor: chartRefThisMonth.current
-                                    ? createGradient(
-                                      chartRefThisMonth.current as ChartJS<'bar', number[], string>,
-                                      [
-                                        { offset: 0, color: '#FED7AA' },
-                                        { offset: 0.5, color: '#FB923C' },
-                                        { offset: 1, color: '#EA580C' }
-                                      ]
-                                    )
-                                    : ds.backgroundColor,
-                                  borderColor: '#EA580C',
-                                  borderWidth: 3
-                                }))
-                            }}
-                            options={{
-                              ...thisMonthOptions,
-                              plugins: {
-                                ...thisMonthOptions.plugins,
-                                title: {
-                                  display: true,
-                                  text: "Doanh Thu Tháng Này",
-                                  color: '#EA580C',
-                                  font: { size: 16, weight: 600 },
-                                  padding: { top: 5, bottom: 15 }
-                                }
-                              }
-                            }}
-                          />
-                        </div>
-                        <div className="bg-gradient-to-br from-purple-200 via-pink-100 to-white rounded-xl shadow-2xl p-4 lg:p-6 h-[400px] md:h-[500px] border-2 border-pink-400 transition-all duration-300 transform hover:scale-[1.03] hover:shadow-[0_8px_32px_0_rgba(255,8,106,0.18)]">
-                            {/* Sổ đang hoạt động */}
-                            <Bar ref={chartRefThisMonth} data={{
-                                ...thisMonthChartData,
-                                datasets: thisMonthChartData.datasets.filter((d, i) => i === 1).map(ds => ({
-                                    ...ds,
-                                    backgroundColor: chartRefThisMonth.current
-                                        ? createGradient(
-                                            chartRefThisMonth.current,
-                                            [
-                                                {offset: 0, color: '#FBB6CE'},
-                                                {offset: 0.5, color: '#FB5D5D'},
-                                                {offset: 1, color: '#FF086A'}
-                                            ]
-                                        )
-                                        : ds.backgroundColor,
-                                    borderColor: '#FF086A',
-                                    borderWidth: 3
-                                }))
-                            }} options={{
-                                ...thisMonthOptions,
-                                plugins: {
-                                    ...thisMonthOptions.plugins,
-                                    title: {display: true, text: "Sổ Đang Hoạt Động Tháng Này", color: '#FF086A', font: {size: 16, weight: 600}, padding: {top:5, bottom:15}}
-                                }
-                            }} />
-                        </div>
-                    </div>
 
+                    {/* Biểu đồ doanh thu theo tháng */}
+                    <div className="w-full max-w-6xl mt-8">
+                        <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 p-6 lg:p-8 border border-gray-200/80">
+                            <div className="h-[350px] md:h-[400px]">
+                                {monthlyRevenueData ? (
+                                    <Bar data={monthlyRevenueData} options={monthlyRevenueChartOptions} />
+                                ) : (
+                                    <div className="flex items-center justify-center h-full">
+                                        <p className="text-gray-500">Đang tải dữ liệu biểu đồ...</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </main>
             </div>
              <style jsx global>{`
