@@ -82,7 +82,7 @@ export default function UpdateProfilePage() {
             }, 1500);
 
         } catch (err: any) {
-            setError(err.message || "Cập nhật hồ sơ thất bại. Vui lòng thử lại.");
+            setError("Vui lòng kiểm tra lại thông tin cá nhân.");
         } finally {
             setIsSubmitting(false);
         }
