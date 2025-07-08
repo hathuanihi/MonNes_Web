@@ -35,6 +35,7 @@ export default function ResetPasswordPage() {
       setErrorMsg("");
     } catch (err: any) {
       setErrorMsg("Lỗi khi gửi mã xác thực.");
+      console.error("Error sending passcode:", err);
     } finally {
       setIsLoading(false);
     }
@@ -45,7 +46,7 @@ export default function ResetPasswordPage() {
     setIsLoading(true);
     setErrorMsg("");
     if (!passcode) {
-      setErrorMsg("Vui lòng nhập mã xác thực.");
+      setError("Vui lòng nhập mã xác thực.");
       setIsLoading(false);
       return;
     }
@@ -54,7 +55,10 @@ export default function ResetPasswordPage() {
       setModalStep(3); // Chuyển sang bước đặt lại mật khẩu
       setErrorMsg("");
     } catch (err: any) {
-      setErrorMsg("Mã xác thực không đúng. Vui lòng thử lại.");
+      if (err.response && err.response.status === 500) {
+        setError("Mã xác thực không hợp lệ hoặc đã hết hạn.");
+      }
+      else setError("Mã xác thực không đúng. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);
     }
@@ -81,6 +85,7 @@ export default function ResetPasswordPage() {
       window.location.href = "/signin";
     } catch (err: any) {
       setErrorMsg("Lỗi khi đặt lại mật khẩu.");
+      console.error("Error resetting password:", err);
       setIsLoading(false);
     }
   };
@@ -236,4 +241,8 @@ export default function ResetPasswordPage() {
       </div>
     </ProtectedRoute>
   );
+}
+
+function setError(arg0: string) {
+  throw new Error("Function not implemented.");
 }

@@ -14,46 +14,6 @@ import {
 import AdminHeader from "@/components/header/AdminHeader";
 import ProtectedRoute, { Role } from "@/components/ProtectedRoute";
 
-// --- COMPONENT UserInfoBar ---
-interface UserInfoBarProps {
-    searchTerm: string;
-    setSearchTerm: (term: string) => void;
-}
-
-function UserInfoBar({ searchTerm, setSearchTerm }: UserInfoBarProps) {
-    return (
-        <div
-            className="w-full bg-gradient-to-r from-[#FF086A] via-[#FB5D5D] to-[#F19BDB] shadow-md py-4 px-4 sm:px-6 lg:px-8 flex-shrink-0" 
-        >
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 items-center gap-x-4 gap-y-2">
-                {/* Cột 1: Thanh tìm kiếm */}
-                <div className="flex md:justify-start justify-center w-full">
-                    <div className="flex items-center bg-white border border-gray-300 rounded-full px-4 py-2 w-full max-w-xs shadow-sm">
-                        <Image src={SearchIcon} alt="Search Icon" width={16} height={16} className="mr-2 opacity-50" />
-                        <input
-                            type="text"
-                            placeholder="Tìm theo tên, email, SĐT..."
-                            value={searchTerm}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                            className="outline-none w-full text-sm placeholder-gray-500 bg-transparent"
-                        />
-                    </div>
-                </div>
-
-                {/* Cột 2: Tiêu đề (căn giữa) */}
-                <div className="flex justify-center order-first md:order-none"> 
-                    <h1 className="text-xl sm:text-2xl font-bold uppercase text-white text-center whitespace-nowrap">
-                        Quản Lý Người Dùng
-                    </h1>
-                </div>
-                
-                <div className="hidden md:flex justify-end">
-                </div>
-            </div>
-        </div>
-    );
-}
-
 // --- COMPONENT UserListItem ---
 interface UserListItemProps { user: UserDetailDTO; isSelected: boolean; onSelect: () => void; }
 function UserListItem({ user, isSelected, onSelect }: UserListItemProps) { 
@@ -93,6 +53,11 @@ function UserDetailPanel({ user, onClose, onEdit, onDelete }: UserDetailPanelPro
     const toggleSavingsDetails = (savingKey: string) => setOpenSavings(prev => ({ ...prev, [savingKey]: !prev[savingKey] }));
     const handleDeleteUser = () => onDelete(user.maND, user.tenND || user.email || `User ID ${user.maND}`);
 
+    const calculatedTotalBalance = user.danhSachSoTietKiemDaMo.reduce(
+        (total, saving) => total + (saving.soDuHienTai || 0),
+        0
+    );
+
     return (
         <div className="bg-white rounded-xl shadow-xl p-6 h-full flex flex-col">
             <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 flex-shrink-0">
@@ -113,7 +78,7 @@ function UserDetailPanel({ user, onClose, onEdit, onDelete }: UserDetailPanelPro
                 <p><strong>Địa chỉ:</strong> {user.diaChi || <span className="italic text-gray-400">Chưa cập nhật</span>}</p>
                 <p><strong>SĐT:</strong> {user.sdt || <span className="italic text-gray-400">Chưa cập nhật</span>}</p>
                 <p><strong>Ngày sinh:</strong> {user.ngaySinh ? new Date(user.ngaySinh + "T00:00:00Z").toLocaleDateString('vi-VN') : <span className="italic text-gray-400">Chưa cập nhật</span>}</p>
-                <p className="font-semibold mt-4 text-pink-600">Tổng số dư: {(user.tongSoDuTatCaSo || 0).toLocaleString()} VND</p>
+                <p className="font-semibold mt-4 text-pink-600">Tổng số dư: {calculatedTotalBalance.toLocaleString('vi-VN')} VND</p>
                 <h4 className="font-semibold pt-3 text-gray-800 border-t border-gray-200 mt-4">Sổ tiết kiệm ({user.danhSachSoTietKiemDaMo.length}):</h4>
                 {user.danhSachSoTietKiemDaMo.length > 0 ? (
                     user.danhSachSoTietKiemDaMo.map(saving => (
@@ -144,19 +109,34 @@ function UserDetailPanel({ user, onClose, onEdit, onDelete }: UserDetailPanelPro
                 ) : ( <p className="text-gray-500 italic">Chưa có sổ tiết kiệm nào.</p> )}
             </div>
             {user.vaiTro === "USER" && (
-                <div className="flex gap-4 mt-6 justify-center">
-                    <button
-                        onClick={() => onEdit(user)}
-                        className="px-5 py-2 rounded-lg bg-gradient-to-r from-blue-400 to-blue-600 text-white font-semibold shadow hover:scale-105 hover:shadow-lg transition-all duration-200"
-                    >
-                        Cập nhật
-                    </button>
-                    <button
-                        onClick={handleDeleteUser}
-                        className="px-5 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-red-500 text-white font-semibold shadow hover:scale-105 hover:shadow-lg transition-all duration-200"
-                    >
-                        Xóa người dùng
-                    </button>
+                <div className="flex flex-col items-center gap-4 mt-6">
+                    <div className="flex gap-4 justify-center">
+                        <button
+                            onClick={() => onEdit(user)}
+                            className="px-5 py-2 rounded-lg bg-gradient-to-r from-blue-400 to-blue-600 text-white font-semibold shadow hover:scale-105 hover:shadow-lg transition-all duration-200"
+                        >
+                            Cập nhật
+                        </button>
+                        <div className="relative group flex items-center">
+                            <button
+                                onClick={handleDeleteUser}
+                                disabled={calculatedTotalBalance > 0}
+                                className={`px-5 py-2 rounded-lg text-white font-semibold shadow transition-all duration-200 ${
+                                    calculatedTotalBalance > 0
+                                        ? "bg-gray-400 cursor-not-allowed"
+                                        : "bg-gradient-to-r from-pink-500 to-red-500 hover:scale-105 hover:shadow-lg"
+                                }`}
+                            >
+                                Xóa người dùng
+                            </button>
+                            {calculatedTotalBalance > 0 && (
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-xs px-3 py-1.5 text-sm font-medium text-white bg-gray-800 rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    Bạn không được phép xóa người dùng còn hoạt động trong hệ thống.
+                                    <div className="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

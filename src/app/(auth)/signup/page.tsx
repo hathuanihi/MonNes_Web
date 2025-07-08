@@ -40,7 +40,12 @@ export default function SignUp() {
             setStep(2);
             setSuccessMessage('Mã xác thực đã được gửi về email.');
         } catch (err: any) {
-            setError(err?.response?.data?.message || err?.message || 'Lỗi khi gửi mã xác thực.');
+            if (err.response.statusCode === 500) {
+                
+                setError('Email không tồn tại hoặc đã được đăng ký. Vui lòng thử lại với email khác.');
+                return;
+            }
+            else setError('Lỗi khi gửi mã xác thực.');
         } finally {
             setIsLoading(false);
         }
