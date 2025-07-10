@@ -43,6 +43,12 @@ export default function DepositPage() {
       setError("Số tiền nạp không hợp lệ.");
       return;
     }
+
+    const formattedAmount = soTien.toLocaleString('vi-VN');
+    if (!window.confirm(`Bạn chắc chắn muốn nạp ${formattedAmount} VND vào sổ?`)) {
+        return; 
+    }
+
     setLoading(true);
     try {
       await userDepositToAccount(Number(moSoIdParam), { soTien });

@@ -95,6 +95,11 @@ export default function WithdrawalPage() {
       return;
     }
 
+    const formattedAmount = soTien.toLocaleString('vi-VN');
+    if (!window.confirm(`Bạn chắc chắn muốn rút ${formattedAmount} VND từ sổ?`)) {
+        return;
+    }
+
     setLoading(true);
     
     console.log("Withdrawal Debug Info:", {
